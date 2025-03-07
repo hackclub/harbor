@@ -19,6 +19,24 @@
   --smoke: rgb(242, 242, 242);
   color: var(--black);
   background-color: var(--smoke);
+
+  /* Use the user's system font */
+  font-family: system-ui, sans-serif;
+}
+
+/* Reset the default purple and blue link colors */
+a {
+  color: inherit;
+  transition: color 100ms;
+}
+
+a:visited {
+  color: inherit;
+}
+
+/* Make it more obvious that something is a link */
+a:hover {
+  color: var(--primary-color);
 }
 
 :root.development {

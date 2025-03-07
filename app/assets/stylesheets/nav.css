@@ -7,10 +7,6 @@
   padding: 0;
 }
 
-a.nav-item {
-  text-decoration: none;
-}
-
 aside.nav {
   position: fixed;
   left: 0;

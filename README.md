@@ -11,7 +11,7 @@ $ cp .env.example .env
 # The only thing you need to set is SEED_USER_API_KEY, which should be your key 
 
 # Build & run the project
-$ docker compose run web --service-ports /bin/bash
+$ docker compose run --service-ports web /bin/bash
 
 # Now you're inside docker & you can do all the fun rails things...
 app# bin/rails s -b 0.0.0.0 # this hosts the server on your computer w/ default port 3000
@@ -28,6 +28,3 @@ $ docker compose run web --service-ports /bin/bash
 # once inside, reset the db
 app# $ bin/rails db:drop db:create db:migrate db:seed
 ```
-
-
-

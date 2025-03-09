@@ -28,13 +28,6 @@ footer {
   bottom: 0;
   width: 100%;
   padding: 10px;
-  background-color: var(--smoke);
   text-align: center;
   font-size: 12px;
-  color: var(--uchu-gray);
-  transition: all 0.2s ease;
-}
-
-footer:hover {
-  color: var(--uchu-dark-gray);
 }

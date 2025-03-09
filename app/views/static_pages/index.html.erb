@@ -19,5 +19,29 @@
         Loading project durations...
       </div>
     <% end %>
+  <% else %>
+    <div class="auth-options">
+      <%= link_to "Sign in with Slack", slack_auth_path, class: "auth-button slack" %>
+      
+      <% if Rails.env.development? %>
+        <div class="auth-divider">or</div>
+        
+        <%= form_tag email_auth_path, class: "email-auth-form" do %>
+          <div class="field">
+            <%= email_field_tag :email, nil, placeholder: "Enter your email", required: true %>
+          </div>
+          <%= submit_tag "Send sign-in link", class: "auth-button email" %>
+        <% end %>
+        <% if params[:sign_in_email] %>
+          <div class="auth-success">
+            Check your email for a sign-in link!
+          </div>
+          <% dev_tool do %>
+            Because you're on localhost, <%= link_to "click here to view the email", letter_opener_web_path %>
+          <% end %>
+        <% end %>
+
+      </div>
+    <% end %>
   <% end %>
 </div> 

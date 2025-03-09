@@ -10,6 +10,11 @@ module ApplicationHelper
     concat content_tag(element, class: "admin-tool #{class_name}", **options, &block)
   end
 
+  def dev_tool(class_name = "", element = "div", **options, &block)
+    return unless Rails.env.development?
+    concat content_tag(element, class: "dev-tool #{class_name}", **options, &block)
+  end
+
   def short_time_simple(time)
     hours = time.to_i / 3600
     minutes = (time.to_i % 3600) / 60

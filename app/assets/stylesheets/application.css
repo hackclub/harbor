@@ -10,6 +10,7 @@
  */
 
 @import "https://uchu.style/color.css";
+@import "https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css";
 
 /* colors */
 
@@ -17,8 +18,8 @@
   --muted-color: var(--uchu-gray);
   --black: rgb(42, 42, 42);
   --smoke: rgb(242, 242, 242);
-  color: var(--black);
-  background-color: var(--smoke);
+  /* color: var(--black); */
+  /* background-color: var(--smoke); */
 
   /* Use the user's system font */
   font-family: system-ui, sans-serif;
@@ -56,6 +57,12 @@ a:hover {
   background-color: var(--uchu-light-yellow);
 }
 
+.dev-tool {
+  border-radius: 5px;
+  border: 1px dashed var(--uchu-green);
+  background-color: var(--uchu-light-green);
+}
+
 .loading {
   padding: 1rem;
   color: #666;
@@ -64,4 +71,68 @@ a:hover {
 
 .project-durations {
   margin-top: 1rem;
+}
+
+.auth-options {
+  max-width: 400px;
+  margin: 2rem auto;
+  text-align: center;
+}
+
+.auth-button {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  width: 100%;
+  margin: 0.5rem 0;
+}
+
+.auth-button.slack {
+  background-color: #4A154B;
+  color: white;
+}
+
+.auth-button.email {
+  background-color: #0070f3;
+  color: white;
+}
+
+.auth-divider {
+  margin: 1rem 0;
+  color: #666;
+  position: relative;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 45%;
+  height: 1px;
+  background-color: #ddd;
+}
+
+.auth-divider::before {
+  left: 0;
+}
+
+.auth-divider::after {
+  right: 0;
+}
+
+.email-auth-form .field {
+  margin-bottom: 1rem;
+}
+
+.email-auth-form input[type="email"] {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
 }

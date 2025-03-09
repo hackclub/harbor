@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_07_201004) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_07_225347) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -24,6 +24,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_07_201004) do
     t.index ["user_id", "name"], name: "index_api_keys_on_user_id_and_name", unique: true
     t.index ["user_id", "token"], name: "index_api_keys_on_user_id_and_token", unique: true
     t.index ["user_id"], name: "index_api_keys_on_user_id"
+  end
+
+  create_table "email_addresses", force: :cascade do |t|
+    t.string "email"
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_email_addresses_on_email", unique: true
+    t.index ["user_id"], name: "index_email_addresses_on_user_id"
   end
 
   create_table "good_job_batches", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -198,9 +207,20 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_07_201004) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "sign_in_tokens", force: :cascade do |t|
+    t.string "token"
+    t.bigint "user_id", null: false
+    t.integer "auth_type"
+    t.datetime "expires_at"
+    t.datetime "used_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["token"], name: "index_sign_in_tokens_on_token"
+    t.index ["user_id"], name: "index_sign_in_tokens_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "slack_uid", null: false
-    t.string "email", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "username"
@@ -225,6 +245,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_07_201004) do
   end
 
   add_foreign_key "api_keys", "users"
+  add_foreign_key "email_addresses", "users"
   add_foreign_key "heartbeats", "users"
   add_foreign_key "leaderboard_entries", "leaderboards"
+  add_foreign_key "sign_in_tokens", "users"
 end

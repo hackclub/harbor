@@ -12,10 +12,12 @@
   <%= form_with model: @user,
     url: @is_own_settings ? my_settings_path : settings_user_path(@user),
     method: :patch do |f| %>
-      <div>
-        <%= f.label "Update my Slack status with my current project" %>
-        <%= f.check_box :uses_slack_status %>
-      </div>
+      <fieldset>
+        <label for="switch-1">
+          <input type="checkbox" id="switch-1" name="switch-1" role="switch" checked="">
+          <%= f.label "Update my Slack status with my current project" %>
+        </label>
+      </fieldset>
       <%= f.submit "Save Settings" %>
   <% end %> 
 </div>
@@ -47,9 +49,12 @@
   <h2>Config file</h2>
   <%= render "wakatime_config_display" %>
 
-  <p style="font-size: 0.8rem; color: var(--muted-color);">
-    This file is located in <code>~/.wakatime.cfg</code> on your computer.
-    You can configure it with <a href="https://github.com/wakatime/wakatime-cli/blob/develop/USAGE.md#ini-config-file">other settings</a> as well.
+  <p>
+  <br>
+    <small>
+      This file is located in <code>~/.wakatime.cfg</code> on your computer.
+      You can configure it with <a href="https://github.com/wakatime/wakatime-cli/blob/develop/USAGE.md#ini-config-file">other settings</a> as well.
+    </small>
   </p>
 </div>
 

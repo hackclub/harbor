@@ -2,11 +2,12 @@ class User < ApplicationRecord
   has_paper_trail
   encrypts :slack_access_token
 
-  validates :email, presence: true, uniqueness: true
   validates :slack_uid, presence: true, uniqueness: true
   validates :username, presence: true
 
   has_many :heartbeats
+  has_many :email_addresses
+  has_many :sign_in_tokens
 
   has_many :hackatime_heartbeats,
     foreign_key: :user_id,
@@ -144,13 +145,19 @@ class User < ApplicationRecord
     return nil unless user_data["ok"]
 
     user = find_or_initialize_by(slack_uid: data.dig("authed_user", "id"))
-    user.email = user_data.dig("user", "profile", "email")
     user.username = user_data.dig("user", "profile", "username")
     user.username ||= user_data.dig("user", "profile", "display_name_normalized")
     user.avatar_url = user_data.dig("user", "profile", "image_192") || user_data.dig("user", "profile", "image_72")
     # Store the OAuth data
     user.slack_access_token = data["authed_user"]["access_token"]
     user.slack_scopes = data["authed_user"]["scope"]&.split(/,\s*/)
+
+    # Handle email address
+    if email = user_data.dig("user", "profile", "email")
+      # Find or create email address record
+      user.email_addresses.find_or_initialize_by(email: email)
+    end
+
     user.save!
     user
   rescue => e
@@ -170,5 +177,13 @@ class User < ApplicationRecord
     return nil unless active_project
 
     heartbeats.where(project: active_project).duration_seconds
+  end
+
+  def create_email_signin_token
+    sign_in_tokens.create!(auth_type: :email)
+  end
+
+  def find_valid_token(token)
+    sign_in_tokens.valid.find_by(token: token)
   end
 end

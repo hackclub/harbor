@@ -29,6 +29,12 @@
           <% end %>
         </tbody>
       </table>
+      <p>
+        Don't see yourself on the leaderboard? You're probably one of the
+        <%= pluralize(@untracked_entries, "user") %>
+        who haven't
+        <%= link_to "updated their wakatime config", my_settings_path, target: "_blank" %>.
+      </p>
     <% else %>
       <div class="empty-state">
         <h3>No data available</h3>

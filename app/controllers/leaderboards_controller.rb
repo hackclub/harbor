@@ -1,6 +1,7 @@
 class LeaderboardsController < ApplicationController
   def index
     @leaderboard = Leaderboard.find_by(start_date: Date.current, deleted_at: nil)
+    @entries = []
 
     if @leaderboard.nil?
       LeaderboardUpdateJob.perform_later

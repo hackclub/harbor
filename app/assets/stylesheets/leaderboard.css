@@ -1,0 +1,26 @@
+.period-toggle {
+    display: inline-flex;
+    background-color: #f1f1f1;
+    border-radius: 999px;
+    padding: 4px;
+    margin-bottom: 16px;
+}
+
+.period-toggle-btn {
+    padding: 8px 16px;
+    border-radius: 999px;
+    text-decoration: none;
+    color: #444;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.period-toggle-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.period-toggle-btn:hover:not(.active) {
+    background-color: #e0e0e0;
+}

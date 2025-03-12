@@ -14,11 +14,11 @@ class LeaderboardUpdateJob < ApplicationJob
   def perform(date = Date.current, period_type = :daily)
     parsed_date = date.is_a?(Date) ? date : Date.parse(date.to_s)
     period_type = period_type.to_sym
-    
+
     if period_type == :weekly
       parsed_date = parsed_date.beginning_of_week
     end
-    
+
     leaderboard = Leaderboard.create!(
       start_date: parsed_date,
       period_type: period_type
@@ -29,10 +29,10 @@ class LeaderboardUpdateJob < ApplicationJob
     return if valid_user_ids.empty?
 
     date_range = if period_type == :weekly
-                  (parsed_date.beginning_of_day...(parsed_date + 7.days).beginning_of_day)
-                 else
-                  parsed_date.all_day
-                 end
+      (parsed_date.beginning_of_day...(parsed_date + 7.days).beginning_of_day)
+    else
+      parsed_date.all_day
+    end
 
     ActiveRecord::Base.transaction do
       valid_user_ids.each_slice(BATCH_SIZE) do |batch_user_ids|

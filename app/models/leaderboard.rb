@@ -4,7 +4,7 @@ class Leaderboard < ApplicationRecord
     dependent: :destroy
 
   validates :start_date, presence: true
-  
+
   enum :period_type, {
     daily: 0,
     weekly: 1
@@ -13,7 +13,7 @@ class Leaderboard < ApplicationRecord
   def finished_generating?
     finished_generating_at.present?
   end
-  
+
   def period_end_date
     if weekly?
       start_date + 6.days
@@ -21,7 +21,7 @@ class Leaderboard < ApplicationRecord
       start_date
     end
   end
-  
+
   def date_range_text
     if weekly?
       "#{start_date.strftime('%b %d')} - #{period_end_date.strftime('%b %d, %Y')}"

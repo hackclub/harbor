@@ -3,11 +3,11 @@ class User < ApplicationRecord
   encrypts :slack_access_token
 
   validates :slack_uid, uniqueness: true, allow_nil: true
-  validates :username, presence: true
 
   has_many :heartbeats
   has_many :email_addresses
   has_many :sign_in_tokens
+  has_many :project_repo_mappings
 
   has_many :hackatime_heartbeats,
     foreign_key: :user_id,
@@ -26,6 +26,14 @@ class User < ApplicationRecord
     clock_emoji: 1,
     compliment_text: 2
   }
+
+  def data_migration_jobs
+    GoodJob::Job.where(
+      "serialized_params->>'arguments' LIKE ?", "%#{id}%"
+    ).where(
+      "job_class = ?", "OneTime::MigrateUserFromHackatimeJob"
+    ).order(created_at: :desc).limit(10).all
+  end
 
   def format_extension_text(duration)
     case hackatime_extension_text_type
@@ -177,7 +185,7 @@ class User < ApplicationRecord
   end
 
   def active_project
-    heartbeats.order(time: :desc).first&.project
+    most_recent_direct_entry_heartbeat&.project
   end
 
   def active_project_duration

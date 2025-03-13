@@ -1,15 +1,114 @@
+/* Responsive Activity Graph CSS */
+.activity-graph-container {
+  width: 100%;
+  overflow-x: auto; /* Allow horizontal scrolling on small screens */
+  padding-bottom: 10px; /* Space for scrollbar */
+}
+
 .activity-graph {
   display: grid;
   grid-template-rows: repeat(7, 1fr);
   grid-auto-flow: column;
   gap: 1px;
-  width: max-content;
+  width: 100%; /* Take up full width */
+  min-width: min-content; /* Ensure it doesn't shrink below content size */
 }
 
-
+/* Make day squares responsive */
 .day {
-  width: 1em;
-  height: 1em;
-  border-radius: 3px; /* Slight rounding like GitHub's squares */
-  border: 1px solid var(--muted-color);
+  transition: 0.05s all;
+  width: 0.85em; /* Slightly smaller squares */
+  height: 0.85em;
+  border-radius: 3px;
+}
+
+/* Responsive adjustments for different screen sizes */
+@media (max-width: 768px) {
+  .day {
+    width: 0.7em;
+    height: 0.7em;
+  }
+}
+
+@media (min-width: 1025px) {
+  .activity-graph{
+    width: 50%;
+  }
+}
+
+/* No activity - make it a light gray instead of white */
+.day[style*="background-color: hsl(120, 100%, 100%)"] {
+  background-color: #ebedf0 !important;
+  border: 1px solid #d0d7de !important;
+}
+
+/* For lightness 90% and above - light green */
+.day[style*="background-color: hsl(120, 100%, 9"] {
+  background-color: #9be9a8 !important; 
+  border: 1px solid #85e394 !important;
+}
+
+/* For lightness around 80% - medium-light green */
+.day[style*="background-color: hsl(120, 100%, 8"] {
+  background-color: #56d364 !important;
+  border: 1px solid #46c155 !important;
+}
+
+/* For lightness around 70% - medium green */
+.day[style*="background-color: hsl(120, 100%, 7"] {
+  background-color: #40c463 !important;
+  border: 1px solid #35b058 !important;
+}
+
+/* For lightness around 60% - medium-dark green */
+.day[style*="background-color: hsl(120, 100%, 6"] {
+  background-color: #30a14e !important;
+  border: 1px solid #2a9147 !important;
+}
+
+/* For lightness around 50% - dark green */
+.day[style*="background-color: hsl(120, 100%, 5"] {
+  background-color: #2a8840 !important;
+  border: 1px solid #24753a !important;
+}
+
+/* For lightness 40% and below - very dark green */
+.day[style*="background-color: hsl(120, 100%, 4"],
+.day[style*="background-color: hsl(120, 100%, 3"],
+.day[style*="background-color: hsl(120, 100%, 2"] {
+  background-color: #216e39 !important;
+  border: 1px solid #1b5e31 !important;
+}
+
+/* Add subtle hover effect */
+.day:hover {
+  transform: scale(1.05);
+  transition: 0.05s all;
+  z-index: 5;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Improved loader animation */
+.loading {
+  padding: 1rem;
+  color: #666;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading::before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  margin-right: 10px;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: loader-spin 0.8s linear infinite;
+}
+
+@keyframes loader-spin {
+  to { transform: rotate(360deg); }
 }

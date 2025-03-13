@@ -56,6 +56,10 @@ Rails.application.routes.draw do
   patch "my/settings", to: "users#update"
   post "my/settings/migrate_heartbeats", to: "users#migrate_heartbeats", as: :my_settings_migrate_heartbeats
 
+  get "my/wakatime_setup", to: "users#wakatime_setup", as: :my_wakatime_setup
+  get "my/wakatime_setup/step-2", to: "users#wakatime_setup_step_2", as: :my_wakatime_setup_step_2
+  get "my/wakatime_setup/step-3", to: "users#wakatime_setup_step_3", as: :my_wakatime_setup_step_3
+
   post "/sailors_log/slack/commands", to: "slack#create"
   post "/timedump/slack/commands", to: "slack#create"
 
@@ -63,10 +67,16 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       get "stats", to: "stats#show"
+
+      namespace :my do
+        get "heartbeats/most_recent", to: "heartbeats#most_recent"
+        get "heartbeats", to: "heartbeats#index"
+      end
     end
+
     namespace :hackatime do
       namespace :v1 do
-        get "/", to: "hackatime#index"
+        get "/", to: "hackatime#index" # many clients seem to link this as the user's dashboard
         get "/users/:id/statusbar/today", to: "hackatime#status_bar_today"
         post "/users/:id/heartbeats", to: "hackatime#push_heartbeats"
       end

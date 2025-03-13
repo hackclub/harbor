@@ -1,0 +1,48 @@
+.project-durations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.project-duration-card {
+    background-color: var(--smoke);
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease;
+}
+
+.project-duration-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.project-header strong {
+    font-size: 1rem;
+    color: var(--primary-color);
+}
+
+.project-time {
+    font-size: 0.875rem;
+    color: var(--muted-color);
+}
+
+.project-progress-bar {
+    height: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.project-progress-bar .progress {
+    height: 100%;
+    transition: width 0.5s ease;
+}

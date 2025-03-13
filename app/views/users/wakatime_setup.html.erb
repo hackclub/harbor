@@ -1,0 +1,112 @@
+<h1>Wakatime Setup</h1>
+<p>Step 1 of 4</p>
+
+<h2>Copy and run the following commands in your terminal</h2>
+
+<div class="setup-instructions">
+  <h3>Mac/Linux users:</h3>
+<pre><code>export HACKATIME_API_KEY="<%= @current_user_api_key %>" && curl -sSL <%= root_url %>hackatime/setup.sh | bash</code></pre>
+
+<h3>Windows users:</h3>
+<pre><code>$env:HACKATIME_API_KEY="<%= @current_user_api_key %>"; iwr <%= root_url %>hackatime/setup.ps1 -UseBasicParsing | iex</code></pre>
+</div>
+
+<p class="mt-4 text-sm text-gray-600">This will create your WakaTime config file and send a test heartbeat to verify the setup.</p>
+
+<div id="heartbeat-status" class="mt-4">
+  <p>Waiting for your first heartbeat...</p>
+  <div class="progress-indicator"></div>
+</div>
+
+<p>
+  <%= link_to "Next Step", my_wakatime_setup_step_2_path, id: "next-step", style: "display: none;" %>
+</p>
+
+<script>
+  document.addEventListener('turbo:load', function() {
+    const statusDiv = document.getElementById('heartbeat-status');
+    const nextStepLink = document.getElementById('next-step');
+    let checkCount = 0;
+    const maxChecks = 60; // Stop checking after 5 minutes (60 * 5s = 5min)
+
+    function timeAgoInWords(date) {
+      const diffInSeconds = Math.floor((new Date() - new Date(date)) / 1000);
+      const diffInMinutes = Math.floor(diffInSeconds / 60);
+      const diffInHours = Math.floor(diffInMinutes / 60);
+      const diffInDays = Math.floor(diffInHours / 24);
+      const diffInMonths = Math.floor(diffInDays / 30);
+      const diffInYears = Math.floor(diffInDays / 365);
+
+      if (diffInYears > 0) {
+        return `${diffInYears} years ago`;
+      } else if (diffInMonths > 0) {
+        return `${diffInMonths} months ago`;
+      } else if (diffInDays > 0) {
+        return `${diffInDays} days ago`;
+      } else if (diffInHours > 0) {
+        return `${diffInHours} hours ago`;
+      } else if (diffInMinutes > 0) {
+        return `${diffInMinutes} minutes ago`;
+      } else {
+        return `${diffInSeconds} seconds ago`;
+      }
+    }
+
+    function checkForHeartbeats() {
+      fetch('<%= api_v1_my_heartbeats_most_recent_path %>', {
+        headers: {
+          'Authorization': 'Bearer <%= @current_user_api_key %>'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.has_heartbeat) {
+          // show time ago in human readable format
+          const timeAgo = timeAgoInWords(data.heartbeat.created_at);
+          statusDiv.innerHTML = `<p class="success">✅ Heartbeat received ${timeAgo}! You can proceed to the next step.</p>`;
+          nextStepLink.style.display = 'inline-block';
+          return; // Stop checking once we get a heartbeat
+        }
+        throw new Error('No heartbeats yet');
+      })
+      .catch(error => {
+        checkCount++;
+        if (checkCount >= maxChecks) {
+          statusDiv.innerHTML = '<p class="error">❌ No heartbeats detected after 5 minutes. Please make sure you\'ve run the command above and have the WakaTime plugin installed in your editor.</p>';
+          return; // Stop checking after max attempts
+        }
+        // Continue checking every 5 seconds
+        setTimeout(checkForHeartbeats, 5000);
+      });
+    }
+
+    // Start checking
+    checkForHeartbeats();
+  });
+</script>
+
+<style>
+  .progress-indicator {
+    width: 20px;
+    height: 20px;
+    border: 3px solid #eee;
+    border-top: 3px solid #666;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 10px 0;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .success {
+    color: #2da44e;
+    font-weight: bold;
+  }
+
+  .error {
+    color: #cf222e;
+  }
+</style>

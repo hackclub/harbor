@@ -1,19 +1,22 @@
 <%= turbo_frame_tag "activity_graph" do %>
   <%= cache ["activity_graph", current_user.id], expires_in: 5.hours do %>
-    <div class="activity-graph">
-      <% (365.days.ago.to_date..Time.current.to_date).to_a.each do |date| %>
-        <% duration = daily_durations[date] || 0 %>
-        <% # Calculate lightness from 90% (least active) to 20% (most active) %>
-        <% # if there is no duration, set lightness to 100% %>
-        <% lightness = (duration < 1.minute) ? 100 : 100 - (70.0 * duration / length_of_busiest_day) %>
-        <a class="day"
-          href="#"
-          data-date="<%= date %>"
-          data-duration="<%= distance_of_time_in_words(duration) %>"
-          title="you hacked for <%= distance_of_time_in_words(duration) %> on <%= date %>"
-          style="background-color: hsl(120, 100%, <%= lightness %>%);">
-        </a>
-      <% end %>
+    <div class="activity-graph-container">
+      <div class="activity-graph">
+        <% (365.days.ago.to_date..Time.current.to_date).to_a.each do |date| %>
+          <% duration = daily_durations[date] || 0 %>
+          <% # Calculate lightness from 90% (least active) to 20% (most active) %>
+          <% # if there is no duration, set lightness to 100% %>
+          <% lightness = (duration < 1.minute) ? 100 : 100 - (70.0 * duration / length_of_busiest_day) %>
+          <a class="day"
+            href="?date=<%= date %>"
+            data-turbo-frame="_top"
+            data-date="<%= date %>"
+            data-duration="<%= distance_of_time_in_words(duration) %>"
+            title="you hacked for <%= distance_of_time_in_words(duration) %> on <%= date %>"
+            style="background-color: hsl(120, 100%, <%= lightness %>%);">
+          </a>
+        <% end %>
+      </div>
     </div>
   <% end %>
 <% end %>

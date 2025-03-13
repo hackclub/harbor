@@ -13,7 +13,9 @@ features:
 oauth_config:
   redirect_urls:
     - http://localhost:3000/auth/slack/callback
+    - https://hackatime.hackclub.com/auth/slack/callback
     - https://timedump.hackclub.com/auth/slack/callback
+    - https://harbor.hackclub.com/auth/slack/callback
   scopes:
     user:
       - users.profile:read

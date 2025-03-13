@@ -30,7 +30,19 @@
 }
 
 .title {
+  font-weight: bolder;
+  margin-top: 0.2rem;
+  margin-bottom: 0.2rem;
+}
+
+.primary-color {
   color: var(--primary-color);
+}
+
+.flavor {
+  font-weight: thin;
+  font-style: italic;
+  color: var(--muted-color);
 }
 
 .admin-tool {
@@ -74,7 +86,7 @@
 }
 
 .auth-button.slack {
-  background-color: #4A154B;
+  background-color: #e13950;
   color: white;
 }
 
@@ -117,4 +129,23 @@
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
+}
+
+.super {
+  font-style: italic;
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0 0 0.1rem;
+}
+
+.auto-scroll {
+  /* flash a little bit yellow & leave a little bit of a border */
+  animation: flash 1s ease-in-out;
+  border: 2px solid var(--uchu-yellow);
+  border-radius: 5px;
+}
+
+@keyframes flash {
+  0% { background-color: var(--uchu-yellow); }
+  100% { background-color: transparent; }
 }

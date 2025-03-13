@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_12_110220) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_12_172534) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -179,6 +179,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_12_110220) do
     t.text "label"
   end
 
+  create_table "project_repo_mappings", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "project_name", null: false
+    t.string "repo_url", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "project_name"], name: "index_project_repo_mappings_on_user_id_and_project_name", unique: true
+    t.index ["user_id"], name: "index_project_repo_mappings_on_user_id"
+  end
+
   create_table "sailors_log_leaderboards", force: :cascade do |t|
     t.string "slack_channel_id"
     t.string "slack_uid"
@@ -227,7 +237,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_12_110220) do
   end
 
   create_table "users", force: :cascade do |t|
-    t.string "slack_uid", null: false
+    t.string "slack_uid"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "username"
@@ -255,5 +265,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_12_110220) do
   add_foreign_key "email_addresses", "users"
   add_foreign_key "heartbeats", "users"
   add_foreign_key "leaderboard_entries", "leaderboards"
+  add_foreign_key "project_repo_mappings", "users"
   add_foreign_key "sign_in_tokens", "users"
 end

@@ -54,7 +54,14 @@ class Api::Hackatime::V1::HackatimeController < ApplicationController
   def handle_heartbeat(heartbeat_array)
     results = []
     heartbeat_array.each do |heartbeat|
-      attrs = heartbeat.merge({ user_id: @user.id, source_type: :direct_entry })
+      source_type = :direct_entry
+
+      # special case: if the entity is "test.txt", this is a test heartbeat
+      if heartbeat[:entity] == "test.txt"
+        source_type = :test_entry
+      end
+
+      attrs = heartbeat.merge({ user_id: @user.id, source_type: source_type })
       new_heartbeat = Heartbeat.find_or_create_by(attrs)
       results << [ new_heartbeat.attributes, 201 ]
     rescue => e

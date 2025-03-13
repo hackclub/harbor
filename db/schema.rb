@@ -173,12 +173,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_13_205725) do
     t.integer "period_type", default: 0, null: false
   end
 
-  create_table "project_labels", id: :serial, force: :cascade do |t|
-    t.text "user_id"
-    t.text "project_key"
-    t.text "label"
-  end
-
   create_table "project_repo_mappings", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "project_name", null: false

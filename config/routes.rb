@@ -56,9 +56,10 @@ Rails.application.routes.draw do
   patch "my/settings", to: "users#update"
   post "my/settings/migrate_heartbeats", to: "users#migrate_heartbeats", as: :my_settings_migrate_heartbeats
 
-  get "my/wakatime_setup", to: "users#wakatime_setup", as: :my_wakatime_setup
-  get "my/wakatime_setup/step-2", to: "users#wakatime_setup_step_2", as: :my_wakatime_setup_step_2
-  get "my/wakatime_setup/step-3", to: "users#wakatime_setup_step_3", as: :my_wakatime_setup_step_3
+  get "my/wakatime_setup", to: "users#wakatime_setup"
+  get "my/wakatime_setup/step-2", to: "users#wakatime_setup_step_2"
+  get "my/wakatime_setup/step-3", to: "users#wakatime_setup_step_3"
+  get "my/wakatime_setup/step-4", to: "users#wakatime_setup_step_4"
 
   post "/sailors_log/slack/commands", to: "slack#create"
   post "/timedump/slack/commands", to: "slack#create"

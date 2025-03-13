@@ -43,14 +43,22 @@ class StaticPagesController < ApplicationController
 
       # Get today's leaderboard
       @leaderboard = Leaderboard.find_by(start_date: Date.current, deleted_at: nil)
-    end
+    else
+      in_past_week = Heartbeat.where("time > ?", 1.week.ago.to_f).distinct.count(:user_id)
+      in_past_day = Heartbeat.where("time > ?", 1.day.ago.to_f).distinct.count(:user_id)
+      in_past_hour = Heartbeat.where("time > ?", 1.hour.ago.to_f).distinct.count(:user_id)
+      @social_proof ||= begin
+        if in_past_hour > 5
+          "In the past hour #{in_past_hour} teenagers have logged time"
+        elsif in_past_day > 5
+          "In the past day #{in_past_day} teenagers have logged time"
+        elsif in_past_week > 5
+          "In the past week #{in_past_week} teenagers have logged time"
+        end
+      end
 
-    @active_users_count = Rails.cache.fetch("active_users_last_hour", expires_in: 1.minute) do
-      # time column is stored as a float timestamp, so convert it to float for comparison
-      Heartbeat.where("time > ?", 1.hour.ago.to_f)
-              .select(:user_id)
-              .distinct
-              .count
+      @users_tracked = Heartbeat.distinct.count(:user_id)
+      @hours_tracked = Heartbeat.duration_seconds / 3600
     end
   end
 

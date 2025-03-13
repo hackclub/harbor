@@ -6,14 +6,18 @@
   </p>
   <% unless current_user %>
     <p class="subtitle">
-      Hackatime is an open source tool for tracking your coding time.<% if @active_users_count.positive? %> <%= pluralize(@active_users_count, 'hack clubber') %> have logged time coding in the last hour.<% end %>
+      Hackatime is an open source tool for tracking your coding time.
+      <%= @social_proof %>
+    </p>
+    <p class="subtitle">
+      Tracking <span class="primary-color"><%= pluralize(@hours_tracked, 'hour') %></span> of coding across <span class="primary-color"><%= pluralize(@users_tracked, 'teenager') %></span> since <span class="primary-color">2025</span>.
     </p>
   <% end %>
   <% if current_user %>
 
     <% if @show_wakatime_setup_notice %>
       <p class="subtitle">
-        <%= link_to "Setup time tracking", my_wakatime_setup_path %>
+        <%= link_to "Set up time tracking", my_wakatime_setup_path %>
       </p>
     <% end %>
 

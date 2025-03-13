@@ -1,0 +1,19 @@
+<h1>Hackatime Set Up</h1>
+
+<p>Step 4 of 4</p>
+
+<p>
+  <%= @no_instruction_wording %> You're already done!
+</p>
+
+<div>
+  <video src="<%= FlavorText.dino_meme_videos.sample %>" autoplay loop muted playsinline controls></video>
+</div>
+
+<%= link_to my_wakatime_setup_step_2_path do %>
+  <button>Set up another editor</button>
+<% end %>
+
+<%= link_to root_path do %>
+  <button>Done</button>
+<% end %>

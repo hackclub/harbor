@@ -36,7 +36,7 @@
             <tr>
               <td><%= (index + 1).ordinalize %></td>
               <td><%= render "shared/user_mention", user: entry.user %></td>
-              <td><%= short_time_detailed(entry.total_seconds) %></td>
+              <td><%= short_time_detailed entry.total_seconds %></td>
             </tr>
           <% end %>
         </tbody>

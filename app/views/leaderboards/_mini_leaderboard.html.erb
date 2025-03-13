@@ -1,7 +1,7 @@
 <%
   entries = leaderboard.entries.includes(:user).order(total_seconds: :desc)
   if current_user
-    user_rank = entries.find_index { |entry| entry.slack_uid == current_user.slack_uid }
+    user_rank = entries.find_index { |entry| entry.user_id == current_user.id }
     if user_rank && user_rank >= 3
       # Show top 2 entries and immediate competition
       top_entries = entries[0..1]
@@ -25,7 +25,7 @@
     <div class="leaderboard-entries">
       <% mini_leaderboard_entries.each_with_index do |entry, idx| %>
         <% is_competition = !show_top_entries && idx >= 2 %>
-        <div class="leaderboard-entry <%= 'current-user' if entry.slack_uid == current_user&.slack_uid %>">
+        <div class="leaderboard-entry <%= 'current-user' if entry.user_id == current_user&.id %>">
           <% if !is_competition %>
             <% rank_emoji = case entries.index(entry)
                when 0 then "🥇"
@@ -42,7 +42,7 @@
           <span class="user" style="display: inline-block;">
             <%= render "shared/user_mention", user: entry.user %>
           </span>
-          <span class="time"><%= Time.at(entry.total_seconds).utc.strftime("%H:%M:%S") %></span>
+          <span class="time"><%= short_time_detailed entry.total_seconds %></span>
         </div>
       <% end %>
     </div>

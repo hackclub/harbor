@@ -150,6 +150,13 @@ class FlavorText
     ]
   end
 
+  def self.dino_meme_videos
+    [
+      "https://hc-cdn.hel1.your-objectstorage.com/s/v3/4154af08cda2835006529a36afc36b9dcc06d63e_untitled15_ezgif_com_crop_v1__1_.mp4",
+      "https://hc-cdn.hel1.your-objectstorage.com/s/v3/575e6cd9fc079117a34b97cd93b671f92dbe06c6_get-dinoed.mp4"
+    ]
+  end
+
   def self.motto
     [
       "track your time before it tracks you!",
@@ -164,7 +171,16 @@ class FlavorText
       "have your time and eat it too!",
       "give it some time!",
       "take a time, leave a time!",
-      "the only thing that can't be bought!"
+      "the only thing that can't be bought!",
+      "everyone always asks how i'm doing, not when i'm doing",
+      "go forth and commit times!",
+      "time you can count on!"
+    ]
+  end
+
+  def self.rare_motto
+    [
+      "I don't care what everyone else says, you're not that dumb"
     ]
   end
 end

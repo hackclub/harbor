@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_12_172534) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_13_205725) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -155,12 +155,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_12_172534) do
 
   create_table "leaderboard_entries", force: :cascade do |t|
     t.bigint "leaderboard_id", null: false
-    t.string "slack_uid", null: false
     t.integer "total_seconds", default: 0, null: false
     t.integer "rank"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["leaderboard_id", "slack_uid"], name: "idx_leaderboard_entries_on_leaderboard_and_user", unique: true
+    t.bigint "user_id", null: false
+    t.index ["leaderboard_id", "user_id"], name: "idx_leaderboard_entries_on_leaderboard_and_user", unique: true
     t.index ["leaderboard_id"], name: "index_leaderboard_entries_on_leaderboard_id"
   end
 
@@ -265,6 +265,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_12_172534) do
   add_foreign_key "email_addresses", "users"
   add_foreign_key "heartbeats", "users"
   add_foreign_key "leaderboard_entries", "leaderboards"
+  add_foreign_key "leaderboard_entries", "users"
   add_foreign_key "project_repo_mappings", "users"
   add_foreign_key "sign_in_tokens", "users"
 end

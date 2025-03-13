@@ -23,9 +23,9 @@ class LeaderboardsController < ApplicationController
                              .includes(:user)
                              .order(total_seconds: :desc)
 
-      tracked_user_ids = @leaderboard.entries.distinct.pluck(:slack_uid)
+      tracked_user_ids = @leaderboard.entries.distinct.pluck(:user_id)
 
-      @user_on_leaderboard = current_user && tracked_user_ids.include?(current_user.slack_uid)
+      @user_on_leaderboard = current_user && tracked_user_ids.include?(current_user.id)
       unless @user_on_leaderboard
         time_range = if @period_type == :weekly
                       (start_date.beginning_of_day...(start_date + 7.days).beginning_of_day)

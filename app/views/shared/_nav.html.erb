@@ -8,7 +8,7 @@
   <% if current_user %>
     <%= render "shared/user_mention", user: current_user %>
     <%= link_to "Logout", signout_path, data: { turbo_method: :delete } %>
-    <% if current_user.active_project %>
+    <% if current_user.active_project && current_user.active_project_duration > 60 %>
       <p>
         Working on: <%= current_user.active_project %>
         (<%= short_time_simple current_user.active_project_duration %> in total)

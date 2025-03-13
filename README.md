@@ -31,7 +31,7 @@ ENCRYPTION_KEY_DERIVATION_SALT=16charssalt1234
 $ docker compose run --service-ports web /bin/bash
 
 # Now, setup the database using:
-app# bin/rails db:create db:migrate db:seed
+app# bin/rails db:create db:schema:load db:seed
 
 # Now you're inside docker & you can do all the fun rails things...
 app# bin/rails s -b 0.0.0.0 # this hosts the server on your computer w/ default port 3000

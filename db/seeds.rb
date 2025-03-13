@@ -28,46 +28,7 @@ if Rails.env.development?
     puts "  Username: #{test_user.username}"
     puts "  Email: #{email.email}"
     puts "  API Key: #{api_key.token}"
-
-    # Create required tables for wakatime and sailors_log
-    ActiveRecord::Base.connection.execute(<<~SQL)
-      CREATE TABLE IF NOT EXISTS users (
-        id TEXT PRIMARY KEY,
-        api_key TEXT
-      );
-    SQL
-
-    ActiveRecord::Base.connection.execute(<<~SQL)
-      CREATE TABLE IF NOT EXISTS heartbeats (
-        id SERIAL PRIMARY KEY,
-        user_id TEXT,
-        time float8,
-        entity TEXT,
-        type TEXT,
-        category TEXT,
-        project TEXT,
-        branch TEXT,
-        language TEXT,
-        is_write BOOLEAN,
-        lines INTEGER,
-        project_root_count INTEGER,
-        line_number INTEGER,
-        cursor_position INTEGER,
-        line_additions INTEGER,
-        line_deletions INTEGER,
-        created_at TIMESTAMP,
-        updated_at TIMESTAMP
-      );
-    SQL
-
-    ActiveRecord::Base.connection.execute(<<~SQL)
-      CREATE TABLE IF NOT EXISTS project_labels (
-        id SERIAL PRIMARY KEY,
-        user_id TEXT,
-        project_key TEXT,
-        label TEXT
-      );
-    SQL
+    puts "  Sign-in Token: #{token.token}"
 
     # Create sample heartbeats
     if test_user.heartbeats.count == 0

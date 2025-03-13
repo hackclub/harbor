@@ -3,11 +3,11 @@ $configPath = "$env:USERPROFILE\.wakatime.cfg"
 New-Item -Path $configPath -Force | Out-Null
 Set-Content -Path $configPath -Value @"
 [settings]
-api_url = https://hackatime.hackclub.com/api/hackatime/v1
+api_url = $env:HACKATIME_API_URL
 api_key = $env:HACKATIME_API_KEY
 "@
 
-Write-Host "Config file created at $configPath"
+Write-Host "Config file created at $env:USERPROFILE\.wakatime.cfg"
 
 # Verify config file exists
 if (-not (Test-Path $configPath)) {
@@ -33,7 +33,7 @@ if ([string]::IsNullOrEmpty($apiUrl) -or [string]::IsNullOrEmpty($apiKey)) {
 
 Write-Host "Successfully read config:"
 Write-Host "API URL: $apiUrl"
-Write-Host "API Key: $($apiKey.Substring(0,8))..."
+Write-Host "API Key: $($apiKey.Substring(0,8))..." # Show only first 8 chars for security
 
 # Send test heartbeat using values from config
 Write-Host "Sending test heartbeat..."

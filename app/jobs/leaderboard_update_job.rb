@@ -6,18 +6,15 @@ class LeaderboardUpdateJob < ApplicationJob
 
   # Limits concurrency to 1 job per date
   good_job_control_concurrency_with(
-    key: -> { "#{arguments[0] || Date.current.to_s}_#{arguments[1] || 'daily'}" },
+    key: -> { "#{arguments[0] || 'daily'}_#{arguments[1] || Date.current.to_s}" },
     total: 1,
     drop: true
   )
 
-  def perform(date = Date.current, period_type = :daily)
+  def perform(period_type = :daily, date = Date.current)
     parsed_date = date.is_a?(Date) ? date : Date.parse(date.to_s)
-    period_type = period_type.to_sym
 
-    if period_type == :weekly
-      parsed_date = parsed_date.beginning_of_week
-    end
+    parsed_date = parsed_date.beginning_of_week if period_type == :weekly
 
     leaderboard = Leaderboard.create!(
       start_date: parsed_date,
@@ -64,6 +61,8 @@ class LeaderboardUpdateJob < ApplicationJob
                .where(start_date: parsed_date, period_type: period_type)
                .where(deleted_at: nil)
                .update_all(deleted_at: Time.current)
+
+    leaderboard
   rescue => e
     Rails.logger.error "Failed to update current leaderboard: #{e.message}"
     raise

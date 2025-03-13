@@ -11,12 +11,12 @@ Rails.application.configure do
     daily_leaderboard_update: {
       cron: "0 0 * * *",
       class: "LeaderboardUpdateJob",
-      args: [ -> { Date.current.to_s }, "daily" ]
+      args: [ :daily ]
     },
     weekly_leaderboard_update: {
       cron: "0 0 * * 1",
       class: "LeaderboardUpdateJob",
-      args: [ -> { Date.current.beginning_of_week.to_s }, "weekly" ]
+      args: [ :weekly ]
     },
     sailors_log_poll: {
       cron: "* * * * *",

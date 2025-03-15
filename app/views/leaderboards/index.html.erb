@@ -1,16 +1,28 @@
 <div class="leaderboard">
   <div class="header">
-    <h1>Today's Leaderboard</h1>
+    <h1>Leaderboard</h1>
+    
+    <div class="period-toggle">
+      <%= link_to "Daily", leaderboards_path(period_type: 'daily'), 
+                  class: "period-toggle-btn #{@period_type == :daily ? 'active' : ''}" %>
+      <%= link_to "Weekly", leaderboards_path(period_type: 'weekly'), 
+                  class: "period-toggle-btn #{@period_type == :weekly ? 'active' : ''}" %>
+    </div>
+    
     <p class="date">
-      <%= Date.current.strftime("%B %d, %Y") %>
-      <% unless @leaderboard.nil? %>
+      <% if @leaderboard %>
+        <%= @leaderboard.date_range_text %>
         <em>Updated <%= time_ago_in_words(@leaderboard.updated_at) %> ago</em>
+      <% else %>
+        <%= @period_type == :weekly ? 
+            "#{Date.current.beginning_of_week.strftime('%B %d')} - #{(Date.current.beginning_of_week + 6.days).strftime('%B %d, %Y')}" : 
+            Date.current.strftime("%B %d, %Y") %>
       <% end %>
     </p>
   </div>
 
   <div class="content">
-    <% if @entries.any? %>
+    <% if @entries&.any? %>
       <table>
         <thead>
           <tr>
@@ -24,7 +36,7 @@
             <tr>
               <td><%= (index + 1).ordinalize %></td>
               <td><%= render "shared/user_mention", user: entry.user %></td>
-              <td><%= Time.at(entry.total_seconds).utc.strftime("%H:%M:%S") %></td>
+              <td><%= short_time_detailed entry.total_seconds %></td>
             </tr>
           <% end %>
         </tbody>
@@ -40,8 +52,8 @@
     <% else %>
       <div class="empty-state">
         <h3>No data available</h3>
-        <p>Check back later for today's results!</p>
+        <p>Check back later for <%= @period_type == :weekly ? "this week's" : "today's" %> results!</p>
       </div>
     <% end %>
   </div>
-</div> 
+</div>

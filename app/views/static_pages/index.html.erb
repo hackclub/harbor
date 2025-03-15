@@ -1,12 +1,52 @@
 <div class="container">
-  <h1 class="title">Welcome to the Time Dump</h1>
-  <p class="subtitle">
-    The time dump is a place to track your time and see how you're spending your time.
+  <p class="super">aka Wakatime v2</p>
+  <h1 class="title">Keep Track of <span class="primary-color">Your</span> Coding Time</h1>
+  <p class="flavor">
+    <%= FlavorText.motto.sample %>
+    <%= @social_proof&.downcase %>
   </p>
+  <% unless current_user %>
+    <p class="subtitle">
+      Hackatime is an open source tool that helps you keep track of the time spent coding on different projects.  Ideal for statistics nerds and everyone else.
+    </p>
+    <p class="subtitle">
+      Tracking <span class="primary-color"><%= number_with_delimiter(@hours_tracked) %> <%= 'hour'.pluralize(@hours_tracked) %></span> of coding across <span class="primary-color"><%= number_with_delimiter(@users_tracked) %> <%= 'Hack Clubber'.pluralize(@users_tracked) %></span> since <span class="primary-color">2025</span>.
+    </p>
+  <% end %>
   <% if current_user %>
-    You've logged
-    <%= short_time_detailed current_user.heartbeats.today.duration_seconds %> today across
-    <%= pluralize(current_user.heartbeats.today.count, 'heartbeat') %>
+
+    <% if @show_wakatime_setup_notice %>
+      <p class="subtitle">
+        <%= link_to "Set up time tracking", my_wakatime_setup_path %>
+      </p>
+    <% end %>
+
+    <% if @show_logged_time_sentence %>
+      You've logged
+      <%= short_time_detailed current_user.heartbeats.today.duration_seconds %>
+      <% if @todays_languages.any? || @todays_editors.any? %>
+        across
+        <% if @todays_languages.any? %>
+          <% if @todays_languages.length >= 4 %>
+            <%= @todays_languages[0..1].join(", ") %> <span title="<%= @todays_languages[2..].join(", ") %>">(& <%= pluralize(@todays_languages.length - 2, 'other language') %>)</span>
+          <% else %>
+            <%= @todays_languages.to_sentence %>
+          <% end %>
+        <% end %>
+        <% if @todays_languages.any? && @todays_editors.any? %>
+          using
+        <% end %>
+        <% if @todays_editors.any? %>
+          <%= @todays_editors.to_sentence %>
+        <% end %>
+      <% end %>
+    <% else %>
+      No time logged today... but you can change that!
+    <% end %>
+
+    <% if @leaderboard %>
+      <%= render "leaderboards/mini_leaderboard", leaderboard: @leaderboard, current_user: current_user %>
+    <% end %>
 
     <%= turbo_frame_tag "activity_graph", src: activity_graph_static_pages_path do %>
       <div class="loading">
@@ -20,25 +60,38 @@
       </div>
     <% end %>
   <% else %>
-    <div class="auth-options">
-      <%= link_to "Sign in with Slack", slack_auth_path, class: "auth-button slack" %>
+    <% if @leaderboard %>
+      <h3>Today's Top Hack Clubbers</h3>
+      <%= render "leaderboards/mini_leaderboard", leaderboard: @leaderboard, current_user: nil %>
+    <% end %>
+    
+    <div class="login-grid">
+      <div class="video-container">
+        <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/eFVA_ZWnzDk?si=TcEVwiigFZh0Sp_Z&loop=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
       
-      <div class="auth-divider">or</div>
-      
-      <%= form_tag email_auth_path, class: "email-auth-form" do %>
-        <div class="field">
-          <%= email_field_tag :email, nil, placeholder: "Enter your email", required: true %>
+      <div class="auth-container">
+        <div class="auth-options">
+          <%= link_to "Sign in with Hack Club Slack", slack_auth_path, class: "auth-button slack" %>
+          
+          <div class="auth-divider">or</div>
+          
+          <%= form_tag email_auth_path, class: "email-auth-form" do %>
+            <div class="field">
+              <%= email_field_tag :email, nil, placeholder: "Enter your email", required: true %>
+            </div>
+            <%= submit_tag "Send sign-in link", class: "auth-button email" %>
+          <% end %>
+          <% if params[:sign_in_email] %>
+            <div class="auth-success">
+              Check your email for a sign-in link!
+            </div>
+            <% dev_tool do %>
+              Because you're on localhost, <%= link_to "click here to view the email", letter_opener_web_path %>
+            <% end %>
+          <% end %>
         </div>
-        <%= submit_tag "Send sign-in link", class: "auth-button email" %>
-      <% end %>
-      <% if params[:sign_in_email] %>
-        <div class="auth-success">
-          Check your email for a sign-in link!
-        </div>
-        <% dev_tool do %>
-          Because you're on localhost, <%= link_to "click here to view the email", letter_opener_web_path %>
-        <% end %>
-      <% end %>
+      </div>
     </div>
   <% end %>
 </div> 

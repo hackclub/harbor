@@ -30,7 +30,19 @@
 }
 
 .title {
+  font-weight: bolder;
+  margin-top: 0.2rem;
+  margin-bottom: 0.2rem;
+}
+
+.primary-color {
   color: var(--primary-color);
+}
+
+.flavor {
+  font-weight: thin;
+  font-style: italic;
+  color: var(--muted-color);
 }
 
 .admin-tool {
@@ -55,10 +67,55 @@
   margin-top: 1rem;
 }
 
+/* Login grid layout */
+.login-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin: 2rem 0;
+  align-items: center;
+}
+
+.video-container {
+  width: 100%;
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+  height: 0;
+  overflow: hidden;
+}
+
+.video-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+}
+
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Mobile layout - stack elements on small screens */
+@media (max-width: 768px) {
+  .login-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .video-container {
+    margin-bottom: 1rem;
+  }
+}
+
 .auth-options {
   max-width: 400px;
-  margin: 2rem auto;
+  margin: 0 auto;
   text-align: center;
+  width: 100%;
 }
 
 .auth-button {
@@ -74,7 +131,7 @@
 }
 
 .auth-button.slack {
-  background-color: #4A154B;
+  background-color: #e13950;
   color: white;
 }
 
@@ -117,4 +174,23 @@
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
+}
+
+.super {
+  font-style: italic;
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0 0 0.1rem;
+}
+
+.auto-scroll {
+  /* flash a little bit yellow & leave a little bit of a border */
+  animation: flash 1s ease-in-out;
+  border: 2px solid var(--uchu-yellow);
+  border-radius: 5px;
+}
+
+@keyframes flash {
+  0% { background-color: var(--uchu-yellow); }
+  100% { background-color: transparent; }
 }

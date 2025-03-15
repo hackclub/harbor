@@ -5,6 +5,11 @@
 <h1><%= @is_own_settings ? "My Settings" : "Settings for #{@user.username}" %></h1>
 
 <div>
+  <h2>Time tracking wizard</h2>
+  <%= link_to "Set up time tracking", my_wakatime_setup_path %>
+</div>
+
+<div>
   <h2>Slack status</h2>
   <% unless @can_enable_slack_status %>
     <%= link_to "Re-authorize with Slack to give permission to update your status", slack_auth_path %>

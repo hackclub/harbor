@@ -7,7 +7,8 @@ class Heartbeat < ApplicationRecord
 
   enum :source_type, {
     direct_entry: 0,
-    wakapi_import: 1
+    wakapi_import: 1,
+    test_entry: 2
   }
 
   # This is to prevent Rails from trying to use STI even though we have a "type" column

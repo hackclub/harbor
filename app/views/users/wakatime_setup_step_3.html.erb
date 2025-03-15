@@ -1,0 +1,52 @@
+<h1>Hackatime Set Up</h1>
+<p>Step 3 of 4</p>
+
+<h2>Install!</h2>
+
+<section>
+  <h2>Other</h2>
+  <p>
+    <em>Hackatime is WakaTime-compatible, so you can use it with any editor that WakaTime supports. For other editors, please refer to the <a href="https://wakatime.com/docs/editors">WakaTime docs</a>.</em>
+
+    <strong>⚠️ Note: skip any steps that update your ~/.wakatime.cfg file or change the api_url inside it.</strong>
+  </p>
+</section>
+  
+<section id="kicad">
+  <h2>Kicad</h2>
+  <p>
+    <em>Hackatime is WakaTime-compatible, so you can use it with any editor that WakaTime supports. For Kicad, 
+      we recommend this <a href="https://github.com/hackclub/kicad-wakatime?tab=readme-ov-file#installation">Kicad plugin built by hack clubbers</a>.</em>
+  </p>
+</section>
+
+<section id="vs-code">
+  <h2>VS Code (Visual Studio Code)</h2>
+  <p>
+    <em>Hackatime uses the vs-code WakaTime extension. For VS Code, install the <a href="https://marketplace.visualstudio.com/items?itemName=WakaTime.vscode-wakatime" target="_blank" rel="noopener noreferrer">WakaTime extension here</a>.</em>
+  </p>
+  <p>
+    You'll know it works if you see this in your status bar:
+  </p>
+  <img src="https://hc-cdn.hel1.your-objectstorage.com/s/v3/bebe242cc56bcd33bbbffad54fa04d4c66b27ee4_screenshot_2025-03-13_at_11.41.27.png" alt="WakaTime status bar in VS Code">
+
+  <%= link_to my_wakatime_setup_step_2_path do %>
+    <button>Back to editor selection</button>
+  <% end %>
+
+  <%= link_to my_wakatime_setup_step_4_path do %>
+    <button>Next Step</button>
+  <% end %>
+</section>
+
+<script>
+  function autoScroll() {
+    const editor = window.location.hash.replace("#", "");
+    if (!editor) { return }
+    const section = document.getElementById(editor);
+    if (!section) { return }
+    section.scrollIntoView({ behavior: "smooth" });
+    section.classList.add('auto-scroll')
+  }
+  autoScroll();
+</script>

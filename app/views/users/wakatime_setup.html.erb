@@ -1,0 +1,381 @@
+<h1>Hackatime Set Up</h1>
+<p>Step 1 of 4</p>
+
+<div class="setup-instructions">
+  <div id="os-detection-message" class="text-center">
+    <p>Detecting your operating system...</p>
+    <div class="progress-indicator"></div>
+  </div>
+
+  <div id="mac-linux-section" style="display: none;">
+    <h3>Mac/Linux users:</h3>
+    <ol>
+      <li>Open your terminal (on Mac it's called <i>Terminal</i>)</li>
+      <li>Copy and paste the following command into your terminal</li>
+      <li>Press <i>Return</i> to run it</li>
+    </ol>
+    <div class="code-block">
+      <code>export HACKATIME_API_KEY="<%= @current_user_api_key %>" && export HACKATIME_API_URL="<%= api_hackatime_v1_url %>" && export SUCCESS_URL="<%= root_url %>/success.txt" && curl -sSL <%= root_url %>hackatime/setup.sh | bash</code>
+      <button class="copy-button" onclick="copyCode(this)">Copy</button>
+    </div>
+    <div id="mac-linux-video-container"></div>
+    
+    <div>
+      <button id="show-windows-button" class="copy-button" onclick="toggleSection('windows')">Using Windows? Click here</button>
+      <button id="show-advanced-button-from-mac" class="copy-button" onclick="toggleSection('advanced')">Advanced/Custom Setup</button>
+    </div>
+  </div>
+
+  <div id="windows-section" style="display: none;">
+    <h3>Windows users:</h3>
+    <ol>
+      <li>Open <i>PowerShell</i></li>
+      <li>Copy and paste the following command (<i>Ctrl+V</i> to paste)</li>
+      <li>Press <i>Enter</i> to run it</li>
+    </ol>
+    <div class="code-block">
+      <code>$env:HACKATIME_API_KEY="<%= @current_user_api_key %>"; $env:HACKATIME_API_URL="<%= api_hackatime_v1_url %>"; powershell -ExecutionPolicy Bypass -Command "& {iwr <%= root_url %>hackatime/setup.ps1 -UseBasicParsing | iex}"</code>
+      <button class="copy-button" onclick="copyCode(this)">Copy</button>
+    </div>
+    <div id="windows-video-container"></div>
+    
+    <div>
+      <button id="show-mac-linux-button" class="copy-button" onclick="toggleSection('mac-linux')">Using Mac/Linux? Click here</button>
+      <button id="show-advanced-button" class="copy-button" onclick="toggleSection('advanced')">Advanced/Custom Setup</button>
+    </div>
+  </div>
+
+  <div id="advanced-section" style="display: none;">
+    <h3>Advanced/Custom Setup:</h3>
+    <p>For advanced users or custom installations, you can manually set up your Hackatime configuration.</p>
+    <p>Create or edit <code>~/.wakatime.cfg</code> with the following content:</p>
+    
+    <div class="code-block">
+      <code>[settings]
+api_url = <%= api_hackatime_v1_url %>
+api_key = <%= @current_user_api_key %></code>
+      <button class="copy-button" onclick="copyCode(this)">Copy</button>
+    </div>
+    
+    <div>
+      <button id="show-mac-linux-from-advanced-button" class="copy-button" onclick="toggleSection('mac-linux')">Using Mac/Linux? Click here</button>
+      <button id="show-windows-from-advanced-button" class="copy-button" onclick="toggleSection('windows')">Using Windows? Click here</button>
+    </div>
+  </div>
+</div>
+
+<p class="text-sm text-gray-600">This will create your Hackatime config file and send a test heartbeat to verify the set up.</p>
+
+<div id="heartbeat-status">
+  <p>Waiting for your first heartbeat...</p>
+  <div class="progress-indicator"></div>
+</div>
+
+<p>
+  <%= link_to "Next Step", my_wakatime_setup_step_2_path, id: "next-step", style: "display: none;" %>
+</p>
+
+<!-- YouTube API -->
+<script src="https://www.youtube.com/iframe_api"></script>
+
+<script>
+  let macLinuxPlayer = null;
+  let windowsPlayer = null;
+  let playerReady = false;
+  
+  // YouTube API callback
+  function onYouTubeIframeAPIReady() {
+    playerReady = true;
+    setupPlayers();
+  }
+  
+  // Function to setup YouTube players
+  function setupPlayers() {
+    // Only setup if the players haven't been created
+    if (!macLinuxPlayer) {
+      macLinuxPlayer = new YT.Player('mac-linux-video-container', {
+        height: '315',
+        width: '560',
+        videoId: 'QTwhJy7nT_w',
+        playerVars: {
+          'loop': 1,
+          'playsinline': 1,
+          'modestbranding': 1,
+          'rel': 0
+        },
+        events: {
+          'onReady': onMacLinuxPlayerReady
+        }
+      });
+    }
+    
+    if (!windowsPlayer) {
+      windowsPlayer = new YT.Player('windows-video-container', {
+        height: '315',
+        width: '560',
+        videoId: 'fX9tsiRvzhg',
+        playerVars: {
+          'loop': 1,
+          'playsinline': 1,
+          'modestbranding': 1,
+          'rel': 0
+        }
+      });
+    }
+  }
+  
+  function onMacLinuxPlayerReady(event) {
+    // Now detect OS and show relevant section
+    detectOS();
+  }
+  
+  // Detect operating system
+  function detectOS() {
+    const userAgent = window.navigator.userAgent;
+    const macLinuxSection = document.getElementById('mac-linux-section');
+    const windowsSection = document.getElementById('windows-section');
+    const osDetectionMessage = document.getElementById('os-detection-message');
+    
+    // Hide detection message
+    osDetectionMessage.style.display = 'none';
+    
+    // Check if Windows
+    if (userAgent.indexOf('Windows') !== -1) {
+      windowsSection.style.display = 'block';
+      // Play Windows video if player is ready
+      if (windowsPlayer && typeof windowsPlayer.playVideo === 'function') {
+        try {
+          windowsPlayer.playVideo();
+        } catch (e) {
+          console.error("Could not play Windows video:", e);
+        }
+      }
+    } else {
+      // Assume Mac/Linux for all other OSes
+      macLinuxSection.style.display = 'block';
+      // Play Mac/Linux video if player is ready
+      if (macLinuxPlayer && typeof macLinuxPlayer.playVideo === 'function') {
+        try {
+          macLinuxPlayer.playVideo();
+        } catch (e) {
+          console.error("Could not play Mac/Linux video:", e);
+        }
+      }
+    }
+  }
+  
+  document.addEventListener('turbo:load', function() {
+    // If the YouTube API is already loaded
+    if (window.YT && window.YT.Player) {
+      playerReady = true;
+      setupPlayers();
+    }
+    
+    // Function to toggle between OS sections
+    window.toggleSection = function(section) {
+      const macLinuxSection = document.getElementById('mac-linux-section');
+      const windowsSection = document.getElementById('windows-section');
+      const advancedSection = document.getElementById('advanced-section');
+      
+      // Hide all sections first
+      macLinuxSection.style.display = 'none';
+      windowsSection.style.display = 'none';
+      advancedSection.style.display = 'none';
+      
+      // Pause both videos
+      if (macLinuxPlayer && typeof macLinuxPlayer.pauseVideo === 'function') {
+        try {
+          macLinuxPlayer.pauseVideo();
+        } catch (e) {
+          console.error("Could not pause Mac/Linux video:", e);
+        }
+      }
+      
+      if (windowsPlayer && typeof windowsPlayer.pauseVideo === 'function') {
+        try {
+          windowsPlayer.pauseVideo();
+        } catch (e) {
+          console.error("Could not pause Windows video:", e);
+        }
+      }
+      
+      // Show the selected section
+      if (section === 'windows') {
+        windowsSection.style.display = 'block';
+        // Play Windows video
+        if (windowsPlayer && typeof windowsPlayer.playVideo === 'function') {
+          try {
+            windowsPlayer.playVideo();
+          } catch (e) {
+            console.error("Could not play Windows video:", e);
+          }
+        }
+      } else if (section === 'advanced') {
+        advancedSection.style.display = 'block';
+      } else {
+        // Default to Mac/Linux
+        macLinuxSection.style.display = 'block';
+        // Play Mac/Linux video
+        if (macLinuxPlayer && typeof macLinuxPlayer.playVideo === 'function') {
+          try {
+            macLinuxPlayer.playVideo();
+          } catch (e) {
+            console.error("Could not play Mac/Linux video:", e);
+          }
+        }
+      }
+    }
+    
+    // If YouTube API isn't ready yet, we'll wait for it
+    if (!playerReady) {
+      // detectOS will be called from onMacLinuxPlayerReady
+    } else {
+      // If the API is already ready, detect OS after a short delay
+      setTimeout(detectOS, 500);
+    }
+    
+    const statusDiv = document.getElementById('heartbeat-status');
+    const nextStepLink = document.getElementById('next-step');
+    let checkCount = 0;
+    const maxChecks = 60; // Stop checking after 5 minutes (60 * 5s = 5min)
+
+    function timeAgoInWords(date) {
+      const diffInSeconds = Math.floor((new Date() - new Date(date)) / 1000);
+      const diffInMinutes = Math.floor(diffInSeconds / 60);
+      const diffInHours = Math.floor(diffInMinutes / 60);
+      const diffInDays = Math.floor(diffInHours / 24);
+      const diffInMonths = Math.floor(diffInDays / 30);
+      const diffInYears = Math.floor(diffInDays / 365);
+
+      if (diffInYears > 0) {
+        return diffInYears === 1 ? "1 year ago" : `${diffInYears} years ago`;
+      } else if (diffInMonths > 0) {
+        return diffInMonths === 1 ? "1 month ago" : `${diffInMonths} months ago`;
+      } else if (diffInDays > 0) {
+        return diffInDays === 1 ? "1 day ago" : `${diffInDays} days ago`;
+      } else if (diffInHours > 0) {
+        return diffInHours === 1 ? "1 hour ago" : `${diffInHours} hours ago`;
+      } else if (diffInMinutes > 0) {
+        return diffInMinutes === 1 ? "1 minute ago" : `${diffInMinutes} minutes ago`;
+      } else {
+        return diffInSeconds === 1 ? "1 second ago" : `${diffInSeconds} seconds ago`;
+      }
+    }
+
+    function checkForHeartbeats() {
+      fetch('<%= api_v1_my_heartbeats_most_recent_path %>', {
+        headers: {
+          'Authorization': 'Bearer <%= @current_user_api_key %>'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.has_heartbeat) {
+          // show time ago in human readable format
+          const timeAgo = timeAgoInWords(data.heartbeat.created_at);
+          statusDiv.innerHTML = `<p class="success">✅ Heartbeat received ${timeAgo}! You can proceed to the next step.</p>`;
+          nextStepLink.style.display = 'inline-block';
+          return; // Stop checking once we get a heartbeat
+        }
+        throw new Error('No heartbeats yet');
+      })
+      .catch(error => {
+        checkCount++;
+        if (checkCount >= maxChecks) {
+          statusDiv.innerHTML = '<p class="error">❌ No heartbeats detected after 5 minutes. Please make sure you\'ve run the command above and have the WakaTime plugin installed in your editor.</p>';
+          return; // Stop checking after max attempts
+        }
+        // Continue checking every 5 seconds
+        setTimeout(checkForHeartbeats, 5000);
+      });
+    }
+
+    // Start checking
+    checkForHeartbeats();
+  });
+
+  function copyCode(button) {
+    const codeBlock = button.previousElementSibling;
+    const text = codeBlock.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      button.textContent = 'Copied!';
+      setTimeout(() => {
+        button.textContent = 'Copy';
+      }, 2000);
+    });
+  }
+</script>
+
+<style>
+  .progress-indicator {
+    width: 20px;
+    height: 20px;
+    border: 3px solid #eee;
+    border-top: 3px solid #666;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 10px auto;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .success {
+    color: #2da44e;
+    font-weight: bold;
+  }
+
+  .error {
+    color: #cf222e;
+  }
+
+  .setup-instructions {
+    width: 100%;
+    max-width: 100vw;
+    overflow: hidden;
+  }
+
+  .code-block {
+    position: relative;
+    margin-bottom: 1rem;
+    width: fit-content;
+    max-width: 75vw;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .copy-button {
+    position: static;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 0.25rem;
+    background-color: #0066cc;
+    color: white;
+    border: 1px solid #0055aa;
+    font-weight: bold;
+    transition: background-color 0.2s;
+  }
+
+  .copy-button:hover {
+    background-color: #0055aa;
+  }
+  
+  .setup-instructions code {
+    display: block;
+    width: 75%;
+    white-space: pre;
+    overflow-x: auto;
+    padding-right: 1rem;
+    box-sizing: border-box;
+  }
+  
+  .text-center {
+    text-align: center;
+  }
+</style>

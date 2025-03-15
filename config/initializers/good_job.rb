@@ -8,9 +8,15 @@ Rails.application.configure do
       cron: "*/5 * * * *",
       class: "UserSlackStatusUpdateJob"
     },
-    leaderboard_update: {
+    daily_leaderboard_update: {
       cron: "*/5 * * * *",
-      class: "LeaderboardUpdateJob"
+      class: "LeaderboardUpdateJob",
+      args: [ :daily ]
+    },
+    weekly_leaderboard_update: {
+      cron: "0 0 * * *",
+      class: "LeaderboardUpdateJob",
+      args: [ :weekly ]
     },
     sailors_log_poll: {
       cron: "* * * * *",
@@ -19,6 +25,10 @@ Rails.application.configure do
     update_slack_channel_cache: {
       cron: "0 11 * * *",
       class: "SlackCommand::UpdateSlackChannelCacheJob"
+    },
+    slack_username_update: {
+      cron: "0 0 * * *",
+      class: "SlackUsernameUpdateJob"
     }
   }
 end

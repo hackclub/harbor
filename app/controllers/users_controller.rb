@@ -11,11 +11,7 @@ class UsersController < ApplicationController
       enabled: true,
     ).where.not(slack_channel_id: "C0835AZP9GB")
 
-    @heartbeats_migration_jobs = GoodJob::Job.where(
-      "serialized_params->>'arguments' LIKE ?", "%#{@user.id}%"
-    ).where(
-      "job_class = ?", "OneTime::MigrateUserFromHackatimeJob"
-    ).order(created_at: :desc).limit(10).all
+    @heartbeats_migration_jobs = @user.data_migration_jobs
   end
 
   def update
@@ -36,6 +32,27 @@ class UsersController < ApplicationController
 
     redirect_to is_own_settings? ? my_settings_path : user_settings_path(@user),
       notice: "Heartbeats & api keys migration started"
+  end
+
+  def wakatime_setup
+    api_key = current_user&.api_keys&.last
+    api_key ||= current_user.api_keys.create!(name: "Wakatime API Key")
+    @current_user_api_key = api_key&.token
+  end
+
+  def wakatime_setup_step_2
+  end
+
+  def wakatime_setup_step_3
+  end
+
+  def wakatime_setup_step_4
+    @no_instruction_wording = [
+      "There is no step 4, lol.",
+      "There is no step 4, psych!",
+      "Tricked ya! There is no step 4.",
+      "There is no step 4, gotcha!"
+    ].sample
   end
 
   private

@@ -1,0 +1,87 @@
+.mini-leaderboard {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 16px;
+  margin: 20px 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Styling for the leaderboard on the homepage for unauthenticated users */
+h3 + .mini-leaderboard {
+  margin-bottom: 30px;
+}
+
+.leaderboard-entries {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.leaderboard-entry {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: white;
+  transition: transform 0.2s ease;
+}
+
+.leaderboard-entry:hover {
+  transform: translateX(4px);
+}
+
+.leaderboard-entry.current-user {
+  background: #f0f7ff;
+  border: 1px solid #cce5ff;
+}
+
+.leaderboard-entry .rank {
+  min-width: 32px;
+  font-weight: 500;
+  color: #666;
+}
+
+.leaderboard-entry .user {
+  flex: 1;
+  margin: 0 12px;
+}
+
+.leaderboard-entry .time {
+  font-family: monospace;
+  color: #444;
+  font-size: 0.9em;
+}
+
+.leaderboard-break {
+  color: #999;
+  margin: -4px 0;
+  font-weight: bold;
+  letter-spacing: 2px;
+} 
+
+.period-toggle {
+    display: inline-flex;
+    background-color: #f1f1f1;
+    border-radius: 999px;
+    padding: 4px;
+    margin-bottom: 16px;
+}
+
+.period-toggle-btn {
+    padding: 8px 16px;
+    border-radius: 999px;
+    text-decoration: none;
+    color: #444;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.period-toggle-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.period-toggle-btn:hover:not(.active) {
+    background-color: #e0e0e0;
+}

@@ -1,9 +1,11 @@
 # from https://app.slack.com/app-settings/T0266FRGM/A08EJ0W7N82/app-manifest
 display_information:
-  name: harbor
+  name: Hackatime
+  description: Track your time on Hackatime!
+  background_color: "#de9c0d"
 features:
   bot_user:
-    display_name: harbor
+    display_name: hackatime
     always_online: false
   slash_commands:
     - command: /timedump
@@ -13,7 +15,9 @@ features:
 oauth_config:
   redirect_urls:
     - http://localhost:3000/auth/slack/callback
+    - https://hackatime.hackclub.com/auth/slack/callback
     - https://timedump.hackclub.com/auth/slack/callback
+    - https://harbor.hackclub.com/auth/slack/callback
   scopes:
     user:
       - users.profile:read

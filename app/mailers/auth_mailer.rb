@@ -5,7 +5,7 @@ class AuthMailer < ApplicationMailer
 
     mail(
       to: email_address.email,
-      subject: "Your Harbor sign-in link"
+      subject: "Your Hackatime sign-in link"
     )
   end
 end

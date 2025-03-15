@@ -1,0 +1,118 @@
+<div class="scrapyard-event">
+  <div class="header">
+    <h1><%= @event.name %></h1>
+    <%= link_to "← Back to All Events", scrapyard_leaderboards_path, class: "back-link" %>
+  </div>
+
+  <div class="attendee-leaderboard">
+    <h2>Attendee Leaderboard</h2>
+    
+    <% if @attendee_stats.any? %>
+      <div class="attendees">
+        <% @attendee_stats.each_with_index do |stats, index| %>
+          <div class="attendee-card">
+            <div class="rank"><%= index + 1 %></div>
+            <div class="info">
+              <div class="name">
+                <%= stats[:display_name] %>
+                <% if Rails.env.development? %>
+                  <%= stats[:email] %>
+                <% end %>
+              </div>
+              <div class="time">
+                <%= ApplicationController.helpers.short_time_simple(stats[:total_seconds]) %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="no-data">No coding activity recorded for this event yet.</p>
+    <% end %>
+  </div>
+</div>
+
+<% content_for :head do %>
+  <style>
+    .scrapyard-event {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .header {
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      margin: 0 0 10px 0;
+    }
+
+    .back-link {
+      color: inherit;
+      text-decoration: none;
+      opacity: 0.7;
+    }
+
+    .back-link:hover {
+      opacity: 1;
+    }
+
+    .attendee-leaderboard {
+      background: var(--uchu-light-green);
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .attendee-leaderboard h2 {
+      margin: 0 0 20px 0;
+    }
+
+    .attendees {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .attendee-card {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+
+    .rank {
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      font-weight: bold;
+    }
+
+    .info {
+      flex: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .name {
+      font-weight: bold;
+    }
+
+    .time {
+      opacity: 0.8;
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 20px;
+      opacity: 0.7;
+    }
+  </style>
+<% end %> 

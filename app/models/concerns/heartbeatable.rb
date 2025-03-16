@@ -4,7 +4,7 @@ module Heartbeatable
   included do
     # Filter heartbeats to only include those with category equal to "coding"
     scope :coding_only, -> { where(category: "coding") }
-    
+
     # This is to prevent PG timestamp overflow errors if someones gives us a
     # heartbeat with a time that is enormously far in the future.
     scope :with_valid_timestamps, -> { where("time >= 0 AND time <= ?", 253402300799) }
@@ -59,7 +59,7 @@ module Heartbeatable
 
     def duration_seconds(scope = all)
       scope = scope.coding_only.with_valid_timestamps
-      
+
       if scope.group_values.any?
         group_column = scope.group_values.first
 

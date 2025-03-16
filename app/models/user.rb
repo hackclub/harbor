@@ -187,7 +187,7 @@ class User < ApplicationRecord
     email = email_addresses&.first&.email
     return "error displaying name" unless email.present?
 
-    email.split('@')&.first + " (email sign-up)"
+    email.split("@")&.first + " (email sign-up)"
   end
 
   def project_names

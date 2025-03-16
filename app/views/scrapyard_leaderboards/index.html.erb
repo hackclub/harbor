@@ -28,7 +28,7 @@
             <span class="ordinal"><%= (index + 1).ordinalize %></span>
           <% end %>
           <%= stats[:event].name %>
-          <% if @pinned_events.include?(stats[:event]) %>
+          <% if is_watched(stats[:event].id) %>
             <span title="Currently being watched">👀</span>
           <% end %>
         <% end %>

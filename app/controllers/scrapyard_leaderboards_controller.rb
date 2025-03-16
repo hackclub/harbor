@@ -3,6 +3,8 @@ class ScrapyardLeaderboardsController < ApplicationController
   TRACKING_START_TIME = Time.find_zone("Eastern Time (US & Canada)").local(2025, 3, 14, 20, 0).to_i
   PINNED_EVENT_TIMEOUT = 1.minutes
 
+  helper_method :is_watched
+
   def index
     @sort_by = params[:sort] == "average" ? "average" : "total"
 
@@ -69,9 +71,6 @@ class ScrapyardLeaderboardsController < ApplicationController
         -stats[:total_seconds]
       end
     end
-
-    # Get currently pinned events
-    @pinned_events = get_pinned_events
   end
 
   def pin
@@ -130,14 +129,7 @@ class ScrapyardLeaderboardsController < ApplicationController
     )
   end
 
-  def get_pinned_events
-    # Get all cache keys for pinned events
-    cache_keys = Rails.cache.instance_variable_get(:@data)
-      .keys
-      .select { |k| k.start_with?("pinned_event:") }
-    return [] if cache_keys.empty?
-
-    event_ids = cache_keys.map { |k| k.split(":").last }
-    Warehouse::ScrapyardEvent.where(id: event_ids)
+  def is_watched(event_id)
+    Rails.cache.exist?("pinned_event:#{event_id}")
   end
 end

@@ -1,9 +1,15 @@
 class ScrapyardLeaderboardsController < ApplicationController
   # March 14, 2024 at 8:00 PM Eastern
   TRACKING_START_TIME = Time.find_zone("Eastern Time (US & Canada)").local(2025, 3, 14, 20, 0).to_i
+  PINNED_EVENT_TIMEOUT = 1.minutes
 
   def index
     @sort_by = params[:sort] == "average" ? "average" : "total"
+
+    # If there's a pinned event, cache it
+    if params[:event_pin].present?
+      mark_event_as_pinned(params[:event_pin])
+    end
 
     # Cache the expensive computations for 10 seconds
     @event_stats = Rails.cache.fetch("scrapyard_leaderboard_stats", expires_in: 10.seconds) do
@@ -63,6 +69,15 @@ class ScrapyardLeaderboardsController < ApplicationController
         -stats[:total_seconds]
       end
     end
+
+    # Get currently pinned events
+    @pinned_events = get_pinned_events
+  end
+
+  def pin
+    event_id = params[:id]
+    mark_event_as_pinned(event_id)
+    head :ok
   end
 
   def show
@@ -103,5 +118,26 @@ class ScrapyardLeaderboardsController < ApplicationController
 
       stats.sort_by { |stats| -stats[:total_seconds] }
     end
+  end
+
+  private
+
+  def mark_event_as_pinned(event_id)
+    Rails.cache.write(
+      "pinned_event:#{event_id}",
+      true,
+      expires_in: PINNED_EVENT_TIMEOUT
+    )
+  end
+
+  def get_pinned_events
+    # Get all cache keys for pinned events
+    cache_keys = Rails.cache.instance_variable_get(:@data)
+      .keys
+      .select { |k| k.start_with?("pinned_event:") }
+    return [] if cache_keys.empty?
+
+    event_ids = cache_keys.map { |k| k.split(":").last }
+    Warehouse::ScrapyardEvent.where(id: event_ids)
   end
 end

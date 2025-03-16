@@ -14,7 +14,7 @@
 
   <% @event_stats.each_with_index do |stats, index| %>
     <div class="event-card" id="event-<%= stats[:event].id %>">
-      <a href="#<%= stats[:event].id %>" class="pin-link" title="Copy link to this event">📌</a>
+      <a href="?event_pin=<%= stats[:event].id %>" class="pin-link" title="Pin this event">📌</a>
       <h2>
         <%= link_to scrapyard_leaderboard_path(stats[:event]) do %>
           <% case index %>
@@ -28,6 +28,9 @@
             <span class="ordinal"><%= (index + 1).ordinalize %></span>
           <% end %>
           <%= stats[:event].name %>
+          <% if @pinned_events.include?(stats[:event]) %>
+            <span title="Currently being watched">👀</span>
+          <% end %>
         <% end %>
       </h2>
       <div class="stats">
@@ -62,8 +65,8 @@
 <% content_for :head do %>
   <script>
     function handlePin() {
-      console.log("Handling pin");
-      const pinId = window.location.hash.substring(1);
+      const params = new URLSearchParams(window.location.search);
+      const pinId = params.get('event_pin');
       
       if (pinId) {
         const targetCard = document.getElementById('event-' + pinId);
@@ -84,28 +87,15 @@
       }
     }
 
-    // Add click handlers to pin links
-    document.addEventListener('turbo:load', function() {
-      document.querySelectorAll('.pin-link').forEach(link => {
-        link.addEventListener('click', function(e) {
-          e.preventDefault();
-          const hash = this.getAttribute('href');
-          window.location.hash = hash;
-          handlePin();
-          window.location.reload();
-        });
-      });
-    });
-
     // Handle both initial page load and subsequent Turbo navigations
     document.addEventListener('turbo:load', handlePin);
     document.addEventListener('turbo:render', handlePin);
     document.addEventListener('DOMContentLoaded', handlePin);
-    window.addEventListener('hashchange', handlePin);
 
     // Set up auto-refresh if we have a pin
     document.addEventListener('turbo:load', function() {
-      if (window.location.hash) {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('event_pin')) {
         // Clear any existing refresh interval
         if (window.refreshInterval) {
           clearInterval(window.refreshInterval);

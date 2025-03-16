@@ -3,7 +3,7 @@ class ScrapyardLeaderboardsController < ApplicationController
   TRACKING_START_TIME = Time.find_zone("Eastern Time (US & Canada)").local(2025, 3, 14, 20, 0).to_i
   PINNED_EVENT_TIMEOUT = 1.minutes
 
-  helper_method :is_watched
+  helper_method :is_watched?
 
   def index
     @sort_by = params[:sort] == "average" ? "average" : "total"
@@ -129,7 +129,7 @@ class ScrapyardLeaderboardsController < ApplicationController
     )
   end
 
-  def is_watched(event_id)
+  def is_watched?(event_id)
     Rails.cache.exist?("pinned_event:#{event_id}")
   end
 end

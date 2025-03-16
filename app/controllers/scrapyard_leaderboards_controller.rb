@@ -73,12 +73,6 @@ class ScrapyardLeaderboardsController < ApplicationController
     end
   end
 
-  def pin
-    event_id = params[:id]
-    mark_event_as_pinned(event_id)
-    head :ok
-  end
-
   def show
     @event = Warehouse::ScrapyardEvent.find(params[:id])
 

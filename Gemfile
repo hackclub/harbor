@@ -33,6 +33,11 @@ gem "tzinfo-data", platforms: %i[ windows jruby ]
 gem "solid_cache"
 gem "solid_cable"
 
+# Profiling & error tracking
+gem "stackprof"
+gem "sentry-ruby"
+gem "sentry-rails"
+
 gem "good_job"
 
 # Slack client
@@ -85,8 +90,6 @@ group :development do
   gem "rack-mini-profiler"
   # For memory profiling via RMP
   gem "memory_profiler"
-  # For call-stack profiling flamegraphs via RMP
-  gem "stackprof"
 end
 
 group :test do

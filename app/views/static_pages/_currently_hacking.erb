@@ -1,31 +1,25 @@
 <%= turbo_frame_tag "currently_hacking" do %>
-  <%= cache ["currently_hacking"], expires_in: 1.minute do %>
-
-    <style>
-      .currently-hacking-list {
-        display: none;
-      }
-
-      .currently-hacking-header {
-        cursor: pointer;
-      }
-
-      .visible > .currently-hacking-list {
-        display: block;
-      }
-    </style>
-    <div class="currently-hacking" onclick="this.classList.toggle('visible')">
-      <div class="currently-hacking-header">
-        <p><%= pluralize(users.count, "person") %> currently hacking</p>
+  <%= cache ["currently_hacking"], expires_in: 1.second do %>
+    <% if users.any? %>
+      <div class="currently-hacking" onclick="this.classList.toggle('visible')">
+        <div class="currently-hacking-header">
+          <span><%= pluralize(users.count, "person") %> currently hacking</span>
+          <%# live recording indicator  %>
+        </div>
+        <div class="currently-hacking-list">
+          <hr>
+          <ul>
+            <% users.each do |user| %>
+              <%= render "shared/user_mention", user: user %>
+            <% end %>
+          </ul>
+        </div>
       </div>
-      <div class="currently-hacking-list">
-        <ul>
-          <% users.each do |user| %>
-            <%= render "shared/user_mention", user: user %>
-          <% end %>
-        </ul>
+    <% else %>
+      <div class="currently-hacking">
+        <p>No one is currently hacking</p>
       </div>
-    </div>
+    <% end %>
   <% end %>
 <% end %>
 

@@ -1,0 +1,69 @@
+/* Currently hacking styles */
+.currently-hacking-container {
+  position: fixed;
+  top: 0px;
+  right: 20px;
+  width: 300px;
+  max-height: 80vh;
+  background: white;
+  border-radius: 8px;
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.currently-hacking {
+  padding: 8px;
+  background: white;
+}
+
+.currently-hacking-header {
+  cursor: pointer;
+  user-select: none;
+  color: var(--black);
+}
+
+.currently-hacking-list {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 8px;
+  background: white;
+  display: none;
+}
+
+.currently-hacking-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.currently-hacking-list li {
+  margin-bottom: 8px;
+  background: white;
+}
+
+.currently-hacking-list li:last-child {
+  margin-bottom: 0;
+}
+
+/* Show list when parent has visible class */
+.currently-hacking.visible > .currently-hacking-list {
+  display: block;
+}
+
+/* Dark mode overrides */
+@media (prefers-color-scheme: dark) {
+  .currently-hacking-container,
+  .currently-hacking,
+  .currently-hacking-list,
+  .currently-hacking-list li {
+    background: rgb(30, 30, 30);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .currently-hacking-header {
+    color: white;
+  }
+} 

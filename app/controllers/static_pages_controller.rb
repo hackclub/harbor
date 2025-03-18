@@ -98,6 +98,19 @@ class StaticPagesController < ApplicationController
     }
   end
 
+  def currently_hacking
+    # Get all users who have heartbeats in the last 15 minutes
+    users = Rails.cache.fetch("currently_hacking", expires_in: 1.minute) do
+      user_ids = Heartbeat.where("time > ?", 5.minutes.ago.to_f)
+                          .distinct
+                          .pluck(:user_id)
+
+      User.where(id: user_ids)
+    end
+
+    render partial: "currently_hacking", locals: { users: users }
+  end
+
   private
 
   def get_setup_social_proof

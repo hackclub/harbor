@@ -34,6 +34,7 @@ Rails.application.routes.draw do
     collection do
       get :project_durations
       get :activity_graph
+      get :currently_hacking
     end
   end
 

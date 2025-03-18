@@ -1,6 +1,17 @@
 <div class="container">
   <p class="super">aka Wakatime v2</p>
-  <h1 class="title">Keep Track of <span class="primary-color">Your</span> Coding Time</h1>
+  <h1 class="title">
+    Keep Track of <span class="primary-color">Your</span> Coding Time
+    <%= link_to "🃏", wildcard_static_pages_path, class: "wildcard" %>
+  </h1>
+  <style>
+    .wildcard {
+      opacity: 0;
+    }
+    .wildcard:hover {
+      opacity: 1;
+    }
+  </style>
   <p class="flavor">
     <%= FlavorText.motto.sample %>
     <%= @social_proof&.downcase %>
@@ -25,8 +36,6 @@
         <p class="setup-hint"><%= @setup_social_proof %> (this is real data)</p>
       </div>
     <% end %>
-
-    <%= render "scrapyard" %>
 
     <% if @show_logged_time_sentence %>
       You've logged

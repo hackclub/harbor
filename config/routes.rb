@@ -35,6 +35,7 @@ Rails.application.routes.draw do
       get :project_durations
       get :activity_graph
       get :currently_hacking
+      get "🃏", to: "static_pages#🃏", as: :wildcard
     end
   end
 
@@ -84,6 +85,4 @@ Rails.application.routes.draw do
       end
     end
   end
-
-  resources :scrapyard_leaderboards, only: [ :index, :show ]
 end

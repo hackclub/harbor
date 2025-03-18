@@ -34,7 +34,7 @@
                end %>
             <span class="rank"><%= rank_emoji %></span>
           <% else %>
-            <% if idx == 2 %>
+            <% if idx == 2 && entries.index(entry) - entries.index(mini_leaderboard_entries[1]) > 1 %>
               <div class="leaderboard-break">...</div>
             <% end %>
             <span class="rank"><%= (entries.index(entry) + 1).ordinalize %></span>

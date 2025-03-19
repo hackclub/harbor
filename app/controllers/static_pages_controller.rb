@@ -113,10 +113,15 @@ class StaticPagesController < ApplicationController
                           .distinct
                           .pluck(:user_id)
 
-      User.where(id: user_ids)
+      User.where(id: user_ids).includes(:project_repo_mappings)
     end
 
-    render partial: "currently_hacking", locals: { users: users }
+    active_projects = {}
+    users.each do |user|
+      active_projects[user.id] = user.project_repo_mappings.find { |p| p.project_name == user.active_project }
+    end
+
+    render partial: "currently_hacking", locals: { users: users, active_projects: active_projects }
   end
 
   def 🃏

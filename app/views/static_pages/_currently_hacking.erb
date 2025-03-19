@@ -13,6 +13,11 @@
           <ul>
             <% users.each do |user| %>
               <%= render "shared/user_mention", user: user, show: [:slack] %>
+              <% if active_projects[user.id].present? %>
+                <span class="super">
+                  working on <%= link_to active_projects[user.id].project_name, active_projects[user.id].repo_url, target: "_blank" %>
+                </span>
+              <% end %>
             <% end %>
           </ul>
         </div>

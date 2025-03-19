@@ -10,11 +10,8 @@
         class: "sort-link #{@sort_by == 'average' ? 'active' : ''}" %>
   </div>
 
-  <em>Use the "📌" button to pin an event.</em>
-
   <% @event_stats.each_with_index do |stats, index| %>
     <div class="event-card" id="event-<%= stats[:event].id %>">
-      <a href="?event_pin=<%= stats[:event].id %>" class="pin-link" title="Pin this event">📌</a>
       <h2>
         <%= link_to scrapyard_leaderboard_path(stats[:event]) do %>
           <% case index %>

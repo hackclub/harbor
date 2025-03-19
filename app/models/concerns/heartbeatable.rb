@@ -48,11 +48,17 @@ module Heartbeatable
     end
 
     def daily_durations(start_date: 365.days.ago, end_date: Time.current)
-      select(Arel.sql("DATE_TRUNC('day', to_timestamp(time)) as day_group"))
+      # Get the timezone from the first associated user (for scoped queries)
+      timezone = all.first&.user&.timezone || "UTC"
+
+      # Create the timezone-aware date truncation expression
+      day_trunc = Arel.sql("DATE_TRUNC('day', to_timestamp(time) AT TIME ZONE '#{timezone}')")
+
+      select(day_trunc.as("day_group"))
         .coding_only
         .where(time: start_date..end_date)
         .with_valid_timestamps
-        .group(Arel.sql("DATE_TRUNC('day', to_timestamp(time))"))
+        .group(day_trunc)
         .duration_seconds
         .map { |date, duration| [ date.to_date, duration ] }
     end

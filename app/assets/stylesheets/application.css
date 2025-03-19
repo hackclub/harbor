@@ -183,6 +183,10 @@
   margin: 0 0 0.1rem;
 }
 
+.super a {
+  color: #666;
+}
+
 .auto-scroll {
   /* flash a little bit yellow & leave a little bit of a border */
   animation: flash 1s ease-in-out;

@@ -84,6 +84,6 @@ class UsersController < ApplicationController
   end
 
   def user_params
-    params.require(:user).permit(:uses_slack_status, :hackatime_extension_text_type)
+    params.require(:user).permit(:uses_slack_status, :hackatime_extension_text_type, :timezone)
   end
 end

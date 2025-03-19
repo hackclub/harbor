@@ -37,8 +37,7 @@ class SessionsController < ApplicationController
     redirect_uri = url_for(action: :github_create, only_path: false)
     Rails.logger.info "Starting GitHub OAuth flow with redirect URI: #{redirect_uri}"
     redirect_to User.github_authorize_url(redirect_uri),
-                host: "https://github.com",
-                allow_other_host: true
+                allow_other_host: "https://github.com"
   end
 
   def github_create

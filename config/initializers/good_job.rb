@@ -33,6 +33,10 @@ Rails.application.configure do
     cache_home_stats: {
       cron: "0/10 * * * *",
       class: "CacheHomeStatsJob"
+    },
+    scan_github_repos: {
+      cron: "0 10 * * *",
+      class: "ScanGithubReposJob"
     }
   }
 end

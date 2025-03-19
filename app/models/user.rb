@@ -282,6 +282,9 @@ class User < ApplicationRecord
     end
 
     user.save!
+
+    ScanGithubReposJob.perform_later(user.id)
+
     user
   rescue => e
     Rails.logger.error "Error creating user from GitHub data: #{e.message}"

@@ -67,12 +67,17 @@ class Api::Hackatime::V1::HackatimeController < ApplicationController
         ip_address: request.remote_ip
       })
       new_heartbeat = Heartbeat.find_or_create_by(attrs)
+      queue_project_mapping(heartbeat[:project])
       results << [ new_heartbeat.attributes, 201 ]
     rescue => e
       Rails.logger.error("Error creating heartbeat: #{e.class.name} #{e.message}")
       results << [ { error: e.message, type: e.class.name }, 422 ]
     end
     results
+  end
+
+  def queue_project_mapping(project_name)
+    AttemptProjectRepoMappingJob.perform_later(@user.id, heartbeat[:project])
   end
 
   def set_user

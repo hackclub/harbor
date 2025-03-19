@@ -1,6 +1,7 @@
 class ScrapyardLeaderboardsController < ApplicationController
   # March 14, 2024 at 8:00 PM Eastern
   TRACKING_START_TIME = Time.find_zone("Eastern Time (US & Canada)").local(2025, 3, 14, 20, 0).to_i
+  TRACKING_END_TIME = Time.find_zone("Eastern Time (US & Canada)").local(2025, 3, 17, 20, 0).to_i
   PINNED_EVENT_TIMEOUT = 1.minutes
 
   helper_method :is_watched?
@@ -42,6 +43,7 @@ class ScrapyardLeaderboardsController < ApplicationController
         total_seconds = if users.any?
           Heartbeat.where(user: users)
                    .where("time >= ?", TRACKING_START_TIME)
+                   .where("time <= ?", TRACKING_END_TIME)
                    .group(:user_id)
                    .duration_seconds
                    .values
@@ -102,6 +104,7 @@ class ScrapyardLeaderboardsController < ApplicationController
       user_heartbeats = Heartbeat
         .where(user: users)
         .where("time >= ?", TRACKING_START_TIME)
+        .where("time <= ?", TRACKING_END_TIME)
         .group(:user_id)
         .duration_seconds
 

@@ -18,7 +18,7 @@
         <% end %>
       </div>
       <p class="super">
-        Calculated in <%= link_to ActiveSupport::TimeZone[current_user.timezone].to_s, my_settings_path(anchor: "user_timezone") %>
+        Calculated in <%= link_to ActiveSupport::TimeZone[current_user.timezone].to_s, my_settings_path(anchor: "user_timezone"), data: { turbo_frame: "_top" } %>
       </p>
     </div>
   <% end %>

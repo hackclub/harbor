@@ -257,11 +257,7 @@ class User < ApplicationRecord
         user = email_address&.user
       end
       # If still no user found, create a new one
-      user ||= begin
-        u = User.new
-        u.email_addresses << EmailAddress.new(email: primary_email)
-        u
-      end
+      user ||= User.new
     end
 
     # Update GitHub-specific fields
@@ -271,17 +267,18 @@ class User < ApplicationRecord
     user.github_avatar_url = user_data["avatar_url"]
     user.github_access_token = data["access_token"]
 
+    # Save the user first
+    user.save!
+
     # Add the GitHub email if it's not already associated
     unless user.email_addresses.exists?(email: primary_email)
       begin
-        user.email_addresses << EmailAddress.new(email: primary_email)
+        user.email_addresses.create!(email: primary_email)
       rescue ActiveRecord::RecordInvalid => e
         # If the email already exists for another user, we can ignore it
         Rails.logger.info "Email #{primary_email} already exists for another user"
       end
     end
-
-    user.save!
 
     ScanGithubReposJob.perform_later(user.id)
 

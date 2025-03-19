@@ -90,7 +90,10 @@ class StaticPagesController < ApplicationController
     return unless current_user
 
     daily_durations = Rails.cache.fetch("user_#{current_user.id}_daily_durations", expires_in: 1.minute) do
-      current_user.heartbeats.daily_durations.to_h
+      # Set the timezone for the duration of this request
+      Time.use_zone(current_user.timezone) do
+        current_user.heartbeats.daily_durations.to_h
+      end
     end
 
     # Consider 8 hours as a "full" day of coding

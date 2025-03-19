@@ -44,6 +44,15 @@
 </div>
 
 <div>
+  <h2>GitHub Account</h2>
+  <% if @user.github_uid.present? %>
+    <p>Your GitHub account is linked. <%= link_to "@#{@user.github_username}", "https://github.com/#{@user.github_username}", target: "_blank" %></p>
+  <% else %>
+    <%= link_to "Link GitHub Account", github_auth_path, class: "button" %>
+  <% end %>
+</div>
+
+<div>
   <h2>Slack notifications</h2>
   <% if @enabled_sailors_logs.any? %>
     <p>

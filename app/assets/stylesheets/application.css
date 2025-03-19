@@ -140,6 +140,25 @@
   color: white;
 }
 
+.auth-button.github {
+  background-color: #24292e;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  display: inline-block;
+  text-decoration: none;
+  text-align: center;
+  width: 100%;
+  transition: background-color 0.2s;
+}
+
+.auth-button.github:hover {
+  background-color: #2f363d;
+}
+
 .auth-divider {
   margin: 1rem 0;
   color: #666;
@@ -265,4 +284,21 @@
   60% {
     transform: translateY(-3px);
   }
+}
+
+.button {
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: #24292e;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.button:hover {
+  background-color: #2f363d;
 }

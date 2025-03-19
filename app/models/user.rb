@@ -1,8 +1,9 @@
 class User < ApplicationRecord
   has_paper_trail
-  encrypts :slack_access_token
+  encrypts :slack_access_token, :github_access_token
 
   validates :slack_uid, uniqueness: true, allow_nil: true
+  validates :github_uid, uniqueness: true, allow_nil: true
   validates :timezone, inclusion: { in: TZInfo::Timezone.all.map(&:identifier) }, allow_nil: false
 
   has_many :heartbeats
@@ -160,6 +161,17 @@ class User < ApplicationRecord
     URI.parse("https://slack.com/oauth/v2/authorize?#{params.to_query}")
   end
 
+  def self.github_authorize_url(redirect_uri)
+    params = {
+      client_id: ENV["GITHUB_CLIENT_ID"],
+      redirect_uri: redirect_uri,
+      state: SecureRandom.hex(24),
+      scope: "user:email"
+    }
+
+    URI.parse("https://github.com/login/oauth/authorize?#{params.to_query}")
+  end
+
   def self.from_slack_token(code, redirect_uri)
     # Exchange code for token
     response = HTTP.post("https://slack.com/api/oauth.v2.access", form: {
@@ -208,8 +220,78 @@ class User < ApplicationRecord
     nil
   end
 
+  def self.from_github_token(code, redirect_uri, current_user = nil)
+    # Exchange code for token
+    response = HTTP.headers(accept: "application/json")
+      .post("https://github.com/login/oauth/access_token", form: {
+        client_id: ENV["GITHUB_CLIENT_ID"],
+        client_secret: ENV["GITHUB_CLIENT_SECRET"],
+        code: code,
+        redirect_uri: redirect_uri
+      })
+
+    data = JSON.parse(response.body.to_s)
+    Rails.logger.info "GitHub OAuth response: #{data.inspect}"
+    return nil unless data["access_token"]
+
+    # Get user info
+    user_response = HTTP.auth("Bearer #{data['access_token']}")
+      .get("https://api.github.com/user")
+
+    user_data = JSON.parse(user_response.body.to_s)
+    Rails.logger.info "GitHub user data: #{user_data.inspect}"
+    Rails.logger.info "GitHub user ID type: #{user_data['id'].class}"
+
+    # Get user email from profile
+    primary_email = user_data["email"]
+    return nil unless primary_email
+
+    # If we have a current user, update that user
+    if current_user
+      user = current_user
+    else
+      # For new sign-ins, try to find user by GitHub ID or email
+      user = User.find_by(github_uid: user_data["id"])
+      unless user
+        email_address = EmailAddress.find_by(email: primary_email)
+        user = email_address&.user
+      end
+      # If still no user found, create a new one
+      user ||= begin
+        u = User.new
+        u.email_addresses << EmailAddress.new(email: primary_email)
+        u
+      end
+    end
+
+    # Update GitHub-specific fields
+    user.github_uid = user_data["id"]
+    user.username ||= user_data["login"]
+    user.github_username = user_data["login"]
+    user.github_avatar_url = user_data["avatar_url"]
+    user.github_access_token = data["access_token"]
+
+    # Add the GitHub email if it's not already associated
+    unless user.email_addresses.exists?(email: primary_email)
+      begin
+        user.email_addresses << EmailAddress.new(email: primary_email)
+      rescue ActiveRecord::RecordInvalid => e
+        # If the email already exists for another user, we can ignore it
+        Rails.logger.info "Email #{primary_email} already exists for another user"
+      end
+    end
+
+    user.save!
+    user
+  rescue => e
+    Rails.logger.error "Error creating user from GitHub data: #{e.message}"
+    Rails.logger.error e.backtrace.join("\n")
+    nil
+  end
+
   def avatar_url
     return self.slack_avatar_url if self.slack_avatar_url.present?
+    return self.github_avatar_url if self.github_avatar_url.present?
     initials = self.email_addresses&.first&.email[0..1]&.upcase
     hashed_initials = Digest::SHA256.hexdigest(initials)[0..5]
     "https://i2.wp.com/ui-avatars.com/api/#{initials}/48/#{hashed_initials}/fff?ssl=1" if initials.present?

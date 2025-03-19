@@ -42,6 +42,8 @@ Rails.application.routes.draw do
   # Auth routes
   get "/auth/slack", to: "sessions#new", as: :slack_auth
   get "/auth/slack/callback", to: "sessions#create"
+  get "/auth/github", to: "sessions#github_new", as: :github_auth
+  get "/auth/github/callback", to: "sessions#github_create"
   post "/auth/email", to: "sessions#email", as: :email_auth
   get "/auth/token/:token", to: "sessions#token", as: :auth_token
   delete "signout", to: "sessions#destroy", as: "signout"

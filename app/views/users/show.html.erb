@@ -39,142 +39,6 @@
   <%= render partial: 'filterable_dashboard' %>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const customSelects = document.querySelectorAll('.custom-select');
-  
-  // Close all dropdowns when clicking outside
-  document.addEventListener('click', function(e) {
-    if (!e.target.closest('.custom-select')) {
-      customSelects.forEach(select => {
-        const container = select.querySelector('.options-container');
-        if (container) container.style.display = 'none';
-      });
-    }
-  });
-
-  customSelects.forEach(select => {
-    const header = select.querySelector('.select-header');
-    const container = select.querySelector('.options-container');
-    const checkboxes = select.querySelectorAll('input[type="checkbox"]');
-    const clearButton = select.querySelector('.clear-button');
-    const searchInput = select.querySelector('.search-input');
-    
-    // Initialize clear button visibility
-    const checkedBoxes = Array.from(checkboxes).filter(cb => cb.checked);
-    if (checkedBoxes.length > 0 && clearButton) {
-      clearButton.style.display = 'block';
-      if (checkedBoxes.length === 1) {
-        header.textContent = checkedBoxes[0].value;
-      } else {
-        header.textContent = `${checkedBoxes.length} selected`;
-      }
-    }
-    
-    // Toggle dropdown
-    header.addEventListener('click', function(e) {
-      e.stopPropagation();
-      const isVisible = container.style.display === 'block';
-      
-      // Close all other dropdowns
-      customSelects.forEach(s => {
-        if (s !== select) {
-          const c = s.querySelector('.options-container');
-          if (c) c.style.display = 'none';
-        }
-      });
-      
-      // Toggle current dropdown
-      container.style.display = isVisible ? 'none' : 'block';
-      
-      // Focus search input when opening
-      if (!isVisible && searchInput) {
-        searchInput.focus();
-      }
-    });
-
-    // Clear filter when clicking the clear button
-    if (clearButton) {
-      clearButton.addEventListener('click', function(e) {
-        e.stopPropagation();
-        checkboxes.forEach(cb => cb.checked = false);
-        updateSelect(select);
-      });
-    }
-
-    // Handle search input
-    if (searchInput) {
-      searchInput.addEventListener('input', function(e) {
-        const searchTerm = e.target.value.toLowerCase();
-        const options = select.querySelectorAll('.option');
-        
-        options.forEach(option => {
-          const text = option.textContent.toLowerCase();
-          option.style.display = text.includes(searchTerm) ? '' : 'none';
-        });
-      });
-
-      // Prevent dropdown from closing when clicking search
-      searchInput.addEventListener('click', function(e) {
-        e.stopPropagation();
-      });
-    }
-
-    // Update header text and URL when checkboxes change
-    checkboxes.forEach(checkbox => {
-      checkbox.addEventListener('change', function() {
-        updateSelect(select);
-      });
-    });
-  });
-
-  // Function to update header text and URL for a select
-  function updateSelect(select) {
-    const header = select.querySelector('.select-header');
-    const clearButton = select.querySelector('.clear-button');
-    const checkboxes = select.querySelectorAll('input[type="checkbox"]');
-    const param = select.dataset.param;
-    
-    const selected = Array.from(checkboxes)
-      .filter(cb => cb.checked)
-      .map(cb => cb.value);
-    
-    // Update header text
-    if (selected.length === 0) {
-      header.textContent = `Filter by ${header.closest('.filter').querySelector('.filter-label').textContent.slice(2).toLowerCase()}...`;
-      if (clearButton) clearButton.style.display = 'none';
-    } else if (selected.length === 1) {
-      header.textContent = selected[0];
-      if (clearButton) clearButton.style.display = 'block';
-    } else {
-      header.textContent = `${selected.length} selected`;
-      if (clearButton) clearButton.style.display = 'block';
-    }
-
-    // Update URL
-    const url = new URL(window.location);
-    if (selected.length > 0) {
-      url.searchParams.set(param, selected.join(','));
-    } else {
-      url.searchParams.delete(param);
-    }
-    window.history.pushState({}, '', url);
-
-    // Update dashboard content
-    fetch(url.toString(), {
-      headers: {
-        'Accept': 'text/html',
-        'X-Requested-With': 'XMLHttpRequest'
-      }
-    })
-    .then(response => response.text())
-    .then(html => {
-      document.getElementById('dashboard-content').innerHTML = html;
-    });
-  }
-});
-</script>
-
 <style>
 .container {
   max-width: 1200px;
@@ -401,9 +265,10 @@ h2 {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 0.75rem;
   margin-bottom: 1.5rem;
+  min-width: 0;
 }
 
 .stat-card {
@@ -412,6 +277,7 @@ h2 {
   padding: 0.75rem;
   border: 1px solid rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease;
+  min-width: 200px;
 }
 
 .stat-card:hover {
@@ -438,5 +304,177 @@ h2 {
 
 #dashboard-content {
   min-height: 200px;
+  transition: filter 0.2s ease;
+  width: 100%;
 }
-</style> 
+
+#dashboard-content.loading {
+  filter: grayscale(1) opacity(0.7);
+  pointer-events: none;
+}
+
+.dashboard-grid {
+  display: grid;
+  gap: 1.5rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.stats-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  width: 100%;
+  min-width: 0;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const customSelects = document.querySelectorAll('.custom-select');
+  const dashboardContent = document.getElementById('dashboard-content');
+  
+  // Disable Turbo drive for this section
+  if (typeof Turbo !== 'undefined') {
+    Turbo.session.drive = false;
+  }
+
+  // Close all dropdowns when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.custom-select')) {
+      customSelects.forEach(select => {
+        const container = select.querySelector('.options-container');
+        if (container) container.style.display = 'none';
+      });
+    }
+  });
+
+  customSelects.forEach(select => {
+    const header = select.querySelector('.select-header');
+    const container = select.querySelector('.options-container');
+    const checkboxes = select.querySelectorAll('input[type="checkbox"]');
+    const clearButton = select.querySelector('.clear-button');
+    const searchInput = select.querySelector('.search-input');
+    
+    // Initialize clear button visibility
+    const checkedBoxes = Array.from(checkboxes).filter(cb => cb.checked);
+    if (checkedBoxes.length > 0 && clearButton) {
+      clearButton.style.display = 'block';
+      if (checkedBoxes.length === 1) {
+        header.textContent = checkedBoxes[0].value;
+      } else {
+        header.textContent = `${checkedBoxes.length} selected`;
+      }
+    }
+    
+    // Toggle dropdown
+    header.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const isVisible = container.style.display === 'block';
+      
+      // Close all other dropdowns
+      customSelects.forEach(s => {
+        if (s !== select) {
+          const c = s.querySelector('.options-container');
+          if (c) c.style.display = 'none';
+        }
+      });
+      
+      // Toggle current dropdown
+      container.style.display = isVisible ? 'none' : 'block';
+      
+      // Focus search input when opening
+      if (!isVisible && searchInput) {
+        searchInput.focus();
+      }
+    });
+
+    // Clear filter when clicking the clear button
+    if (clearButton) {
+      clearButton.addEventListener('click', function(e) {
+        e.stopPropagation();
+        checkboxes.forEach(cb => cb.checked = false);
+        updateSelect(select);
+      });
+    }
+
+    // Handle search input
+    if (searchInput) {
+      searchInput.addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const options = select.querySelectorAll('.option');
+        
+        options.forEach(option => {
+          const text = option.textContent.toLowerCase();
+          option.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+      });
+
+      // Prevent dropdown from closing when clicking search
+      searchInput.addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+    }
+
+    // Update header text and URL when checkboxes change
+    checkboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', function() {
+        updateSelect(select);
+      });
+    });
+  });
+
+  // Function to update header text and URL for a select
+  function updateSelect(select) {
+    const header = select.querySelector('.select-header');
+    const clearButton = select.querySelector('.clear-button');
+    const checkboxes = select.querySelectorAll('input[type="checkbox"]');
+    const param = select.dataset.param;
+    
+    const selected = Array.from(checkboxes)
+      .filter(cb => cb.checked)
+      .map(cb => cb.value);
+    
+    // Update header text
+    if (selected.length === 0) {
+      header.textContent = `Filter by ${header.closest('.filter').querySelector('.filter-label').textContent.slice(2).toLowerCase()}...`;
+      if (clearButton) clearButton.style.display = 'none';
+    } else if (selected.length === 1) {
+      header.textContent = selected[0];
+      if (clearButton) clearButton.style.display = 'block';
+    } else {
+      header.textContent = `${selected.length} selected`;
+      if (clearButton) clearButton.style.display = 'block';
+    }
+
+    // Update URL
+    const url = new URL(window.location);
+    if (selected.length > 0) {
+      url.searchParams.set(param, selected.join(','));
+    } else {
+      url.searchParams.delete(param);
+    }
+    window.history.pushState({}, '', url);
+
+    // Add loading state before fetch
+    dashboardContent.classList.add('loading');
+
+    // Update dashboard content
+    fetch(url.toString(), {
+      headers: {
+        'Accept': 'text/html',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(response => response.text())
+    .then(html => {
+      dashboardContent.innerHTML = html;
+      dashboardContent.classList.remove('loading');
+    })
+    .catch(error => {
+      console.error('Error updating dashboard:', error);
+      dashboardContent.classList.remove('loading');
+    });
+  }
+});
+</script> 

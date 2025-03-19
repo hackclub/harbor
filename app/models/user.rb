@@ -28,6 +28,8 @@ class User < ApplicationRecord
     compliment_text: 2
   }
 
+  after_save :invalidate_activity_graph_cache, if: :saved_change_to_timezone?
+
   def data_migration_jobs
     GoodJob::Job.where(
       "serialized_params->>'arguments' LIKE ?", "%#{id}%"
@@ -247,5 +249,11 @@ class User < ApplicationRecord
 
   def find_valid_token(token)
     sign_in_tokens.valid.find_by(token: token)
+  end
+
+  private
+
+  def invalidate_activity_graph_cache
+    Rails.cache.delete("user_#{id}_daily_durations")
   end
 end

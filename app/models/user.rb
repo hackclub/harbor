@@ -3,7 +3,7 @@ class User < ApplicationRecord
   encrypts :slack_access_token
 
   validates :slack_uid, uniqueness: true, allow_nil: true
-  validates :timezone, inclusion: { in: ActiveSupport::TimeZone.all.map(&:name) }, allow_nil: false
+  validates :timezone, inclusion: { in: TZInfo::Timezone.all.map(&:identifier) }, allow_nil: false
 
   has_many :heartbeats
   has_many :email_addresses

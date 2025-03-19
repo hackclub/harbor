@@ -1,0 +1,118 @@
+<div class="scrapyard-leaderboard">
+  <h1>Scrapyard Leaderboard</h1>
+
+  <div class="sort-controls">
+    Sort by:
+    <%= link_to "Total Time", scrapyard_leaderboards_path(sort: 'total'), 
+        class: "sort-link #{@sort_by == 'total' ? 'active' : ''}" %>
+    |
+    <%= link_to "Average Time", scrapyard_leaderboards_path(sort: 'average'), 
+        class: "sort-link #{@sort_by == 'average' ? 'active' : ''}" %>
+  </div>
+
+  <em>Use the "📌" button to pin an event.</em>
+
+  <% @event_stats.each_with_index do |stats, index| %>
+    <div class="event-card" id="event-<%= stats[:event].id %>">
+      <a href="?event_pin=<%= stats[:event].id %>" class="pin-link" title="Pin this event">📌</a>
+      <h2>
+        <%= link_to scrapyard_leaderboard_path(stats[:event]) do %>
+          <% case index %>
+          <% when 0 %>
+            🥇
+          <% when 1 %>
+            🥈
+          <% when 2 %>
+            🥉
+          <% else %>
+            <span class="ordinal"><%= (index + 1).ordinalize %></span>
+          <% end %>
+          <%= stats[:event].name %>
+          <% if is_watched?(stats[:event].id) %>
+            <span title="Currently being watched">👀</span>
+          <% end %>
+        <% end %>
+      </h2>
+      <div class="stats">
+        <div class="stat">
+          <label>Coding time</label>
+          <span>
+            <% if stats[:total_seconds] > 0 %>
+              <span class="<%= @sort_by == 'total' ? 'active-sort' : '' %>">
+                <%= short_time_detailed(stats[:total_seconds]) %>
+              </span>
+              <span class="average <%= @sort_by == 'average' ? 'active-sort' : '' %>">
+                (<%= short_time_detailed(stats[:average_seconds_per_attendee]) %> avg)
+              </span>
+            <% else %>
+              <span class="no-time">No time logged</span>
+            <% end %>
+          </span>
+        </div>
+        <div class="stat">
+          <label>Hackatime users / Estimated attendees</label>
+          <span>
+            <%= stats[:hackatime_users] %>/<%= stats[:total_attendees] %>
+            <% percent = (stats[:hackatime_users].to_f / stats[:total_attendees] * 100) %>
+            (<%= percent < 1 ? "%.1f" % percent : percent.to_i %>%)
+          </span>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<% content_for :head do %>
+  <script>
+    function handlePin() {
+      const params = new URLSearchParams(window.location.search);
+      const pinId = params.get('event_pin');
+      
+      if (pinId) {
+        const targetCard = document.getElementById('event-' + pinId);
+        if (targetCard) {
+          // Remove any existing highlights
+          document.querySelectorAll('.event-card.highlighted').forEach(card => {
+            card.classList.remove('highlighted');
+          });
+          
+          targetCard.classList.add('highlighted');
+          // Center the card
+          const windowHeight = window.innerHeight;
+          const cardHeight = targetCard.offsetHeight;
+          const cardTop = targetCard.offsetTop;
+          const scrollTo = cardTop - (windowHeight - cardHeight) / 2;
+          window.scrollTo({ top: scrollTo });
+        }
+      }
+    }
+
+    // Handle both initial page load and subsequent Turbo navigations
+    document.addEventListener('turbo:load', handlePin);
+    document.addEventListener('turbo:render', handlePin);
+    document.addEventListener('DOMContentLoaded', handlePin);
+
+    // Set up auto-refresh if we have a pin
+    document.addEventListener('turbo:load', function() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('event_pin')) {
+        // Clear any existing refresh interval
+        if (window.refreshInterval) {
+          clearInterval(window.refreshInterval);
+        }
+        
+        // Set up new refresh using Turbo
+        window.refreshInterval = setInterval(() => {
+          Turbo.visit(window.location.href, { action: 'replace' });
+        }, 5000);
+      }
+    });
+
+    // Clean up interval when leaving the page
+    document.addEventListener('turbo:before-visit', function() {
+      if (window.refreshInterval) {
+        clearInterval(window.refreshInterval);
+      }
+    });
+  </script>
+<% end %> 

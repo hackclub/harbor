@@ -1,0 +1,32 @@
+<div class="scrapyard-event">
+  <div class="header">
+    <h1><%= @event.name %></h1>
+    <%= link_to "← Back to all scrapyards", scrapyard_leaderboards_path, class: "back-link" %>
+  </div>
+
+  <div class="attendee-leaderboard">
+    <h2>Hackatime Users</h2>
+    
+    <% if @attendee_stats.any? %>
+      <div class="attendees">
+        <% @attendee_stats.each_with_index do |stats, index| %>
+          <div class="attendee-card">
+            <div class="info">
+              <div class="name">
+                <%= stats[:display_name] %>
+              </div>
+              <div class="time">
+                <%= ApplicationController.helpers.short_time_simple(stats[:total_seconds]) %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="no-data">No coding activity recorded for this event yet.</p>
+    <% end %>
+  </div>
+</div>
+
+<% content_for :head do %>
+<% end %> 

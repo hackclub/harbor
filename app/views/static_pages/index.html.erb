@@ -37,6 +37,8 @@
       </div>
     <% end %>
 
+    <%= render "scrapyard" %>
+
     <% if @show_logged_time_sentence %>
       You've logged
       <%= short_time_detailed current_user.heartbeats.today.duration_seconds %>

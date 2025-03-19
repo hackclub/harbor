@@ -1,0 +1,442 @@
+<div class="container">
+  <div class="content">
+    <h1>Welcome, <%= @user.display_name %></h1>
+    
+    <div class="filters-section">
+      <%= render partial: 'shared/multi_select', locals: {
+        label: 'Project',
+        param: 'projects',
+        values: @projects,
+        selected: params[:projects]
+      } %>
+
+      <%= render partial: 'shared/multi_select', locals: {
+        label: 'Language',
+        param: 'language',
+        values: @languages,
+        selected: params[:language]
+      } %>
+
+      <%= render partial: 'shared/multi_select', locals: {
+        label: 'OS',
+        param: 'os',
+        values: @operating_systems,
+        selected: params[:os]
+      } %>
+
+      <%= render partial: 'shared/multi_select', locals: {
+        label: 'Editor',
+        param: 'editor',
+        values: @editors,
+        selected: params[:editor]
+      } %>
+    </div>
+  </div>
+</div>
+
+<%# Async dashboard content %>
+<div id="dashboard-content">
+  <%= render partial: 'filterable_dashboard' %>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const customSelects = document.querySelectorAll('.custom-select');
+  
+  // Close all dropdowns when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.custom-select')) {
+      customSelects.forEach(select => {
+        const container = select.querySelector('.options-container');
+        if (container) container.style.display = 'none';
+      });
+    }
+  });
+
+  customSelects.forEach(select => {
+    const header = select.querySelector('.select-header');
+    const container = select.querySelector('.options-container');
+    const checkboxes = select.querySelectorAll('input[type="checkbox"]');
+    const clearButton = select.querySelector('.clear-button');
+    const searchInput = select.querySelector('.search-input');
+    
+    // Initialize clear button visibility
+    const checkedBoxes = Array.from(checkboxes).filter(cb => cb.checked);
+    if (checkedBoxes.length > 0 && clearButton) {
+      clearButton.style.display = 'block';
+      if (checkedBoxes.length === 1) {
+        header.textContent = checkedBoxes[0].value;
+      } else {
+        header.textContent = `${checkedBoxes.length} selected`;
+      }
+    }
+    
+    // Toggle dropdown
+    header.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const isVisible = container.style.display === 'block';
+      
+      // Close all other dropdowns
+      customSelects.forEach(s => {
+        if (s !== select) {
+          const c = s.querySelector('.options-container');
+          if (c) c.style.display = 'none';
+        }
+      });
+      
+      // Toggle current dropdown
+      container.style.display = isVisible ? 'none' : 'block';
+      
+      // Focus search input when opening
+      if (!isVisible && searchInput) {
+        searchInput.focus();
+      }
+    });
+
+    // Clear filter when clicking the clear button
+    if (clearButton) {
+      clearButton.addEventListener('click', function(e) {
+        e.stopPropagation();
+        checkboxes.forEach(cb => cb.checked = false);
+        updateSelect(select);
+      });
+    }
+
+    // Handle search input
+    if (searchInput) {
+      searchInput.addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const options = select.querySelectorAll('.option');
+        
+        options.forEach(option => {
+          const text = option.textContent.toLowerCase();
+          option.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+      });
+
+      // Prevent dropdown from closing when clicking search
+      searchInput.addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+    }
+
+    // Update header text and URL when checkboxes change
+    checkboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', function() {
+        updateSelect(select);
+      });
+    });
+  });
+
+  // Function to update header text and URL for a select
+  function updateSelect(select) {
+    const header = select.querySelector('.select-header');
+    const clearButton = select.querySelector('.clear-button');
+    const checkboxes = select.querySelectorAll('input[type="checkbox"]');
+    const param = select.dataset.param;
+    
+    const selected = Array.from(checkboxes)
+      .filter(cb => cb.checked)
+      .map(cb => cb.value);
+    
+    // Update header text
+    if (selected.length === 0) {
+      header.textContent = `Filter by ${header.closest('.filter').querySelector('.filter-label').textContent.slice(2).toLowerCase()}...`;
+      if (clearButton) clearButton.style.display = 'none';
+    } else if (selected.length === 1) {
+      header.textContent = selected[0];
+      if (clearButton) clearButton.style.display = 'block';
+    } else {
+      header.textContent = `${selected.length} selected`;
+      if (clearButton) clearButton.style.display = 'block';
+    }
+
+    // Update URL
+    const url = new URL(window.location);
+    if (selected.length > 0) {
+      url.searchParams.set(param, selected.join(','));
+    } else {
+      url.searchParams.delete(param);
+    }
+    window.history.pushState({}, '', url);
+
+    // Update dashboard content
+    fetch(url.toString(), {
+      headers: {
+        'Accept': 'text/html',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(response => response.text())
+    .then(html => {
+      document.getElementById('dashboard-content').innerHTML = html;
+    });
+  }
+});
+</script>
+
+<style>
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+}
+
+.filters-section {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.filters {
+  margin-bottom: 2rem;
+  background: #f5f5f5;
+  padding: 1rem;
+  border-radius: 4px;
+}
+
+.filter-group {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.filter {
+  flex: 1;
+  min-width: 150px;
+  position: relative;
+}
+
+.filter-label {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+  color: #666;
+}
+
+.custom-select {
+  position: relative;
+  width: 100%;
+}
+
+.select-header-container {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+}
+
+.select-header {
+  flex: 1;
+  padding: 0.4rem 0.5rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.clear-button {
+  padding: 0.4rem 0.5rem;
+  font-size: 1rem;
+  line-height: 1;
+  color: #666;
+  background: none;
+  border: none;
+  border-left: 1px solid #ddd;
+  cursor: pointer;
+  display: none;
+}
+
+.clear-button:hover {
+  color: #ff4444;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.options-container {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-top: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.custom-select.active .options-container {
+  display: block;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  padding: 0.35rem 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 0.8rem;
+}
+
+.option:hover {
+  background-color: #f5f5f5;
+}
+
+.option input[type="checkbox"] {
+  margin-right: 0.5rem;
+  transform: scale(0.9);
+}
+
+.time-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.calendar-icon {
+  font-size: 1.1rem;
+}
+
+.dropdown-arrow {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 1.5rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.bar-graph {
+  margin-top: 1rem;
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.bar-label {
+  width: 150px;
+  text-align: right;
+  padding-right: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bar-container {
+  flex: 1;
+  height: 24px;
+  background: var(--smoke);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bar {
+  height: 100%;
+  background: var(--primary-color);
+  border-radius: 4px;
+  position: relative;
+  transition: width 0.3s ease;
+}
+
+.bar-value {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+  color: var(--text-inverse);
+}
+
+:root {
+  --primary-color: #8492a6;
+  --text-color: #2c3e50;
+  --text-inverse: #ffffff;
+  --smoke: #f5f5f5;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary-color: #a0aec0;
+    --text-color: #e2e8f0;
+    --text-inverse: #1a202c;
+    --smoke: #2d3748;
+  }
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  background: var(--smoke);
+  border-radius: 6px;
+  padding: 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-color);
+  opacity: 0.8;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.stat-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#dashboard-content {
+  min-height: 200px;
+}
+</style> 

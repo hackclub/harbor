@@ -1,0 +1,152 @@
+<div class="filter">
+  <label class="filter-label">▼ <%= label %></label>
+  <div class="custom-select" data-param="<%= param %>">
+    <div class="select-header-container">
+      <div class="select-header">
+        Filter by <%= label.downcase %>...
+      </div>
+      <button class="clear-button" style="display: none;">×</button>
+    </div>
+    <div class="options-container">
+      <input type="text" class="search-input" placeholder="Search <%= label.downcase %>...">
+      <div class="options-list">
+        <% values.reject(&:blank?).each do |value| %>
+          <label class="option">
+            <input 
+              type="checkbox" 
+              value="<%= value %>" 
+              <%= 'checked' if selected&.include?(value) %>
+            >
+            <span><%= value %></span>
+          </label>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.options-container {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-top: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  z-index: 1000;
+}
+
+.search-input {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #eee;
+  padding: 4px 8px !important;
+  margin: 0 !important;
+  height: 10px !important;
+  font-size: 13px;
+}
+
+.search-input:focus {
+  outline: none;
+}
+
+.options-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.option:hover {
+  background-color: #f5f5f5;
+}
+
+.option input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+.select-header-container {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+}
+
+.select-header {
+  flex: 1;
+  padding: 6px 8px;
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.clear-button {
+  padding: 6px 8px;
+  font-size: 16px;
+  line-height: 1;
+  color: #666;
+  background: none;
+  border: none;
+  border-left: 1px solid #ddd;
+  cursor: pointer;
+  display: none;
+}
+
+.clear-button:hover {
+  color: #ff4444;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const customSelects = document.querySelectorAll('.custom-select');
+  
+  customSelects.forEach(select => {
+    const searchInput = select.querySelector('.search-input');
+    const options = select.querySelectorAll('.option');
+    
+    searchInput.addEventListener('input', function(e) {
+      const searchTerm = e.target.value.toLowerCase();
+      
+      options.forEach(option => {
+        const text = option.querySelector('span').textContent.toLowerCase();
+        option.style.display = text.includes(searchTerm) ? '' : 'none';
+      });
+    });
+
+    // Prevent dropdown from closing when clicking search input
+    searchInput.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
+
+    // Focus search input when dropdown opens
+    const header = select.querySelector('.select-header');
+    header.addEventListener('click', function() {
+      setTimeout(() => {
+        if (select.querySelector('.options-container').style.display === 'block') {
+          searchInput.focus();
+        }
+      }, 0);
+    });
+
+    // Clear search when dropdown closes
+    document.addEventListener('click', function(e) {
+      if (!select.contains(e.target)) {
+        searchInput.value = '';
+        options.forEach(option => option.style.display = '');
+      }
+    });
+  });
+});
+</script> 

@@ -55,6 +55,49 @@ class UsersController < ApplicationController
     ].sample
   end
 
+  def show
+    # Use current_user for /my/home route, otherwise find by id
+    @user = if params[:id].present?
+      User.find(params[:id])
+    else
+      current_user
+    end
+
+    # Load filter options
+    @projects = @user.heartbeats.select(:project).distinct.order(:project).pluck(:project)
+    @languages = @user.heartbeats.select(:language).distinct.order(:language).pluck(:language)
+    @operating_systems = @user.heartbeats.select(:operating_system).distinct.order(:operating_system).pluck(:operating_system)
+    @editors = @user.heartbeats.select(:editor).distinct.order(:editor).pluck(:editor)
+
+    # Apply filters to heartbeats
+    @filtered_heartbeats = @user.heartbeats
+    @filtered_heartbeats = @filtered_heartbeats.where(project: params[:projects].split(",")) if params[:projects].present?
+    @filtered_heartbeats = @filtered_heartbeats.where(language: params[:language].split(",")) if params[:language].present?
+    @filtered_heartbeats = @filtered_heartbeats.where(operating_system: params[:os].split(",")) if params[:os].present?
+    @filtered_heartbeats = @filtered_heartbeats.where(editor: params[:editor].split(",")) if params[:editor].present?
+
+    # Calculate stats for filtered data
+    @total_time = @filtered_heartbeats.duration_seconds
+    @total_heartbeats = @filtered_heartbeats.count
+    @top_project = @filtered_heartbeats.group(:project).count.max_by { |_, v| v }&.first
+    @top_language = @filtered_heartbeats.group(:language).count.max_by { |_, v| v }&.first
+    @top_os = @filtered_heartbeats.group(:operating_system).count.max_by { |_, v| v }&.first
+    @top_editor = @filtered_heartbeats.group(:editor).count.max_by { |_, v| v }&.first
+
+    # Prepare chart data
+    @project_durations = @filtered_heartbeats
+      .group(:project)
+      .duration_seconds
+      .sort_by { |_, duration| -duration }
+      .first(10)
+      .to_h
+
+    # Respond to AJAX requests with just the filterable dashboard
+    if request.xhr?
+      render partial: "filterable_dashboard"
+    end
+  end
+
   private
 
   def require_admin

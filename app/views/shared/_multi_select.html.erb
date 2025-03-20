@@ -226,7 +226,6 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   const customSelects = document.querySelectorAll('.custom-select');
-  console.log('Found custom selects:', customSelects.length);
   
   customSelects.forEach(select => {
     const searchInput = select.querySelector('.search-input');
@@ -300,7 +299,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Prevent dropdown from closing when clicking search input
     searchInput.addEventListener('click', function(e) {
-      console.log('Search input clicked');
       e.stopPropagation();
     });
 

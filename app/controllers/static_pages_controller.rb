@@ -120,6 +120,8 @@ class StaticPagesController < ApplicationController
     # Get all users who have heartbeats in the last 15 minutes
     users = Rails.cache.fetch("currently_hacking", expires_in: 1.minute) do
       user_ids = Heartbeat.where("time > ?", 5.minutes.ago.to_f)
+                          .where(source_type: :direct_entry)
+                          .where(category: :coding)
                           .distinct
                           .pluck(:user_id)
 

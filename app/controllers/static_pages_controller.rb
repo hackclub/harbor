@@ -118,22 +118,45 @@ class StaticPagesController < ApplicationController
 
   def currently_hacking
     # Get all users who have heartbeats in the last 15 minutes
-    users = Rails.cache.fetch("currently_hacking", expires_in: 1.minute) do
-      user_ids = Heartbeat.where("time > ?", 5.minutes.ago.to_f)
+    users = Rails.cache.fetch("currently_hacking_#{Time.current.to_i / 30}", expires_in: 30.seconds) do
+      user_ids = Heartbeat.where("time > ?", 15.minutes.ago.to_f)
                           .where(source_type: :direct_entry)
                           .where(category: :coding)
-                          .distinct
-                          .pluck(:user_id)
+                          .distinct.pluck(:user_id)
 
       User.where(id: user_ids).includes(:project_repo_mappings)
     end
 
     active_projects = {}
     users.each do |user|
-      active_projects[user.id] = user.project_repo_mappings.find { |p| p.project_name == user.active_project }
+      active_projects[user.id] = user.project_repo_mappings
+                                     .find { |p| p.project_name == user.active_project }
     end
 
-    render partial: "currently_hacking", locals: { users: users, active_projects: active_projects }
+    respond_to do |format|
+      format.html do
+        render partial: "currently_hacking", locals: { users: users, active_projects: active_projects }
+      end
+      format.json do
+        render json: {
+          users: users.map { |user|
+            {
+              id: user.id,
+              username: user.username,
+              display_name: user.display_name,
+              avatar_url: user.avatar_url,
+              slack_uid: user.slack_uid,
+              active_project: active_projects[user.id]&.project_name,
+              project_url: active_projects[user.id]&.repo_url,
+              user_mention_html: ApplicationController.renderer.render(
+                partial: "shared/user_mention",
+                locals: { user: user, show: [ :slack ] }
+              )
+            }
+          }
+        }
+      end
+    end
   end
 
   def 🃏

@@ -1,37 +1,81 @@
 <%= turbo_frame_tag "currently_hacking" do %>
   <%= cache ["currently_hacking"], expires_in: 1.minute do %>
-    <% if users.any? %>
-      <div class="currently-hacking" onclick="this.classList.toggle('visible')">
-        <div class="currently-hacking-header">
-          <span>
-            <div class="live-indicator"></div>
-            <%= pluralize(users.count, "person") %> currently hacking
-          </span>
-        </div>
-        <div class="currently-hacking-list">
-          <hr>
-          <ul>
-            <% users.each do |user| %>
-              <%= render "shared/user_mention", user: user, show: [:slack] %>
-              <% if active_projects[user.id].present? %>
-                <span class="super">
-                  working on <%= link_to active_projects[user.id].project_name, active_projects[user.id].repo_url, target: "_blank" %>
-                </span>
-              <% end %>
-              <% if user == current_user && user.github_username.blank? %>
-                <span class="super">
-                  <%= link_to "Link active projects", my_settings_path(anchor: "user_github_account"), target: "_blank" %>
-                </span>
-              <% end %>
+    <div class="currently-hacking" onclick="this.classList.toggle('visible')" data-controller="currently-hacking">
+      <div class="currently-hacking-header">
+        <span>
+          <div class="live-indicator"></div>
+          <span class="user-count"><%= pluralize(users.count, "person") %> currently hacking</span>
+        </span>
+      </div>
+      <div class="currently-hacking-list">
+        <hr>
+        <ul>
+          <% users.each do |user| %>
+            <%= render "shared/user_mention", user: user, show: [:slack] %>
+            <% if active_projects[user.id].present? %>
+              <span class="super">
+                working on <%= link_to active_projects[user.id].project_name, active_projects[user.id].repo_url, target: "_blank" %>
+              </span>
             <% end %>
-          </ul>
-        </div>
+            <% if user == current_user && user.github_username.blank? %>
+              <span class="super">
+                <%= link_to "Link active projects", my_settings_path(anchor: "user_github_account"), target: "_blank" %>
+              </span>
+            <% end %>
+          <% end %>
+        </ul>
       </div>
-    <% else %>
-      <div class="currently-hacking">
-        <p>No one is currently hacking</p>
-      </div>
-    <% end %>
+    </div>
+
+    <script>
+      // Only initialize if not already initialized
+      if (!window.currentlyHackingInitialized) {
+        window.currentlyHackingInitialized = true;
+        
+        // Function to update the currently hacking list
+        function updateCurrentlyHacking(data) {
+          const container = document.querySelector('.currently-hacking');
+          if (!container) return;
+
+          const list = container.querySelector('ul');
+          if (!list) return;
+
+          // Update user count
+          const userCount = container.querySelector('.user-count');
+          if (userCount) {
+            userCount.textContent = `${data.users.length} ${data.users.length === 1 ? 'person' : 'people'} currently hacking`;
+          }
+
+          // Update list
+          list.innerHTML = data.users.map(user => `
+            <li>
+              ${user.user_mention_html}
+              ${user.active_project ? 
+                `<span class="super">working on <a href="${user.project_url}" target="_blank">${user.active_project}</a></span>` : 
+                ''
+              }
+            </li>
+          `).join('');
+        }
+
+        // Set up polling
+        setInterval(() => {
+          fetch('<%= currently_hacking_static_pages_path(format: :json) %>', {
+            headers: {
+              'Accept': 'application/json',
+              'X-Requested-With': 'XMLHttpRequest'
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            updateCurrentlyHacking(data);
+          })
+          .catch(error => {
+            console.error('Error updating currently hacking:', error);
+          });
+        }, 10000); // Poll every 10 seconds (for testing)
+      }
+    </script>
   <% end %>
 <% end %>
 

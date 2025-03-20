@@ -1,6 +1,6 @@
 <%# This partial will be loaded asynchronously when filters change %>
 
-<div class="dashboard-grid">
+<div class="dashboard-wrapper">
   <%# Stats cards %>
   <div class="stats-section">
     <div class="stat-card">
@@ -34,58 +34,94 @@
     </div>
   </div>
 
-  <%# Project duration graph %>
-  <div class="card">
-    <h2>Project Durations</h2>
-    <div class="bar-graph">
-      <% 
-        max_duration = @project_durations.values.max
-        min_duration = @project_durations.values.min
+  <div class="dashboard-grid">
+    <%# Project duration graph %>
+    <div class="card">
+      <h2>Project Durations</h2>
+      <div class="bar-graph">
+        <% 
+          max_duration = @project_durations.values.max
+          min_duration = @project_durations.values.min
 
-        # Use logarithmic scale for better visibility of smaller values
-        # Add 1 to avoid log(0), scale to 15-100 range
-        def log_scale(value, max_val)
-          return 0 if value == 0
-          min_percent = 5  # Minimum bar width percentage
-          max_percent = 100 # Maximum bar width percentage
-          
-          # Mix linear and logarithmic scaling
-          # 80% linear, 20% logarithmic
-          linear_ratio = value.to_f / max_val
-          log_ratio = Math.log(value + 1) / Math.log(max_val + 1)
-          
-          linear_weight = 0.8
-          log_weight = 0.2
-          
-          scaled = min_percent + (linear_weight * linear_ratio + log_weight * log_ratio) * (max_percent - min_percent)
-          [scaled, max_percent].min.round
-        end
-      %>
-      
-      <% @project_durations.each do |project, duration| %>
-        <div class="bar-row">
-          <div class="bar-label"><%= project %></div>
-          <div class="bar-container">
-            <div class="bar" style="width: <%= log_scale(duration, max_duration) %>%">
-              <span class="bar-value"><%= ApplicationController.helpers.short_time_simple(duration) %></span>
+          # Use logarithmic scale for better visibility of smaller values
+          # Add 1 to avoid log(0), scale to 15-100 range
+          def log_scale(value, max_val)
+            return 0 if value == 0
+            min_percent = 5  # Minimum bar width percentage
+            max_percent = 100 # Maximum bar width percentage
+            
+            # Mix linear and logarithmic scaling
+            # 80% linear, 20% logarithmic
+            linear_ratio = value.to_f / max_val
+            log_ratio = Math.log(value + 1) / Math.log(max_val + 1)
+            
+            linear_weight = 0.8
+            log_weight = 0.2
+            
+            scaled = min_percent + (linear_weight * linear_ratio + log_weight * log_ratio) * (max_percent - min_percent)
+            [scaled, max_percent].min.round
+          end
+        %>
+        
+        <% @project_durations.each do |project, duration| %>
+          <div class="bar-row">
+            <div class="bar-label"><%= project %></div>
+            <div class="bar-container">
+              <div class="bar" style="width: <%= log_scale(duration, max_duration) %>%">
+                <span class="bar-value"><%= ApplicationController.helpers.short_time_simple(duration) %></span>
+              </div>
             </div>
           </div>
-        </div>
-      <% end %>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Language distribution %>
+    <div class="card">
+      <h2>Languages</h2>
+      <div class="chart-container">
+        <canvas id="languageChart" data-stats="<%= @language_stats.to_json %>"></canvas>
+      </div>
+    </div>
+
+    <%# Editor distribution %>
+    <div class="card">
+      <h2>Editors</h2>
+      <div class="chart-container">
+        <canvas id="editorChart" data-stats="<%= @editor_stats.to_json %>"></canvas>
+      </div>
+    </div>
+
+    <%# OS distribution %>
+    <div class="card">
+      <h2>Operating Systems</h2>
+      <div class="chart-container">
+        <canvas id="osChart" data-stats="<%= @os_stats.to_json %>"></canvas>
+      </div>
     </div>
   </div>
 </div>
 
 <style>
-.dashboard-grid {
-  display: grid;
+.dashboard-wrapper {
+  display: flex;
+  flex-direction: column;
   gap: 1.5rem;
+  width: 100%;
 }
 
 .stats-section {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 1rem;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  min-width: 0;
 }
 
 .stat-card {
@@ -98,12 +134,14 @@
 
 .stat-label {
   color: #666;
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
+  font-size: 0.5rem;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .stat-value {
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 500;
 }
 
@@ -112,6 +150,23 @@
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   padding: 1.5rem;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+}
+
+.card h2 {
+  margin-bottom: 1rem;
+}
+
+.chart-container {
+  flex: 1;
+  position: relative;
+  min-height: 250px;
+}
+
+canvas {
+  max-height: 100%;
 }
 
 .bar-graph {
@@ -162,28 +217,74 @@
 </style>
 
 <script>
-// Re-initialize chart when the partial is loaded
-if (window.projectChart) {
-  window.projectChart.destroy();
-}
+// Store chart instances
+const chartInstances = {};
 
-const ctx = document.getElementById('projectDurationChart').getContext('2d');
-window.projectChart = new Chart(ctx, {
-  type: 'bar',
-  data: <%= raw @chart_data.to_json %>,
-  options: {
-    indexAxis: 'y',
-    plugins: {
-      legend: {
-        display: false
-      }
+// Helper function to create pie charts
+function createPieChart(elementId) {
+  const canvas = document.getElementById(elementId);
+  if (!canvas) return;
+
+  // Get stats from data attribute
+  const stats = JSON.parse(canvas.dataset.stats);
+  const labels = Object.keys(stats);
+  const data = Object.values(stats);
+
+  // Destroy existing chart if it exists
+  if (chartInstances[elementId]) {
+    chartInstances[elementId].destroy();
+  }
+
+  const ctx = canvas.getContext('2d');
+  chartInstances[elementId] = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: data,
+        borderWidth: 1
+      }]
     },
-    scales: {
-      x: {
-        type: 'logarithmic',
-        min: 1
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: {
+            color: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+            font: {
+              size: 12
+            }
+          }
+        }
       }
     }
-  }
-});
+  });
+}
+
+// Initialize or reinitialize charts
+function initializeCharts() {
+  createPieChart('languageChart');
+  createPieChart('editorChart');
+  createPieChart('osChart');
+}
+
+// Function to set up event listeners
+function setupChartListeners() {
+  // Initialize charts when content updates via Turbo
+  document.addEventListener('turbo:render', initializeCharts);
+  document.addEventListener('turbo:load', initializeCharts);
+  
+  // Also initialize on regular DOM load for non-Turbo cases
+  document.addEventListener('DOMContentLoaded', initializeCharts);
+}
+
+// Set up listeners immediately
+setupChartListeners();
+
+// Initialize charts immediately if we're not in a Turbo load
+if (!window.Turbo) {
+  initializeCharts();
+}
 </script> 

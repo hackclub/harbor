@@ -1,3 +1,8 @@
+<%# Move Chart.js to head %>
+<% content_for :head do %>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<% end %>
+
 <div class="container">
   <div class="content">
     <h1>Welcome, <%= @user.display_name %></h1>
@@ -188,144 +193,15 @@ h1 {
   color: #666;
 }
 
-.card {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  padding: 1.5rem;
-}
-
-h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-}
-
-.bar-graph {
-  margin-top: 1rem;
-}
-
-.bar-row {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.bar-label {
-  width: 150px;
-  text-align: right;
-  padding-right: 1rem;
-  font-size: 0.9rem;
-  color: var(--text-color);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.bar-container {
-  flex: 1;
-  height: 24px;
-  background: var(--smoke);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.bar {
-  height: 100%;
-  background: var(--primary-color);
-  border-radius: 4px;
-  position: relative;
-  transition: width 0.3s ease;
-}
-
-.bar-value {
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 0.8rem;
-  color: var(--text-inverse);
-}
-
-:root {
-  --primary-color: #8492a6;
-  --text-color: #2c3e50;
-  --text-inverse: #ffffff;
-  --smoke: #f5f5f5;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --primary-color: #a0aec0;
-    --text-color: #e2e8f0;
-    --text-inverse: #1a202c;
-    --smoke: #2d3748;
-  }
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
-  min-width: 0;
-}
-
-.stat-card {
-  background: var(--smoke);
-  border-radius: 6px;
-  padding: 0.75rem;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
-  min-width: 200px;
-}
-
-.stat-card:hover {
-  transform: translateY(-2px);
-}
-
-.stat-label {
-  font-size: 0.75rem;
-  color: var(--text-color);
-  opacity: 0.8;
-  margin-bottom: 0.25rem;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-}
-
-.stat-value {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-color);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 #dashboard-content {
   min-height: 200px;
-  transition: filter 0.2s ease;
   width: 100%;
 }
 
-#dashboard-content.loading {
+#dashboard-content.loading .dashboard-wrapper {
   filter: grayscale(1) opacity(0.7);
   pointer-events: none;
-}
-
-.dashboard-grid {
-  display: grid;
-  gap: 1.5rem;
-  width: 100%;
-  min-width: 0;
-}
-
-.stats-section {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  width: 100%;
-  min-width: 0;
+  transition: filter 0.2s ease;
 }
 </style>
 
@@ -470,6 +346,10 @@ document.addEventListener('DOMContentLoaded', function() {
     .then(html => {
       dashboardContent.innerHTML = html;
       dashboardContent.classList.remove('loading');
+      // Initialize charts after content update
+      if (typeof initializeCharts === 'function') {
+        initializeCharts();
+      }
     })
     .catch(error => {
       console.error('Error updating dashboard:', error);

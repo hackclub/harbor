@@ -84,12 +84,35 @@ class UsersController < ApplicationController
     @top_os = @filtered_heartbeats.group(:operating_system).count.max_by { |_, v| v }&.first
     @top_editor = @filtered_heartbeats.group(:editor).count.max_by { |_, v| v }&.first
 
-    # Prepare chart data
+    # Prepare project durations data
     @project_durations = @filtered_heartbeats
       .group(:project)
       .duration_seconds
       .sort_by { |_, duration| -duration }
       .first(10)
+      .to_h
+
+    # Prepare pie chart data
+    @language_stats = @filtered_heartbeats
+      .group(:language)
+      .duration_seconds
+      .sort_by { |_, duration| -duration }
+      .first(10)
+      .map { |k, v| [ k || "Unknown", v ] }
+      .to_h
+
+    @editor_stats = @filtered_heartbeats
+      .group(:editor)
+      .duration_seconds
+      .sort_by { |_, duration| -duration }
+      .map { |k, v| [ k || "Unknown", v ] }
+      .to_h
+
+    @os_stats = @filtered_heartbeats
+      .group(:operating_system)
+      .duration_seconds
+      .sort_by { |_, duration| -duration }
+      .map { |k, v| [ k || "Unknown", v ] }
       .to_h
 
     # Respond to AJAX requests with just the filterable dashboard

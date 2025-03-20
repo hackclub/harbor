@@ -90,4 +90,10 @@ Rails.application.routes.draw do
   end
 
   resources :scrapyard_leaderboards, only: [ :index, :show ]
+  
+  resources :project_milestones, only: [] do
+    member do
+      post :give_kudos
+    end
+  end
 end

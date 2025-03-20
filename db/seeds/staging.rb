@@ -152,29 +152,6 @@ if Rails.env.staging?
     end
   end
 
-  # Add kudos to project milestones
-  puts "Adding kudos to project milestones..."
-
-  # Get all milestones
-  milestones = ProjectMilestone.all
-
-  # For each user, give kudos to some milestones that aren't their own
-  users.each do |user|
-    other_user_milestones = milestones.where.not(user_id: user.id).sample(2)
-
-    other_user_milestones.each do |milestone|
-      # Skip if user already gave kudos to this milestone
-      next if milestone.kudos_from?(user.id)
-
-      ProjectMilestoneKudos.create!(
-        project_milestone: milestone,
-        user_id: user.id
-      )
-    rescue ActiveRecord::RecordInvalid
-      # Skip if there's a validation error
-    end
-  end
-
   # Create leaderboards
   puts "Creating leaderboards..."
 

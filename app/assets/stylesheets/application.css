@@ -58,9 +58,7 @@
 }
 
 .loading {
-  padding: 1rem;
-  color: #666;
-  font-style: italic;
+  filter: grayscale(100%);
 }
 
 .project-durations {

@@ -220,6 +220,18 @@ canvas {
 // Store chart instances
 const chartInstances = {};
 
+// Helper function to format duration
+function formatDuration(seconds) {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  
+  if (hours > 0) {
+    return `${hours}h ${minutes}m`;
+  } else {
+    return `${minutes}m`;
+  }
+}
+
 // Helper function to create pie charts
 function createPieChart(elementId) {
   const canvas = document.getElementById(elementId);
@@ -249,6 +261,17 @@ function createPieChart(elementId) {
       responsive: true,
       maintainAspectRatio: true,
       plugins: {
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const label = context.label || '';
+              const value = context.raw || 0;
+              const duration = formatDuration(value);
+              const percentage = ((value / data.reduce((a, b) => a + b, 0)) * 100).toFixed(1);
+              return `${label}: ${duration} (${percentage}%)`;
+            }
+          }
+        },
         legend: {
           position: 'right',
           labels: {

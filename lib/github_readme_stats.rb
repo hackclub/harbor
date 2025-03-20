@@ -10,6 +10,7 @@ class GithubReadmeStats
       username: @user_id,
       api_domain: "hackatime.hackclub.com",
       theme: @theme,
+      custom_title: "Hackatime Stats",
       layout: "compact",
       cache_seconds: 0,
       langs_count: 8

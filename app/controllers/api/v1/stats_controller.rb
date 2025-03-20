@@ -28,6 +28,17 @@ class Api::V1::StatsController < ApplicationController
     render plain: query.duration_seconds
   end
 
+  def user_stats
+    user = User.where(id: params[:username]).first
+    user ||= User.where(slack_uid: params[:username]).first
+
+    return render plain: "User not found", status: :not_found unless user.present?
+
+    summary = WakatimeService.new(user, languages: true).generate_summary
+
+    render json: { data: summary }
+  end
+
   private
 
   def ensure_authenticated!

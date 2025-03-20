@@ -73,6 +73,7 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       get "stats", to: "stats#show"
+      get "users/:username/stats", to: "stats#user_stats"
 
       namespace :my do
         get "heartbeats/most_recent", to: "heartbeats#most_recent"

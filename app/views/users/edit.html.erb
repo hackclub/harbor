@@ -114,6 +114,35 @@
 </div>
 
 <div>
+  <h2 id="user_stats_badges">Stats badges</h2>
+  <p>
+    These badges show your stats on your GitHub profile.
+  </p>
+  <select name="theme" id="theme-select" onchange="updateBadgeTheme(this.value)">
+    <% GithubReadmeStats.themes.each do |theme| %>
+      <option value="<%= theme %>"><%= theme.humanize %></option>
+    <% end %>
+  </select>
+  <% gh_badge = GithubReadmeStats.new(current_user.id, "darcula") %>
+  <img id="badge-preview" src="<%= gh_badge.generate_badge_url %>" data-url="<%= gh_badge.generate_badge_url %>">
+  <code id="badge-url"><%= gh_badge.generate_badge_url %></code>
+
+  <script>
+    function updateBadgeTheme(theme) {
+      const originalUrl = document.getElementById('badge-preview').dataset.url;
+      const [baseUrl, queryString] = originalUrl.split('?');
+      const params = queryString.split('&').map(param => {
+        const [key, value] = param.split('=');
+        return key === 'theme' ? `theme=${theme}` : param;
+      });
+      const newUrl = `${baseUrl}?${params.join('&')}`;
+      document.getElementById('badge-preview').src = newUrl;
+      document.getElementById('badge-url').textContent = newUrl;
+    }
+  </script>
+</div>
+
+<div>
   <h2 id="user_migration_assistant">Migration assistant</h2>
   <p>This will migrate your heartbeats from waka.hackclub.com to this platform.</p>
   <%= button_to "Migrate heartbeats", my_settings_migrate_heartbeats_path, method: :post %>

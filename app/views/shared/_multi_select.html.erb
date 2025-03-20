@@ -26,125 +26,236 @@
 </div>
 
 <style>
-.options-container {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  margin-top: 4px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  z-index: 1000;
+.filter .options-container {
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  right: 0 !important;
+  background: rgba(30, 33, 37, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 4px !important;
+  margin-top: 4px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  z-index: 1000 !important;
+  padding: 0 !important;
 }
 
-.search-input {
-  width: 100%;
-  border: none;
-  border-bottom: 1px solid #eee;
-  padding: 4px 8px !important;
+.filter .search-input {
+  width: 100% !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  padding: 8px !important;
   margin: 0 !important;
-  height: 10px !important;
-  font-size: 13px;
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: 13px !important;
+  border-radius: 0 !important;
+  height: auto !important;
 }
 
-.search-input:focus {
-  outline: none;
+.filter .search-input::placeholder {
+  color: rgba(255, 255, 255, 0.4) !important;
 }
 
-.options-list {
-  max-height: 200px;
-  overflow-y: auto;
+.filter .search-input:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
 }
 
-.option {
-  display: flex;
-  align-items: center;
-  padding: 4px 8px;
-  cursor: pointer;
-  font-size: 13px;
+.filter .options-list {
+  max-height: 200px !important;
+  overflow-y: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
-.option:hover {
-  background-color: #f5f5f5;
+.filter .option {
+  display: flex !important;
+  align-items: center !important;
+  padding: 6px 8px !important;
+  cursor: pointer !important;
+  font-size: 13px !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  margin: 0 !important;
+  background: transparent !important;
 }
 
-.option input[type="checkbox"] {
-  margin-right: 8px;
+.filter .option:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
 }
 
-.select-header-container {
-  display: flex;
-  align-items: center;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background-color: white;
+.filter .option input[type="checkbox"] {
+  margin-right: 8px !important;
+  margin-bottom: 0 !important;
+  height: auto !important;
 }
 
-.select-header {
-  flex: 1;
-  padding: 6px 8px;
-  font-size: 13px;
-  cursor: pointer;
-  user-select: none;
+.filter .select-header-container {
+  display: flex !important;
+  align-items: center !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 4px !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
-.clear-button {
-  padding: 6px 8px;
-  font-size: 16px;
-  line-height: 1;
-  color: #666;
-  background: none;
-  border: none;
-  border-left: 1px solid #ddd;
-  cursor: pointer;
-  display: none;
+.filter .select-header {
+  flex: 1 !important;
+  padding: 6px 8px !important;
+  font-size: 13px !important;
+  cursor: pointer !important;
+  user-select: none !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  margin: 0 !important;
+  background: transparent !important;
 }
 
-.clear-button:hover {
-  color: #ff4444;
-  background-color: rgba(0, 0, 0, 0.05);
+.filter .clear-button {
+  padding: 6px 8px !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+  color: rgba(255, 255, 255, 0.4) !important;
+  background: none !important;
+  border: none !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.1) !important;
+  cursor: pointer !important;
+  display: none !important;
+  margin: 0 !important;
+}
+
+.filter .clear-button:hover {
+  color: #ff4444 !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.filter .option.hidden {
+  display: none !important;
+}
+
+@media (prefers-color-scheme: light) {
+  .filter .options-container {
+    background: white !important;
+    border: 1px solid #ddd !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  .filter .search-input {
+    border-bottom: 1px solid #eee !important;
+    color: var(--text-color) !important;
+  }
+
+  .filter .search-input::placeholder {
+    color: #999 !important;
+  }
+
+  .filter .option {
+    color: var(--text-color) !important;
+  }
+
+  .filter .option:hover {
+    background-color: #f5f5f5 !important;
+  }
+
+  .filter .select-header-container {
+    border: 1px solid #ddd !important;
+    background-color: white !important;
+  }
+
+  .filter .select-header {
+    color: #666 !important;
+  }
+
+  .filter .clear-button {
+    color: #666 !important;
+    border-left: 1px solid #ddd !important;
+  }
+
+  .filter .clear-button:hover {
+    color: #ff4444 !important;
+    background-color: rgba(0, 0, 0, 0.05) !important;
+  }
 }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   const customSelects = document.querySelectorAll('.custom-select');
+  console.log('Found custom selects:', customSelects.length);
   
   customSelects.forEach(select => {
     const searchInput = select.querySelector('.search-input');
+    const optionsList = select.querySelector('.options-list');
     const options = select.querySelectorAll('.option');
+    const optionsContainer = select.querySelector('.options-container');
+    const header = select.querySelector('.select-header');
     
-    searchInput.addEventListener('input', function(e) {
-      const searchTerm = e.target.value.toLowerCase();
+    console.log('Options available:', options.length);
+    
+    // Debug: Log all available options
+    options.forEach(option => {
+      const text = option.querySelector('span').textContent;
+      console.log('Available option:', text);
+    });
+    
+    // Improved search function with debugging
+    function filterOptions(searchTerm) {
+      const normalizedSearch = searchTerm.toLowerCase().trim();
+      console.log('Searching for:', normalizedSearch);
       
+      let matchCount = 0;
       options.forEach(option => {
-        const text = option.querySelector('span').textContent.toLowerCase();
-        option.style.display = text.includes(searchTerm) ? '' : 'none';
+        const text = option.querySelector('span').textContent.toLowerCase().trim();
+        const shouldShow = normalizedSearch === '' || text.includes(normalizedSearch);
+        
+        // Use classList instead of style.display
+        if (shouldShow) {
+          option.classList.remove('hidden');
+          matchCount++;
+        } else {
+          option.classList.add('hidden');
+        }
+        
+        console.log('Option:', text, 'Search:', normalizedSearch, 'Match:', shouldShow);
       });
+      
+      console.log('Total matches:', matchCount);
+    }
+
+    // Search input handler
+    searchInput.addEventListener('input', function(e) {
+      console.log('Search input event:', e.target.value);
+      filterOptions(e.target.value);
     });
 
     // Prevent dropdown from closing when clicking search input
     searchInput.addEventListener('click', function(e) {
+      console.log('Search input clicked');
       e.stopPropagation();
     });
 
-    // Focus search input when dropdown opens
-    const header = select.querySelector('.select-header');
+    // Toggle dropdown visibility
     header.addEventListener('click', function() {
-      setTimeout(() => {
-        if (select.querySelector('.options-container').style.display === 'block') {
-          searchInput.focus();
-        }
-      }, 0);
+      const isVisible = optionsContainer.style.display === 'block';
+      const newDisplay = isVisible ? 'none' : 'block';
+      console.log('Toggling dropdown:', newDisplay);
+      optionsContainer.style.display = newDisplay;
+      
+      if (!isVisible) {
+        searchInput.focus();
+        searchInput.value = '';
+        filterOptions('');
+      }
     });
 
-    // Clear search when dropdown closes
+    // Close dropdown when clicking outside
     document.addEventListener('click', function(e) {
       if (!select.contains(e.target)) {
+        console.log('Closing dropdown from outside click');
+        optionsContainer.style.display = 'none';
         searchInput.value = '';
-        options.forEach(option => option.style.display = '');
+        filterOptions('');
       }
     });
   });

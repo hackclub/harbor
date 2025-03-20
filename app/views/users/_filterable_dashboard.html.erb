@@ -118,22 +118,21 @@
 
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
   width: 100%;
-  min-width: 0;
 }
 
 .stat-card {
-  background: var(--smoke);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 6px;
   padding: 0.75rem;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   transition: transform 0.2s ease;
 }
 
 .stat-label {
-  color: #666;
+  color: rgba(255, 255, 255, 0.5);
   font-size: 0.5rem;
   margin-bottom: 0.25rem;
   text-transform: uppercase;
@@ -143,30 +142,34 @@
 .stat-value {
   font-size: 1rem;
   font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .card {
-  background: white;
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 1.5rem;
-  min-height: 300px;
   display: flex;
   flex-direction: column;
 }
 
 .card h2 {
   margin-bottom: 1rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .chart-container {
   flex: 1;
   position: relative;
-  min-height: 250px;
+  height: 140px;
 }
 
-canvas {
+.chart-container canvas {
   max-height: 100%;
+  width: 100%;
 }
 
 .bar-graph {
@@ -184,7 +187,7 @@ canvas {
   text-align: right;
   padding-right: 1rem;
   font-size: 0.9rem;
-  color: var(--text-color);
+  color: rgba(255, 255, 255, 0.7);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -193,14 +196,14 @@ canvas {
 .bar-container {
   flex: 1;
   height: 24px;
-  background: var(--smoke);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 4px;
   overflow: hidden;
 }
 
 .bar {
   height: 100%;
-  background: var(--primary-color);
+  background: #85e394;
   border-radius: 4px;
   position: relative;
   transition: width 0.3s ease;
@@ -212,7 +215,55 @@ canvas {
   top: 50%;
   transform: translateY(-50%);
   font-size: 0.8rem;
-  color: var(--text-inverse);
+  color: rgba(0, 0, 0, 0.8);
+}
+
+.no-data {
+  text-align: center;
+  padding: 2rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+}
+
+@media (prefers-color-scheme: light) {
+  .stat-card {
+    background: var(--smoke);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .stat-label {
+    color: #666;
+  }
+
+  .stat-value {
+    color: var(--text-color);
+  }
+
+  .card {
+    background: white;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .card h2 {
+    color: var(--text-color);
+  }
+
+  .bar-label {
+    color: var(--text-color);
+  }
+
+  .bar-container {
+    background: var(--smoke);
+  }
+
+  .bar-value {
+    color: var(--text-inverse);
+  }
+
+  .no-data {
+    color: #666;
+  }
 }
 </style>
 

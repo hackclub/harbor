@@ -14,6 +14,10 @@ class UsersController < ApplicationController
     ).where.not(slack_channel_id: "C0835AZP9GB")
 
     @heartbeats_migration_jobs = @user.data_migration_jobs
+
+    # Load existing wakatime mirrors and build a new one for the form
+    @wakatime_mirrors = @user.wakatime_mirrors.active
+    @new_wakatime_mirror = @user.wakatime_mirrors.build
   end
 
   def update
@@ -177,6 +181,11 @@ class UsersController < ApplicationController
   end
 
   def user_params
-    params.require(:user).permit(:uses_slack_status, :hackatime_extension_text_type, :timezone)
+    params.require(:user).permit(
+      :uses_slack_status,
+      :hackatime_extension_text_type,
+      :timezone,
+      wakatime_mirrors_attributes: [ :id, :api_url, :api_key, :_destroy ]
+    )
   end
 end

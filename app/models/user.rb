@@ -10,6 +10,8 @@ class User < ApplicationRecord
   has_many :email_addresses
   has_many :sign_in_tokens
   has_many :project_repo_mappings
+  has_many :wakatime_mirrors, dependent: :destroy
+  accepts_nested_attributes_for :wakatime_mirrors, allow_destroy: true, reject_if: :all_blank
 
   has_many :hackatime_heartbeats,
     foreign_key: :user_id,
@@ -301,6 +303,7 @@ class User < ApplicationRecord
   def display_name
     return slack_username if slack_username.present?
     return github_username if github_username.present?
+    return username if username.present?
 
     # "zach@hackclub.com" -> "zach (email sign-up)"
     email = email_addresses&.first&.email

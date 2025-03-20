@@ -1,0 +1,87 @@
+<div class="fields mirror-form">
+  <div class="field">
+    <%= f.label :api_url, "API URL" %>
+    <%= f.text_field :api_url, placeholder: "https://api.wakatime.com/api/v1" %>
+    <small>The base URL of your WakaTime-compatible API server</small>
+  </div>
+
+  <div class="field">
+    <%= f.label :api_key, "API Key" %>
+    <%= f.password_field :api_key, placeholder: "waka_..." %>
+    <small>The API key for authentication with your WakaTime server</small>
+  </div>
+
+  <% if f.object.persisted? %>
+    <div class="field remove-mirror">
+      <%= f.hidden_field :_destroy, value: "false" %>
+      <%= button_tag type: 'button', class: 'remove-button', onclick: "if(confirm('Are you sure you want to remove this mirror?')) { this.previousElementSibling.value = 'true'; }" do %>
+        <span class="remove-x">×</span>
+        <span class="remove-text">Remove Mirror</span>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<% content_for :head do %>
+  <style>
+    .mirror-form {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      background: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .mirror-form .field {
+      margin-bottom: 15px;
+    }
+
+    .mirror-form .field:last-child {
+      margin-bottom: 0;
+    }
+
+    .mirror-form input[type="text"],
+    .mirror-form input[type="password"] {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .mirror-form small {
+      display: block;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    .remove-mirror {
+      text-align: right;
+    }
+
+    .remove-button {
+      background: none;
+      border: none;
+      color: #dc3545;
+      cursor: pointer;
+      padding: 5px 10px;
+      display: inline-flex;
+      align-items: center;
+      transition: color 0.2s;
+    }
+
+    .remove-button:hover {
+      color: #bd2130;
+    }
+
+    .remove-x {
+      font-size: 24px;
+      margin-right: 4px;
+      line-height: 1;
+    }
+
+    .remove-text {
+      font-size: 14px;
+    }
+  </style>
+<% end %> 

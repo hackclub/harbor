@@ -49,6 +49,7 @@ Rails.application.routes.draw do
   delete "signout", to: "sessions#destroy", as: "signout"
 
   resources :leaderboards, only: [ :index ]
+  resources :wakatime_mirrors, except: [ :show, :edit ]
 
   # Nested under users for admin access
   resources :users, only: [] do

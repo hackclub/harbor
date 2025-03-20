@@ -114,6 +114,12 @@
 </div>
 
 <div>
+  <h2 id="user_wakatime_mirrors">WakaTime Mirrors</h2>
+  <p>Configure additional WakaTime-compatible servers to mirror your activity to.</p>
+  <%= link_to "Manage WakaTime Mirrors", wakatime_mirrors_path, class: "button" %>
+</div>
+
+<div>
   <h2 id="user_migration_assistant">Migration assistant</h2>
   <p>This will migrate your heartbeats from waka.hackclub.com to this platform.</p>
   <%= button_to "Migrate heartbeats", my_settings_migrate_heartbeats_path, method: :post %>

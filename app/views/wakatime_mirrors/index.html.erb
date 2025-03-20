@@ -1,0 +1,303 @@
+<% content_for :title do %>
+  WakaTime Mirrors
+<% end %>
+
+<div class="container">
+  <h1>WakaTime Mirrors</h1>
+  <p>Configure additional WakaTime-compatible servers to mirror your activity to.</p>
+
+  <% if @mirrors.any? %>
+    <h2>Existing Mirrors</h2>
+    <div class="mirrors-list">
+      <% @mirrors.each do |mirror| %>
+        <div class="mirror-form" id="<%= dom_id(mirror) %>">
+          <div class="actions" style="margin-bottom: 1rem;">
+            <%= button_to wakatime_mirror_path(mirror),
+                method: :delete,
+                class: "remove-button",
+                form_class: "d-inline",
+                data: { turbo_confirm: "Are you sure you want to remove this mirror?" } do %>
+              <span class="remove-x">×</span>
+              <span class="remove-text">Remove Mirror</span>
+            <% end %>
+          </div>
+
+          <%= form_with model: mirror do |f| %>
+            <div class="field">
+              <%= f.label :api_url, "API URL" %>
+              <%= f.text_field :api_url, placeholder: "https://api.wakatime.com/api/v1" %>
+              <small>The base URL of your WakaTime-compatible API server</small>
+            </div>
+
+            <div class="field">
+              <%= f.label :api_key, "API Key" %>
+              <div class="password-field">
+                <%= f.password_field :api_key, placeholder: "waka_...", value: mirror.api_key %>
+                <button type="button" class="toggle-visibility" onclick="toggleVisibility(this)" aria-label="Toggle API key visibility">
+                  <svg class="eye-icon" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <line class="eye-slash" x1="2" y1="2" x2="22" y2="22" stroke-width="2"></line>
+                  </svg>
+                </button>
+              </div>
+              <small>The API key for authentication with your WakaTime server</small>
+            </div>
+
+            <div class="actions">
+              <%= f.submit "Update Mirror", class: "update-button" %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <h2>Add New Mirror</h2>
+  <div class="mirror-form">
+    <%= form_with model: @new_mirror do |f| %>
+      <% if @new_mirror.errors.any? %>
+        <div class="error-messages">
+          <h3><%= pluralize(@new_mirror.errors.count, "error") %> prevented this mirror from being saved:</h3>
+          <ul>
+            <% @new_mirror.errors.full_messages.each do |msg| %>
+              <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="field">
+        <%= f.label :api_url, "API URL" %>
+        <%= f.text_field :api_url, placeholder: "https://api.wakatime.com/api/v1" %>
+        <small>The base URL of your WakaTime-compatible API server</small>
+      </div>
+
+      <div class="field">
+        <%= f.label :api_key, "API Key" %>
+        <div class="password-field">
+          <%= f.password_field :api_key, placeholder: "waka_..." %>
+          <button type="button" class="toggle-visibility" onclick="toggleVisibility(this)" aria-label="Toggle API key visibility">
+            <svg class="eye-icon" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+              <line class="eye-slash" x1="2" y1="2" x2="22" y2="22" stroke-width="2"></line>
+            </svg>
+          </button>
+        </div>
+        <small>The API key for authentication with your WakaTime server</small>
+      </div>
+
+      <div class="actions">
+        <%= f.submit "Add Mirror", class: "add-button" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<style>
+  .mirrors-list {
+    margin-bottom: 1rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .mirror-form {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 8px;
+    margin-bottom: 8px;
+    background: white;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .mirror-form .field {
+    margin-bottom: 6px;
+  }
+
+  .mirror-form .field:last-child {
+    margin-bottom: 0;
+  }
+
+  .mirror-form input[type="text"],
+  .mirror-form input[type="password"] {
+    width: 100%;
+    padding: 4px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    height: 28px;
+  }
+
+  .password-field {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .password-field input {
+    padding-right: 28px !important;
+  }
+
+  .toggle-visibility {
+    position: absolute;
+    right: 4px;
+    background: none;
+    border: none;
+    padding: 2px;
+    cursor: pointer;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .toggle-visibility:hover {
+    color: #333;
+  }
+
+  .eye-icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .eye-slash {
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .toggle-visibility[data-visible="true"] .eye-slash {
+    opacity: 1;
+  }
+
+  .mirror-form small {
+    display: block;
+    color: #666;
+    margin-top: 1px;
+    font-size: 11px;
+  }
+
+  .actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 6px;
+  }
+
+  .update-button,
+  .add-button {
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: none;
+    background: #0d6efd;
+    color: white;
+    cursor: pointer;
+    font-size: 13px;
+    height: 28px;
+  }
+
+  .update-button:hover,
+  .add-button:hover {
+    background: #0b5ed7;
+  }
+
+  .remove-button {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    padding: 2px 6px;
+    display: inline-flex;
+    align-items: center;
+    transition: color 0.2s;
+    font-size: 13px;
+  }
+
+  .remove-button:hover {
+    color: #bd2130;
+  }
+
+  .remove-x {
+    font-size: 18px;
+    margin-right: 3px;
+    line-height: 1;
+  }
+
+  .remove-text {
+    font-size: 13px;
+  }
+
+  .error-messages {
+    color: #dc3545;
+    background: #f8d7da;
+    border: 1px solid #f5c2c7;
+    border-radius: 4px;
+    padding: 8px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .error-messages h3 {
+    color: #842029;
+    margin-top: 0;
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+
+  .error-messages ul {
+    margin-bottom: 0;
+    padding-left: 16px;
+    margin-top: 4px;
+  }
+
+  .d-inline {
+    display: inline-block;
+  }
+
+  /* Container styles */
+  .container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  h1 {
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+  }
+
+  h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+    margin-top: 1rem;
+  }
+
+  p {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 1rem;
+  }
+
+  label {
+    font-size: 13px;
+    margin-bottom: 2px;
+    display: block;
+  }
+</style>
+
+<script>
+  function toggleVisibility(button) {
+    const input = button.parentElement.querySelector('input');
+    const isVisible = input.type === 'text';
+    
+    input.type = isVisible ? 'password' : 'text';
+    button.setAttribute('data-visible', !isVisible);
+  }
+</script> 

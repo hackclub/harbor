@@ -5,7 +5,7 @@
       <div class="select-header">
         Filter by <%= label.downcase %>...
       </div>
-      <button class="clear-button" style="display: none;">×</button>
+      <button class="clear-button">×</button>
     </div>
     <div class="options-container">
       <input type="text" class="search-input" placeholder="Search <%= label.downcase %>...">
@@ -88,7 +88,38 @@
 .filter .option input[type="checkbox"] {
   margin-right: 8px !important;
   margin-bottom: 0 !important;
-  height: auto !important;
+  height: 14px !important;
+  width: 14px !important;
+  min-width: 14px !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 3px !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  position: relative !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+}
+
+.filter .option input[type="checkbox"]:checked {
+  background: #3291ff !important;
+  border-color: #3291ff !important;
+}
+
+.filter .option input[type="checkbox"]:checked::after {
+  content: '' !important;
+  position: absolute !important;
+  left: 4px !important;
+  top: 1px !important;
+  width: 4px !important;
+  height: 8px !important;
+  border: solid white !important;
+  border-width: 0 2px 2px 0 !important;
+  transform: rotate(45deg) !important;
+}
+
+.filter .option input[type="checkbox"]:hover {
+  border-color: rgba(255, 255, 255, 0.5) !important;
 }
 
 .filter .select-header-container {
@@ -121,7 +152,6 @@
   border: none !important;
   border-left: 1px solid rgba(255, 255, 255, 0.1) !important;
   cursor: pointer !important;
-  display: none !important;
   margin: 0 !important;
 }
 
@@ -176,6 +206,20 @@
     color: #ff4444 !important;
     background-color: rgba(0, 0, 0, 0.05) !important;
   }
+
+  .filter .option input[type="checkbox"] {
+    border: 1px solid rgba(0, 0, 0, 0.2) !important;
+    background: rgba(0, 0, 0, 0.05) !important;
+  }
+
+  .filter .option input[type="checkbox"]:checked {
+    background: #3291ff !important;
+    border-color: #3291ff !important;
+  }
+
+  .filter .option input[type="checkbox"]:hover {
+    border-color: rgba(0, 0, 0, 0.4) !important;
+  }
 }
 </style>
 
@@ -190,6 +234,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const options = select.querySelectorAll('.option');
     const optionsContainer = select.querySelector('.options-container');
     const header = select.querySelector('.select-header');
+    const clearButton = select.querySelector('.clear-button');
     
     console.log('Options available:', options.length);
     
@@ -199,6 +244,36 @@ document.addEventListener('DOMContentLoaded', function() {
       console.log('Available option:', text);
     });
     
+    // Function to update clear button visibility
+    function updateClearButton() {
+      const checkedBoxes = select.querySelectorAll('input[type="checkbox"]:checked');
+      clearButton.style.display = checkedBoxes.length > 0 ? 'block' : 'none';
+    }
+
+    // Initialize clear button state
+    updateClearButton();
+    
+    // Handle checkbox changes
+    options.forEach(option => {
+      const checkbox = option.querySelector('input[type="checkbox"]');
+      checkbox.addEventListener('change', () => {
+        updateClearButton();
+      });
+    });
+
+    // Handle clear button click
+    clearButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      options.forEach(option => {
+        const checkbox = option.querySelector('input[type="checkbox"]');
+        checkbox.checked = false;
+      });
+      updateClearButton();
+      // Trigger change event for any external listeners
+      const event = new Event('change');
+      select.dispatchEvent(event);
+    });
+
     // Improved search function with debugging
     function filterOptions(searchTerm) {
       const normalizedSearch = searchTerm.toLowerCase().trim();

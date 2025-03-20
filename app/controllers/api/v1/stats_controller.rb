@@ -1,5 +1,5 @@
 class Api::V1::StatsController < ApplicationController
-  before_action :ensure_authenticated!, unless: -> { Rails.env.development? }
+  before_action :ensure_authenticated!, only: [ :show ], unless: -> { Rails.env.development? }
 
   def show
     # take either user_id with a start date & end date

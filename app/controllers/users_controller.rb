@@ -98,21 +98,21 @@ class UsersController < ApplicationController
       .duration_seconds
       .sort_by { |_, duration| -duration }
       .first(10)
-      .map { |k, v| [ k || "Unknown", v ] }
+      .map { |k, v| [ k.presence || "Unknown", v ] }
       .to_h
 
     @editor_stats = @filtered_heartbeats
       .group(:editor)
       .duration_seconds
       .sort_by { |_, duration| -duration }
-      .map { |k, v| [ k || "Unknown", v ] }
+      .map { |k, v| [ k.presence || "Unknown", v ] }
       .to_h
 
     @os_stats = @filtered_heartbeats
       .group(:operating_system)
       .duration_seconds
       .sort_by { |_, duration| -duration }
-      .map { |k, v| [ k || "Unknown", v ] }
+      .map { |k, v| [ k.presence || "Unknown", v ] }
       .to_h
 
     # Respond to AJAX requests with just the filterable dashboard

@@ -350,8 +350,8 @@ document.addEventListener('DOMContentLoaded', function() {
         dashboardContent.innerHTML = html;
         dashboardContent.classList.remove('loading');
         window.dashboardInitialized = true;
-        if (typeof initializeCharts === 'function') {
-          initializeCharts();
+        if (typeof window.hackatimeCharts !== 'undefined') {
+          window.hackatimeCharts.initializeCharts();
         }
       })
       .catch(error => {
@@ -407,8 +407,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         // Reinitialize charts with new data
-        if (typeof initializeCharts === 'function') {
-          initializeCharts();
+        if (typeof window.hackatimeCharts !== 'undefined') {
+          window.hackatimeCharts.initializeCharts();
         }
 
         dashboardContent.classList.remove('loading');

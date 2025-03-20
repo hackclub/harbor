@@ -435,24 +435,5 @@ document.addEventListener('DOMContentLoaded', function() {
     const scaled = minPercent + (linearWeight * linearRatio + logWeight * logRatio) * (maxPercent - minPercent);
     return Math.min(scaled, maxPercent).toFixed(0);
   }
-
-  // Add jQuery-like contains selector
-  if (!Element.prototype.matches) {
-    Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
-  }
-
-  if (!document.querySelector(':contains')) {
-    document.querySelector = (function(nativeQuerySelector) {
-      return function(selector) {
-        if (selector.includes(':contains')) {
-          const parts = selector.split(':contains(');
-          const text = parts[1].slice(0, -1);
-          const elements = document.querySelectorAll(parts[0]);
-          return Array.from(elements).find(el => el.textContent.includes(text));
-        }
-        return nativeQuerySelector.call(document, selector);
-      };
-    })(document.querySelector);
-  }
 });
 </script> 

@@ -216,98 +216,115 @@ canvas {
 }
 </style>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" data-turbo-track="reload"></script>
 <script>
-// Store chart instances
-const chartInstances = {};
+// Initialize global chart instances if not already done
+window.chartInstances = window.chartInstances || {};
 
-// Helper function to format duration
-function formatDuration(seconds) {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  
-  if (hours > 0) {
-    return `${hours}h ${minutes}m`;
-  } else {
-    return `${minutes}m`;
-  }
-}
-
-// Helper function to create pie charts
-function createPieChart(elementId) {
-  const canvas = document.getElementById(elementId);
-  if (!canvas) return;
-
-  // Get stats from data attribute
-  const stats = JSON.parse(canvas.dataset.stats);
-  const labels = Object.keys(stats);
-  const data = Object.values(stats);
-
-  // Destroy existing chart if it exists
-  if (chartInstances[elementId]) {
-    chartInstances[elementId].destroy();
-  }
-
-  const ctx = canvas.getContext('2d');
-  chartInstances[elementId] = new Chart(ctx, {
-    type: 'pie',
-    data: {
-      labels: labels,
-      datasets: [{
-        data: data,
-        borderWidth: 1
-      }]
+// Only define functions if they haven't been defined yet
+if (!window.hackatimeCharts) {
+  window.hackatimeCharts = {
+    // Helper function to format duration
+    formatDuration(seconds) {
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      
+      if (hours > 0) {
+        return `${hours}h ${minutes}m`;
+      } else {
+        return `${minutes}m`;
+      }
     },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      plugins: {
-        tooltip: {
-          callbacks: {
-            label: function(context) {
-              const label = context.label || '';
-              const value = context.raw || 0;
-              const duration = formatDuration(value);
-              const percentage = ((value / data.reduce((a, b) => a + b, 0)) * 100).toFixed(1);
-              return `${label}: ${duration} (${percentage}%)`;
-            }
-          }
+
+    // Helper function to create pie charts
+    createPieChart(elementId) {
+      const canvas = document.getElementById(elementId);
+      if (!canvas) return;
+
+      // Get stats from data attribute
+      const stats = JSON.parse(canvas.dataset.stats);
+      const labels = Object.keys(stats);
+      const data = Object.values(stats);
+
+      // Destroy existing chart if it exists
+      if (window.chartInstances[elementId]) {
+        window.chartInstances[elementId].destroy();
+      }
+
+      const ctx = canvas.getContext('2d');
+      window.chartInstances[elementId] = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: data,
+            borderWidth: 1
+          }]
         },
-        legend: {
-          position: 'right',
-          labels: {
-            color: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
-            font: {
-              size: 12
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          aspectRatio: 1.2,
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const label = context.label || '';
+                  const value = context.raw || 0;
+                  const duration = window.hackatimeCharts.formatDuration(value);
+                  const percentage = ((value / data.reduce((a, b) => a + b, 0)) * 100).toFixed(1);
+                  return `${label}: ${duration} (${percentage}%)`;
+                }
+              }
+            },
+            legend: {
+              position: 'right',
+              align: 'center',
+              labels: {
+                boxWidth: 10,
+                padding: 8,
+                font: {
+                  size: 10
+                }
+              }
             }
           }
         }
-      }
+      });
+    },
+
+    // Initialize or reinitialize charts
+    initializeCharts() {
+      this.createPieChart('languageChart');
+      this.createPieChart('editorChart');
+      this.createPieChart('osChart');
+    }
+  };
+}
+
+// Function to set up event listeners (only needs to run once)
+if (!window.chartListenersInitialized) {
+  window.chartListenersInitialized = true;
+  
+  document.addEventListener('turbo:render', () => {
+    // Wait for Chart.js to load
+    if (typeof Chart === 'undefined') {
+      const checkChart = setInterval(() => {
+        if (typeof Chart !== 'undefined') {
+          clearInterval(checkChart);
+          window.hackatimeCharts.initializeCharts();
+        }
+      }, 50);
+      // Set a timeout to stop checking after 5 seconds
+      setTimeout(() => clearInterval(checkChart), 5000);
+    } else {
+      window.hackatimeCharts.initializeCharts();
     }
   });
 }
 
-// Initialize or reinitialize charts
-function initializeCharts() {
-  createPieChart('languageChart');
-  createPieChart('editorChart');
-  createPieChart('osChart');
-}
-
-// Function to set up event listeners
-function setupChartListeners() {
-  // Initialize charts when content updates via Turbo
-  document.addEventListener('turbo:render', initializeCharts);
-  document.addEventListener('turbo:load', initializeCharts);
-  
-  // Also initialize on regular DOM load for non-Turbo cases
-  document.addEventListener('DOMContentLoaded', initializeCharts);
-}
-
-// Set up listeners immediately
-setupChartListeners();
-
-// Initialize charts immediately if we're not in a Turbo load
-if (!window.Turbo) {
-  initializeCharts();
+// Initialize charts immediately if Chart.js is already loaded
+if (typeof Chart !== 'undefined') {
+  window.hackatimeCharts.initializeCharts();
 }
 </script> 

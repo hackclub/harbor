@@ -35,7 +35,7 @@
   </div>
 
   <div class="dashboard-grid">
-    <%# Project duration graph %>
+    <%# Project duration graph - spans full height %>
     <div class="card">
       <h2>Project Durations</h2>
       <div class="bar-graph">
@@ -149,8 +149,12 @@ if (!window.hackatimeCharts) {
         },
         options: {
           responsive: true,
-          maintainAspectRatio: true,
-          aspectRatio: 1.2,
+          maintainAspectRatio: false,
+          layout: {
+            padding: {
+              right: 20
+            }
+          },
           plugins: {
             tooltip: {
               callbacks: {

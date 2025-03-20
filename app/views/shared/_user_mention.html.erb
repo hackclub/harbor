@@ -4,7 +4,7 @@
                 class: "avatar",
                 alt: "#{user.username}'s avatar" if user.avatar_url %>
   <% if local_assigns.fetch(:show, []).include?(:slack) && user.slack_uid.present? %>
-    <%= link_to "@#{user.display_name}", "https://slack.com/app_redirect?channel=#{user.slack_uid}", target: "_blank" %>
+    <%= link_to "@#{user.slack_username || user.username || user.display_name}", "https://slack.com/app_redirect?channel=#{user.slack_uid}", target: "_blank" %>
   <% else %>
     <%= user.display_name %>
   <% end %>

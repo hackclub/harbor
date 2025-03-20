@@ -18,6 +18,7 @@
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app %>
     <%= javascript_importmap_tags %>
+    <%= Sentry.get_trace_propagation_meta.html_safe %>
   </head>
 
   <body>
@@ -27,13 +28,21 @@
       <%= yield %>
     </main>
 
+    <div class="currently-hacking-container">
+      <%= turbo_frame_tag "currently_hacking", src: currently_hacking_static_pages_path do %>
+        <%# <div class="loading">
+          Loading currently hacking...
+        </div> %>
+      <% end %>
+    </div>
+
     <footer>
       <div class="container">
         <p>
           Build <%= link_to Rails.application.config.git_version, Rails.application.config.commit_link %>
           from <%= time_ago_in_words(Rails.application.config.server_start_time) %> ago.
-          <%= pluralize(Heartbeat.where("created_at > ?", 24.hours.ago).count, 'heartbeat') %>
-          (<%= Heartbeat.where("created_at > ?", 24.hours.ago).where.not(source_type: :direct_entry).count %> imported)
+          <%= pluralize(Heartbeat.recent_count, 'heartbeat') %>
+          (<%= Heartbeat.recent_imported_count %> imported)
           in the last 24 hours.
           (DB: <%= pluralize(QueryCount::Counter.counter, "query") %>, <%= QueryCount::Counter.counter_cache %> cached)
           (CACHE: <%= cache_stats[:hits] %> hits, <%= cache_stats[:misses] %> misses)

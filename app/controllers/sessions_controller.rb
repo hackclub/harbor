@@ -33,19 +33,49 @@ class SessionsController < ApplicationController
     end
   end
 
+  def github_new
+    redirect_uri = url_for(action: :github_create, only_path: false)
+    Rails.logger.info "Starting GitHub OAuth flow with redirect URI: #{redirect_uri}"
+    redirect_to User.github_authorize_url(redirect_uri),
+                allow_other_host: "https://github.com"
+  end
+
+  def github_create
+    redirect_uri = url_for(action: :github_create, only_path: false)
+
+    if params[:error].present?
+      Rails.logger.error "GitHub OAuth error: #{params[:error]}"
+      redirect_to root_path, alert: "Failed to authenticate with GitHub"
+      return
+    end
+
+    @user = User.from_github_token(params[:code], redirect_uri, current_user)
+
+    if @user&.persisted?
+      session[:user_id] = @user.id unless current_user # Only set session if this is a new sign-in
+
+      if @user.data_migration_jobs.empty?
+        # if they don't have a data migration job, add one to the queue
+        OneTime::MigrateUserFromHackatimeJob.perform_later(@user.id)
+      end
+
+      redirect_to root_path, notice: current_user ? "Successfully linked GitHub account!" : "Successfully signed in with GitHub!"
+    else
+      Rails.logger.error "Failed to create/update user from GitHub data"
+      redirect_to root_path, alert: "Failed to sign in with GitHub"
+    end
+  end
+
   def email
     email = params[:email].downcase
 
-    # Use a transaction to ensure both user and email are created atomically
-    email_address = ActiveRecord::Base.transaction do
-      EmailAddress.find_by(email: email) || begin
-        user = User.create!
-        user.email_addresses.create!(email: email)
-      end
+    if Rails.env.production?
+      HandleEmailSigninJob.perform_later(email)
+    else
+      HandleEmailSigninJob.perform_now(email)
     end
 
-    LoopsMailer.sign_in_email(email_address).deliver_later
-    redirect_to root_path(sign_in_email: true)
+    redirect_to root_path(sign_in_email: true), notice: "Check your email for a sign-in link!"
   end
 
   def token

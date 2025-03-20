@@ -1,6 +1,15 @@
 module Heartbeatable
   extend ActiveSupport::Concern
 
+  included do
+    # Filter heartbeats to only include those with category equal to "coding"
+    scope :coding_only, -> { where(category: "coding") }
+
+    # This is to prevent PG timestamp overflow errors if someones gives us a
+    # heartbeat with a time that is enormously far in the future.
+    scope :with_valid_timestamps, -> { where("time >= 0 AND time <= ?", 253402300799) }
+  end
+
   class_methods do
     def heartbeat_timeout_duration(duration = nil)
       if duration
@@ -39,14 +48,24 @@ module Heartbeatable
     end
 
     def daily_durations(start_date: 365.days.ago, end_date: Time.current)
-      select(Arel.sql("DATE_TRUNC('day', to_timestamp(time)) as day_group"))
+      # Get the timezone from the first associated user (for scoped queries)
+      timezone = all.first&.user&.timezone || "UTC"
+
+      # Create the timezone-aware date truncation expression
+      day_trunc = Arel.sql("DATE_TRUNC('day', to_timestamp(time) AT TIME ZONE '#{timezone}')")
+
+      select(day_trunc.as("day_group"))
+        .coding_only
         .where(time: start_date..end_date)
-        .group(Arel.sql("DATE_TRUNC('day', to_timestamp(time))"))
+        .with_valid_timestamps
+        .group(day_trunc)
         .duration_seconds
         .map { |date, duration| [ date.to_date, duration ] }
     end
 
     def duration_seconds(scope = all)
+      scope = scope.coding_only.with_valid_timestamps
+
       if scope.group_values.any?
         group_column = scope.group_values.first
 

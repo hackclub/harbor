@@ -10,7 +10,23 @@
 </div>
 
 <div>
-  <h2>Slack status</h2>
+  <h2 id="user_timezone">Timezone</h2>
+  <%= form_with model: @user,
+    url: @is_own_settings ? my_settings_path : settings_user_path(@user),
+    method: :patch do |f| %>
+      <div>
+        <%= f.label :timezone, "Your timezone" %>
+        <%= f.select :timezone, 
+            TZInfo::Timezone.all.map(&:identifier).sort,
+            include_blank: @user.timezone.blank? %>
+        <small>This affects how your activity graph and other time-based features are displayed.</small>
+      </div>
+      <%= f.submit "Save Settings" %>
+  <% end %>
+</div>
+
+<div>
+  <h2 id="user_slack_status">Slack status</h2>
   <% unless @can_enable_slack_status %>
     <%= link_to "Re-authorize with Slack to give permission to update your status", slack_auth_path %>
   <% end %>
@@ -18,9 +34,9 @@
     url: @is_own_settings ? my_settings_path : settings_user_path(@user),
     method: :patch do |f| %>
       <fieldset>
-        <label for="switch-1">
-          <input type="checkbox" id="switch-1" name="switch-1" role="switch" checked="">
-          <%= f.label "Update my Slack status with my current project" %>
+        <label for="user_uses_slack_status">
+          <%= f.check_box :uses_slack_status, id: "user_uses_slack_status" %>
+          <%= f.label :uses_slack_status, "Update my Slack status with my current project" %>
         </label>
       </fieldset>
       <%= f.submit "Save Settings" %>
@@ -28,7 +44,19 @@
 </div>
 
 <div>
-  <h2>Slack notifications</h2>
+  <h2 id="user_github_account">GitHub Account</h2>
+  <p>
+    This is used to show your active projects on the leaderboard & current hacking activity on the dashboard.
+  </p>
+  <% if @user.github_uid.present? %>
+    <p>Your GitHub account is linked. <%= link_to "@#{@user.github_username}", "https://github.com/#{@user.github_username}", target: "_blank" %></p>
+  <% else %>
+    <%= link_to "Link GitHub Account", github_auth_path, class: "button" %>
+  <% end %>
+</div>
+
+<div>
+  <h2 id="user_slack_notifications">Slack notifications</h2>
   <% if @enabled_sailors_logs.any? %>
     <p>
       You have notifications enabled for the following channels:
@@ -51,7 +79,7 @@
 </div>
 
 <div>
-  <h2>Config file</h2>
+  <h2 id="user_config_file">Config file</h2>
 
   <p>
     <% if current_user.most_recent_direct_entry_heartbeat %>
@@ -73,7 +101,7 @@
 </div>
 
 <div>
-  <h2>Hackatime extension</h2>
+  <h2 id="user_hackatime_extension">Hackatime extension</h2>
   <%= form_with model: @user,
     url: @is_own_settings ? my_settings_path : settings_user_path(@user),
     method: :patch do |f| %>
@@ -86,7 +114,7 @@
 </div>
 
 <div>
-  <h2>Migration assistant</h2>
+  <h2 id="user_migration_assistant">Migration assistant</h2>
   <p>This will migrate your heartbeats from waka.hackclub.com to this platform.</p>
   <%= button_to "Migrate heartbeats", my_settings_migrate_heartbeats_path, method: :post %>
   <% if @heartbeats_migration_jobs.any? %>

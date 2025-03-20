@@ -30,4 +30,10 @@ footer {
   padding: 10px;
   text-align: center;
   font-size: 12px;
+  opacity: 0.1;
+  transition: opacity 0.3s ease;
+}
+
+footer:hover {
+  opacity: 1;
 }

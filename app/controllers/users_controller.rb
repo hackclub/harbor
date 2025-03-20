@@ -1,4 +1,6 @@
 class UsersController < ApplicationController
+  include ActionView::Helpers::NumberHelper
+
   before_action :set_user
   before_action :require_current_user
   before_action :require_admin, unless: :is_own_settings?
@@ -55,6 +57,97 @@ class UsersController < ApplicationController
     ].sample
   end
 
+  def show
+    # Use current_user for /my/home route, otherwise find by id
+    @user = if params[:id].present?
+      User.find(params[:id])
+    else
+      current_user
+    end
+
+    # Load filter options
+    @projects = @user.heartbeats.select(:project).distinct.order(:project).pluck(:project)
+    @languages = @user.heartbeats.select(:language).distinct.order(:language).pluck(:language)
+    @operating_systems = @user.heartbeats.select(:operating_system).distinct.order(:operating_system).pluck(:operating_system)
+    @editors = @user.heartbeats.select(:editor).distinct.order(:editor).pluck(:editor)
+
+    # Apply filters to heartbeats
+    @filtered_heartbeats = @user.heartbeats
+    @filtered_heartbeats = @filtered_heartbeats.where(project: params[:projects].split(",")) if params[:projects].present?
+    @filtered_heartbeats = @filtered_heartbeats.where(language: params[:language].split(",")) if params[:language].present?
+    @filtered_heartbeats = @filtered_heartbeats.where(operating_system: params[:os].split(",")) if params[:os].present?
+    @filtered_heartbeats = @filtered_heartbeats.where(editor: params[:editor].split(",")) if params[:editor].present?
+
+    # Calculate stats for filtered data
+    @total_time = @filtered_heartbeats.duration_seconds
+    @total_heartbeats = @filtered_heartbeats.count
+    @top_project = @filtered_heartbeats.group(:project).count.max_by { |_, v| v }&.first
+    @top_language = @filtered_heartbeats.group(:language).count.max_by { |_, v| v }&.first
+    @top_os = @filtered_heartbeats.group(:operating_system).count.max_by { |_, v| v }&.first
+    @top_editor = @filtered_heartbeats.group(:editor).count.max_by { |_, v| v }&.first
+
+    # Prepare project durations data
+    @project_durations = @filtered_heartbeats
+      .group(:project)
+      .duration_seconds
+      .sort_by { |_, duration| -duration }
+      .first(10)
+      .to_h
+
+    # Prepare pie chart data
+    @language_stats = @filtered_heartbeats
+      .group(:language)
+      .duration_seconds
+      .sort_by { |_, duration| -duration }
+      .first(10)
+      .map { |k, v| [ k.presence || "Unknown", v ] }
+      .to_h
+
+    @editor_stats = @filtered_heartbeats
+      .group(:editor)
+      .duration_seconds
+      .sort_by { |_, duration| -duration }
+      .map { |k, v| [ k.presence || "Unknown", v ] }
+      .to_h
+
+    @os_stats = @filtered_heartbeats
+      .group(:operating_system)
+      .duration_seconds
+      .sort_by { |_, duration| -duration }
+      .map { |k, v| [ k.presence || "Unknown", v ] }
+      .to_h
+
+    respond_to do |format|
+      format.html do
+        if request.xhr?
+          render partial: "filterable_dashboard"
+        end
+      end
+
+      format.json do
+        render json: {
+          stats: {
+            total_time: ApplicationController.helpers.short_time_simple(@total_time),
+            total_heartbeats: number_with_delimiter(@total_heartbeats),
+            top_project: @top_project || "None",
+            top_language: @top_language || "Unknown",
+            top_os: @top_os || "Unknown",
+            top_editor: @top_editor || "Unknown"
+          },
+          project_durations: @project_durations.transform_values { |v|
+            {
+              seconds: v,
+              formatted: ApplicationController.helpers.short_time_simple(v)
+            }
+          },
+          language_stats: @language_stats,
+          editor_stats: @editor_stats,
+          os_stats: @os_stats
+        }
+      end
+    end
+  end
+
   private
 
   def require_admin
@@ -84,6 +177,6 @@ class UsersController < ApplicationController
   end
 
   def user_params
-    params.require(:user).permit(:uses_slack_status, :hackatime_extension_text_type)
+    params.require(:user).permit(:uses_slack_status, :hackatime_extension_text_type, :timezone)
   end
 end

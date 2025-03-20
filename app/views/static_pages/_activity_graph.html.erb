@@ -1,5 +1,5 @@
 <%= turbo_frame_tag "activity_graph" do %>
-  <%= cache ["activity_graph", current_user.id], expires_in: 5.hours do %>
+  <%= cache ["activity_graph", current_user.id, current_user.timezone], expires_in: 1.minute do %>
     <div class="activity-graph-container">
       <div class="activity-graph">
         <% (365.days.ago.to_date..Time.current.to_date).to_a.each do |date| %>
@@ -17,6 +17,9 @@
           </a>
         <% end %>
       </div>
+      <p class="super">
+        Calculated in <%= link_to ActiveSupport::TimeZone[current_user.timezone].to_s, my_settings_path(anchor: "user_timezone"), data: { turbo_frame: "_top" } %>
+      </p>
     </div>
   <% end %>
 <% end %>

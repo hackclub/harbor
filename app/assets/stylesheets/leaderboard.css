@@ -44,12 +44,29 @@ h3 + .mini-leaderboard {
 .leaderboard-entry .user {
   flex: 1;
   margin: 0 12px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: nowrap;
+  line-height: 1.2;
 }
 
 .leaderboard-entry .time {
   font-family: monospace;
   color: #444;
   font-size: 0.9em;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.leaderboard-entry .super {
+  font-weight: 300;
+  font-style: italic;
+  font-size: 0.9em;
+  color: #666;
+  margin: 0;
+  white-space: nowrap;
+  line-height: inherit;
 }
 
 .leaderboard-break {
@@ -84,4 +101,46 @@ h3 + .mini-leaderboard {
 
 .period-toggle-btn:hover:not(.active) {
     background-color: #e0e0e0;
+}
+
+/* Dark mode overrides */
+@media (prefers-color-scheme: dark) {
+  .mini-leaderboard {
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  .leaderboard-entry {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .leaderboard-entry.current-user {
+    background: rgba(var(--primary-color-rgb), 0.2);
+    border: 1px solid var(--primary-color);
+  }
+
+  .leaderboard-entry .rank {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .leaderboard-entry .time {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .leaderboard-break {
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .period-toggle {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .period-toggle-btn {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .period-toggle-btn:hover:not(.active) {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
 }

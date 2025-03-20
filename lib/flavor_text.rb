@@ -183,14 +183,38 @@ class FlavorText
       "the only thing that can't be bought!",
       "everyone always asks how i'm doing, not when i'm doing.",
       "go forth and commit times!",
-      "time you can count on!"
+      "time you can count on!",
+      "well, it's about time!",
+      "like clocks but better",
+      "just a second!",
+      "loading jokes, just give me a sec!",
+      "now you'll never need to second guess yourself",
+      "better late than never",
+      "beat the clock!",
+      "only time will tell!",
+      "it's of the essence",
+      "all in good time"
     ]
   end
 
   def self.rare_motto
     [
       "i don't care what everyone else says, you're not that dumb",
-      "<a href='https://github.com/hackclub/hackatime' target='_blank'>open source!</a>".html_safe
+      "<a href='https://github.com/hackclub/hackatime' target='_blank'>open source!</a>".html_safe,
+      "kill time, don't let it kill you"
     ]
+  end
+
+  def self.conditional_mottos(user)
+    r = []
+
+    r << "quit slacking off!" if user.slack_uid.present?
+    r << "in the nick of time!" if %w[nick nicholas nickolas].include?(user.username)
+    r << "just-in time!" if %w[justin justine].include?(user.username)
+
+    minutes_logged = Heartbeat.where("time > ?", 1.hour.ago.to_f).duration_seconds / 60
+    r << "in the past hour, #{minutes_logged} minutes have passed" if minutes_logged > 0
+
+    r
   end
 end

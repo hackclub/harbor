@@ -25,6 +25,11 @@ development:
     encoding: unicode
     url: <%= ENV['SAILORS_LOG_DATABASE_URL'] %>
     replica: true
+  warehouse:
+    adapter: postgresql
+    encoding: unicode
+    url: <%= ENV['WAREHOUSE_DATABASE_URL'] %>
+    replica: true
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
@@ -59,6 +64,11 @@ production:
     adapter: postgresql
     encoding: unicode
     url: <%= ENV['SAILORS_LOG_DATABASE_URL'] %>
+    replica: true
+  warehouse:
+    adapter: postgresql
+    encoding: unicode
+    url: <%= ENV['WAREHOUSE_DATABASE_URL'] %>
     replica: true
   cache:
     <<: *default

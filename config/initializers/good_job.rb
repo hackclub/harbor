@@ -14,7 +14,7 @@ Rails.application.configure do
       args: [ :daily ]
     },
     weekly_leaderboard_update: {
-      cron: "0 0 * * *",
+      cron: "*/10 * * * *",
       class: "LeaderboardUpdateJob",
       args: [ :weekly ]
     },
@@ -29,6 +29,14 @@ Rails.application.configure do
     slack_username_update: {
       cron: "0 0 * * *",
       class: "SlackUsernameUpdateJob"
+    },
+    cache_home_stats: {
+      cron: "0/10 * * * *",
+      class: "CacheHomeStatsJob"
+    },
+    scan_github_repos: {
+      cron: "0 10 * * *",
+      class: "ScanGithubReposJob"
     }
   }
 end

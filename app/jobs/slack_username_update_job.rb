@@ -22,6 +22,8 @@ class SlackUsernameUpdateJob < ApplicationJob
 
         user.username = user_data.dig("user", "profile", "username")
         user.username ||= user_data.dig("user", "profile", "display_name_normalized")
+        user.slack_username = user_data.dig("user", "profile", "username")
+        user.slack_username ||= user_data.dig("user", "profile", "display_name_normalized")
         user.slack_avatar_url = user_data.dig("user", "profile", "image_192") || user_data.dig("user", "profile", "image_72")
         user.save!
       rescue => e

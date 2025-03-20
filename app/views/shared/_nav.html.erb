@@ -27,6 +27,11 @@
       <% end %>
     </li>
     <li>
+      <%= link_to scrapyard_leaderboards_path, class: "nav-item #{current_page?(scrapyard_leaderboards_path) ? 'active' : ''}" do %>
+        Scrapyard
+      <% end %>
+    </li>
+    <li>
       <%= link_to leaderboards_path, class: "nav-item #{current_page?(leaderboards_path) ? 'active' : ''}" do %>
         Leaderboards
       <% end %>
@@ -35,6 +40,11 @@
       <li>
         <%= link_to my_settings_path, class: "nav-item #{current_page?(my_settings_path) ? 'active' : ''}" do %>
           Settings
+        <% end %>
+      </li>
+      <li>
+        <%= link_to my_home_path, class: "nav-item #{current_page?(my_home_path) ? 'active' : ''}", data: { turbo: false } do %>
+          Dashboard
         <% end %>
       </li>
     <% end %>
@@ -54,4 +64,4 @@
       <% end %>
     <% end %>
   </ul>
-</aside> 
+</aside>

@@ -89,7 +89,7 @@
 }
 
 /* Improved loader animation */
-.loading {
+.activity-graph.loading {
   padding: 1rem;
   color: #666;
   font-style: italic;
@@ -98,7 +98,7 @@
   justify-content: center;
 }
 
-.loading::before {
+.activity-graph.loading::before {
   content: "";
   width: 16px;
   height: 16px;

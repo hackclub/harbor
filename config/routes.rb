@@ -34,12 +34,16 @@ Rails.application.routes.draw do
     collection do
       get :project_durations
       get :activity_graph
+      get :currently_hacking
+      get "🃏", to: "static_pages#🃏", as: :wildcard
     end
   end
 
   # Auth routes
   get "/auth/slack", to: "sessions#new", as: :slack_auth
   get "/auth/slack/callback", to: "sessions#create"
+  get "/auth/github", to: "sessions#github_new", as: :github_auth
+  get "/auth/github/callback", to: "sessions#github_create"
   post "/auth/email", to: "sessions#email", as: :email_auth
   get "/auth/token/:token", to: "sessions#token", as: :auth_token
   delete "signout", to: "sessions#destroy", as: "signout"
@@ -52,6 +56,7 @@ Rails.application.routes.draw do
   end
 
   # Namespace for current user actions
+  get "my/home", to: "users#show", as: :my_home
   get "my/settings", to: "users#edit", as: :my_settings
   patch "my/settings", to: "users#update"
   post "my/settings/migrate_heartbeats", to: "users#migrate_heartbeats", as: :my_settings_migrate_heartbeats
@@ -83,4 +88,6 @@ Rails.application.routes.draw do
       end
     end
   end
+
+  resources :scrapyard_leaderboards, only: [ :index, :show ]
 end

@@ -7,7 +7,9 @@
       <% project_durations.each do |project| %>
         <div class="project-duration-card">
           <div class="project-header">
-            <strong><%= project[:project] || "Unknown" %></strong>
+            <strong title="<%= project[:project] %>">
+              <%= (project[:project].presence || "Unknown").truncate(12) %>
+            </strong>
             <% if project[:repo_url].present? %>
               <%= link_to "🔗", project[:repo_url], target: "_blank" %>
             <% end %>

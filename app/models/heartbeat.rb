@@ -4,6 +4,7 @@ class Heartbeat < ApplicationRecord
   include Heartbeatable
 
   scope :today, -> { where(time: Time.current.beginning_of_day..Time.current.end_of_day) }
+  scope :recent, -> { where("created_at > ?", 24.hours.ago) }
 
   enum :source_type, {
     direct_entry: 0,
@@ -17,6 +18,18 @@ class Heartbeat < ApplicationRecord
   belongs_to :user
 
   validates :time, presence: true
+
+  def self.recent_count
+    Rails.cache.fetch("heartbeats_recent_count", expires_in: 5.minutes) do
+      recent.count
+    end
+  end
+
+  def self.recent_imported_count
+    Rails.cache.fetch("heartbeats_recent_imported_count", expires_in: 5.minutes) do
+      recent.where.not(source_type: :direct_entry).count
+    end
+  end
 
   def self.generate_fields_hash(attributes)
     Digest::MD5.hexdigest(attributes.except(*self.unindexed_attributes).to_json)

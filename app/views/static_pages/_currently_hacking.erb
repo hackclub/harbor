@@ -1,0 +1,37 @@
+<%= turbo_frame_tag "currently_hacking" do %>
+  <%= cache ["currently_hacking"], expires_in: 1.minute do %>
+    <% if users.any? %>
+      <div class="currently-hacking" onclick="this.classList.toggle('visible')">
+        <div class="currently-hacking-header">
+          <span>
+            <div class="live-indicator"></div>
+            <%= pluralize(users.count, "person") %> currently hacking
+          </span>
+        </div>
+        <div class="currently-hacking-list">
+          <hr>
+          <ul>
+            <% users.each do |user| %>
+              <%= render "shared/user_mention", user: user, show: [:slack] %>
+              <% if active_projects[user.id].present? %>
+                <span class="super">
+                  working on <%= link_to active_projects[user.id].project_name, active_projects[user.id].repo_url, target: "_blank" %>
+                </span>
+              <% end %>
+              <% if user == current_user && user.github_username.blank? %>
+                <span class="super">
+                  <%= link_to "Link active projects", my_settings_path(anchor: "user_github_account"), target: "_blank" %>
+                </span>
+              <% end %>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    <% else %>
+      <div class="currently-hacking">
+        <p>No one is currently hacking</p>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>
+

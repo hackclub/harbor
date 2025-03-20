@@ -1,0 +1,381 @@
+<%# This partial will be loaded asynchronously when filters change %>
+
+<div class="dashboard-wrapper">
+  <%# Stats cards %>
+  <div class="stats-section">
+    <div class="stat-card">
+      <div class="stat-label">TOTAL TIME</div>
+      <div class="stat-value" data-stat="total_time"><%= ApplicationController.helpers.short_time_simple(@total_time) %></div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-label">TOTAL HEARTBEATS</div>
+      <div class="stat-value" data-stat="total_heartbeats"><%= number_with_delimiter(@total_heartbeats) %></div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-label">TOP PROJECT</div>
+      <div class="stat-value" data-stat="top_project"><%= @top_project || "None" %></div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-label">TOP LANGUAGE</div>
+      <div class="stat-value" data-stat="top_language"><%= @top_language || "Unknown" %></div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-label">TOP OS</div>
+      <div class="stat-value" data-stat="top_os"><%= @top_os || "Unknown" %></div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-label">TOP EDITOR</div>
+      <div class="stat-value" data-stat="top_editor"><%= @top_editor || "Unknown" %></div>
+    </div>
+  </div>
+
+  <div class="dashboard-grid">
+    <%# Project duration graph %>
+    <div class="card">
+      <h2>Project Durations</h2>
+      <div class="bar-graph">
+        <% 
+          max_duration = @project_durations.values.max
+          min_duration = @project_durations.values.min
+
+          # Use logarithmic scale for better visibility of smaller values
+          # Add 1 to avoid log(0), scale to 15-100 range
+          def log_scale(value, max_val)
+            return 0 if value == 0
+            min_percent = 5  # Minimum bar width percentage
+            max_percent = 100 # Maximum bar width percentage
+            
+            # Mix linear and logarithmic scaling
+            # 80% linear, 20% logarithmic
+            linear_ratio = value.to_f / max_val
+            log_ratio = Math.log(value + 1) / Math.log(max_val + 1)
+            
+            linear_weight = 0.8
+            log_weight = 0.2
+            
+            scaled = min_percent + (linear_weight * linear_ratio + log_weight * log_ratio) * (max_percent - min_percent)
+            [scaled, max_percent].min.round
+          end
+        %>
+        
+        <% @project_durations.each do |project, duration| %>
+          <div class="bar-row">
+            <div class="bar-label"><%= project %></div>
+            <div class="bar-container">
+              <div class="bar" style="width: <%= log_scale(duration, max_duration) %>%">
+                <span class="bar-value"><%= ApplicationController.helpers.short_time_simple(duration) %></span>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Language distribution %>
+    <div class="card">
+      <h2>Languages</h2>
+      <div class="chart-container">
+        <canvas id="languageChart" data-stats="<%= @language_stats.to_json %>"></canvas>
+      </div>
+    </div>
+
+    <%# Editor distribution %>
+    <div class="card">
+      <h2>Editors</h2>
+      <div class="chart-container">
+        <canvas id="editorChart" data-stats="<%= @editor_stats.to_json %>"></canvas>
+      </div>
+    </div>
+
+    <%# OS distribution %>
+    <div class="card">
+      <h2>Operating Systems</h2>
+      <div class="chart-container">
+        <canvas id="osChart" data-stats="<%= @os_stats.to_json %>"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.dashboard-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.stats-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.stat-label {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.5rem;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.stat-value {
+  font-size: 1rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.card h2 {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.chart-container {
+  flex: 1;
+  position: relative;
+  height: 140px;
+}
+
+.chart-container canvas {
+  max-height: 100%;
+  width: 100%;
+}
+
+.bar-graph {
+  margin-top: 1rem;
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.bar-label {
+  width: 150px;
+  text-align: right;
+  padding-right: 1rem;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bar-container {
+  flex: 1;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bar {
+  height: 100%;
+  background: #85e394;
+  border-radius: 4px;
+  position: relative;
+  transition: width 0.3s ease;
+}
+
+.bar-value {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+  color: rgba(0, 0, 0, 0.8);
+}
+
+.no-data {
+  text-align: center;
+  padding: 2rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+}
+
+@media (prefers-color-scheme: light) {
+  .stat-card {
+    background: var(--smoke);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .stat-label {
+    color: #666;
+  }
+
+  .stat-value {
+    color: var(--text-color);
+  }
+
+  .card {
+    background: white;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .card h2 {
+    color: var(--text-color);
+  }
+
+  .bar-label {
+    color: var(--text-color);
+  }
+
+  .bar-container {
+    background: var(--smoke);
+  }
+
+  .bar-value {
+    color: var(--text-inverse);
+  }
+
+  .no-data {
+    color: #666;
+  }
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" data-turbo-track="reload"></script>
+<script>
+// Initialize global chart instances if not already done
+window.chartInstances = window.chartInstances || {};
+
+// Only define functions if they haven't been defined yet
+if (!window.hackatimeCharts) {
+  window.hackatimeCharts = {
+    // Helper function to format duration
+    formatDuration(seconds) {
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      
+      if (hours > 0) {
+        return `${hours}h ${minutes}m`;
+      } else {
+        return `${minutes}m`;
+      }
+    },
+
+    // Helper function to create pie charts
+    createPieChart(elementId) {
+      const canvas = document.getElementById(elementId);
+      if (!canvas) return;
+
+      // Get stats from data attribute
+      const stats = JSON.parse(canvas.dataset.stats);
+      const labels = Object.keys(stats);
+      const data = Object.values(stats);
+
+      // Destroy existing chart if it exists
+      if (window.chartInstances[elementId]) {
+        window.chartInstances[elementId].destroy();
+      }
+
+      const ctx = canvas.getContext('2d');
+      window.chartInstances[elementId] = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: data,
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          aspectRatio: 1.2,
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const label = context.label || '';
+                  const value = context.raw || 0;
+                  const duration = window.hackatimeCharts.formatDuration(value);
+                  const percentage = ((value / data.reduce((a, b) => a + b, 0)) * 100).toFixed(1);
+                  return `${label}: ${duration} (${percentage}%)`;
+                }
+              }
+            },
+            legend: {
+              position: 'right',
+              align: 'center',
+              labels: {
+                boxWidth: 10,
+                padding: 8,
+                font: {
+                  size: 10
+                }
+              }
+            }
+          }
+        }
+      });
+    },
+
+    // Initialize or reinitialize charts
+    initializeCharts() {
+      this.createPieChart('languageChart');
+      this.createPieChart('editorChart');
+      this.createPieChart('osChart');
+    }
+  };
+}
+
+// Function to set up event listeners (only needs to run once)
+if (!window.chartListenersInitialized) {
+  window.chartListenersInitialized = true;
+  
+  document.addEventListener('turbo:render', () => {
+    // Wait for Chart.js to load
+    if (typeof Chart === 'undefined') {
+      const checkChart = setInterval(() => {
+        if (typeof Chart !== 'undefined') {
+          clearInterval(checkChart);
+          window.hackatimeCharts.initializeCharts();
+        }
+      }, 50);
+      // Set a timeout to stop checking after 5 seconds
+      setTimeout(() => clearInterval(checkChart), 5000);
+    } else {
+      window.hackatimeCharts.initializeCharts();
+    }
+  });
+}
+
+// Initialize charts immediately if Chart.js is already loaded
+if (typeof Chart !== 'undefined') {
+  window.hackatimeCharts.initializeCharts();
+}
+</script> 

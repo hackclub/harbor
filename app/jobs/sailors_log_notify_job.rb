@@ -41,8 +41,9 @@ class SailorsLogNotifyJob < ApplicationJob
       if response_data["error"] == "channel_not_found"
         # disable any preferences for this channel
         SailorsLogNotificationPreference.where(slack_channel_id: slack_channel_id).update_all(enabled: false)
+      else
+        throw "Failed to send Slack notification: #{response_data["error"]} in #{slack_channel_id}"
       end
-      throw "Failed to send Slack notification: #{response_data["error"]} in #{slack_channel_id}"
     end
   end
 end

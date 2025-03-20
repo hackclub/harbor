@@ -1,0 +1,71 @@
+/* Admin and Dev Tool styles */
+.admin-tool {
+  border-radius: 5px;
+  border: 1px dashed var(--uchu-orange);
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.admin-tool::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--uchu-orange);
+  opacity: 0.1;
+  z-index: -1;
+  border-radius: 4px;
+}
+
+.dev-tool {
+  border-radius: 5px;
+  border: 1px dashed var(--uchu-green);
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.dev-tool::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--uchu-green);
+  opacity: 0.1;
+  z-index: -1;
+  border-radius: 4px;
+}
+
+/* Dark mode overrides */
+@media (prefers-color-scheme: dark) {
+  .admin-tool::before {
+    opacity: 1;
+    background-color: rgba(255, 166, 0, 0.02); /* Orange with very low opacity */
+  }
+
+  .dev-tool::before {
+    opacity: 1;
+    background-color: rgba(0, 255, 0, 0.02); /* Green with very low opacity */
+  }
+
+  /* Improve text contrast in dark mode */
+  .admin-tool,
+  .dev-tool {
+    background-color: rgba(255, 255, 255, 0.02);
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  /* Make links more visible */
+  .admin-tool a,
+  .dev-tool a {
+    color: var(--uchu-yellow);
+  }
+
+  .admin-tool a:hover,
+  .dev-tool a:hover {
+    color: var(--uchu-orange);
+  }
+} 

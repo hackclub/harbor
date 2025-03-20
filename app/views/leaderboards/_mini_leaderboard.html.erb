@@ -34,13 +34,23 @@
                end %>
             <span class="rank"><%= rank_emoji %></span>
           <% else %>
-            <% if idx == 2 %>
+            <% if idx == 2 && entries.index(entry) - entries.index(mini_leaderboard_entries[1]) > 1 %>
               <div class="leaderboard-break">...</div>
             <% end %>
             <span class="rank"><%= (entries.index(entry) + 1).ordinalize %></span>
           <% end %>
-          <span class="user" style="display: inline-block;">
-            <%= render "shared/user_mention", user: entry.user %>
+          <span class="user">
+            <%= render "shared/user_mention", user: entry.user, show: [:neighborhood] %>
+            <% if entry.user == current_user && current_user.github_username.blank? %>
+              <span class="super">
+                <%= link_to "Link active projects", my_settings_path(anchor: "user_github_account"), target: "_blank" %>
+              </span>
+            <% end %>
+            <% if @active_projects&.dig(entry.user_id).present? %>
+              <span class="super">
+                working on <%= link_to @active_projects[entry.user_id].project_name, @active_projects[entry.user_id].repo_url, target: "_blank" %>
+              </span>
+            <% end %>
           </span>
           <span class="time"><%= short_time_detailed entry.total_seconds %></span>
         </div>

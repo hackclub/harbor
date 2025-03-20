@@ -197,7 +197,7 @@ GEM
     jbuilder (2.13.0)
       actionview (>= 5.0.0)
       activesupport (>= 5.0.0)
-    json (2.10.1)
+    json (2.10.2)
     kamal (2.5.3)
       activesupport (>= 7.0)
       base64 (~> 0.2)
@@ -391,6 +391,12 @@ GEM
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 3.0)
       websocket (~> 1.0)
+    sentry-rails (5.23.0)
+      railties (>= 5.0)
+      sentry-ruby (~> 5.23.0)
+    sentry-ruby (5.23.0)
+      bigdecimal
+      concurrent-ruby (~> 1.0, >= 1.0.2)
     slack-ruby-client (2.5.2)
       faraday (>= 2.0)
       faraday-mashify
@@ -497,6 +503,8 @@ DEPENDENCIES
   rails (~> 8.0.2)
   rubocop-rails-omakase
   selenium-webdriver
+  sentry-rails
+  sentry-ruby
   slack-ruby-client
   solid_cable
   solid_cache

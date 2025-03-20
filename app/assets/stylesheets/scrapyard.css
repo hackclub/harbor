@@ -1,0 +1,24 @@
+.scrapyard-notice {
+  background-color: var(--uchu-light-green);
+  border-radius: 5px;
+  color: var(--uchu-yellow) !important;
+  position: relative;
+  padding: 1rem;
+  margin-top: 3rem;
+  max-width: 26em;
+}
+
+.scrapyard-notice img {
+  position: absolute;
+  max-width: 100px;
+  max-height: 100px;
+  top: -50px;
+  right: 20px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .scrapyard-notice {
+    background-color: rgba(var(--uchu-green-rgb), 0.2);
+    border: 1px solid var(--uchu-green);
+  }
+} 

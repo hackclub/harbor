@@ -226,7 +226,6 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   const customSelects = document.querySelectorAll('.custom-select');
-  console.log('Found custom selects:', customSelects.length);
   
   customSelects.forEach(select => {
     const searchInput = select.querySelector('.search-input');
@@ -235,14 +234,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const optionsContainer = select.querySelector('.options-container');
     const header = select.querySelector('.select-header');
     const clearButton = select.querySelector('.clear-button');
-    
-    console.log('Options available:', options.length);
-    
-    // Debug: Log all available options
-    options.forEach(option => {
-      const text = option.querySelector('span').textContent;
-      console.log('Available option:', text);
-    });
     
     // Function to update clear button visibility
     function updateClearButton() {
@@ -277,7 +268,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Improved search function with debugging
     function filterOptions(searchTerm) {
       const normalizedSearch = searchTerm.toLowerCase().trim();
-      console.log('Searching for:', normalizedSearch);
       
       let matchCount = 0;
       options.forEach(option => {
@@ -291,22 +281,16 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
           option.classList.add('hidden');
         }
-        
-        console.log('Option:', text, 'Search:', normalizedSearch, 'Match:', shouldShow);
       });
-      
-      console.log('Total matches:', matchCount);
     }
 
     // Search input handler
     searchInput.addEventListener('input', function(e) {
-      console.log('Search input event:', e.target.value);
       filterOptions(e.target.value);
     });
 
     // Prevent dropdown from closing when clicking search input
     searchInput.addEventListener('click', function(e) {
-      console.log('Search input clicked');
       e.stopPropagation();
     });
 
@@ -314,7 +298,6 @@ document.addEventListener('DOMContentLoaded', function() {
     header.addEventListener('click', function() {
       const isVisible = optionsContainer.style.display === 'block';
       const newDisplay = isVisible ? 'none' : 'block';
-      console.log('Toggling dropdown:', newDisplay);
       optionsContainer.style.display = newDisplay;
       
       if (!isVisible) {
@@ -327,7 +310,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Close dropdown when clicking outside
     document.addEventListener('click', function(e) {
       if (!select.contains(e.target)) {
-        console.log('Closing dropdown from outside click');
         optionsContainer.style.display = 'none';
         searchInput.value = '';
         filterOptions('');

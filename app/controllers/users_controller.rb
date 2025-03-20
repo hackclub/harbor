@@ -1,4 +1,6 @@
 class UsersController < ApplicationController
+  include ActionView::Helpers::NumberHelper
+
   before_action :set_user
   before_action :require_current_user
   before_action :require_admin, unless: :is_own_settings?
@@ -115,9 +117,34 @@ class UsersController < ApplicationController
       .map { |k, v| [ k.presence || "Unknown", v ] }
       .to_h
 
-    # Respond to AJAX requests with just the filterable dashboard
-    if request.xhr?
-      render partial: "filterable_dashboard"
+    respond_to do |format|
+      format.html do
+        if request.xhr?
+          render partial: "filterable_dashboard"
+        end
+      end
+
+      format.json do
+        render json: {
+          stats: {
+            total_time: ApplicationController.helpers.short_time_simple(@total_time),
+            total_heartbeats: number_with_delimiter(@total_heartbeats),
+            top_project: @top_project || "None",
+            top_language: @top_language || "Unknown",
+            top_os: @top_os || "Unknown",
+            top_editor: @top_editor || "Unknown"
+          },
+          project_durations: @project_durations.transform_values { |v|
+            {
+              seconds: v,
+              formatted: ApplicationController.helpers.short_time_simple(v)
+            }
+          },
+          language_stats: @language_stats,
+          editor_stats: @editor_stats,
+          os_stats: @os_stats
+        }
+      end
     end
   end
 

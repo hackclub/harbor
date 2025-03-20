@@ -4,33 +4,33 @@
   <%# Stats cards %>
   <div class="stats-section">
     <div class="stat-card">
-      <div class="stat-label">Total Time</div>
-      <div class="stat-value"><%= ApplicationController.helpers.short_time_simple(@total_time) %></div>
+      <div class="stat-label">TOTAL TIME</div>
+      <div class="stat-value" data-stat="total_time"><%= ApplicationController.helpers.short_time_simple(@total_time) %></div>
     </div>
     
     <div class="stat-card">
-      <div class="stat-label">Total Heartbeats</div>
-      <div class="stat-value"><%= number_with_delimiter(@total_heartbeats) %></div>
+      <div class="stat-label">TOTAL HEARTBEATS</div>
+      <div class="stat-value" data-stat="total_heartbeats"><%= number_with_delimiter(@total_heartbeats) %></div>
     </div>
     
     <div class="stat-card">
-      <div class="stat-label">Top Project</div>
-      <div class="stat-value"><%= @top_project || "None" %></div>
+      <div class="stat-label">TOP PROJECT</div>
+      <div class="stat-value" data-stat="top_project"><%= @top_project || "None" %></div>
     </div>
     
     <div class="stat-card">
-      <div class="stat-label">Top Language</div>
-      <div class="stat-value"><%= @top_language || "Unknown" %></div>
+      <div class="stat-label">TOP LANGUAGE</div>
+      <div class="stat-value" data-stat="top_language"><%= @top_language || "Unknown" %></div>
     </div>
     
     <div class="stat-card">
-      <div class="stat-label">Top OS</div>
-      <div class="stat-value"><%= @top_os || "Unknown" %></div>
+      <div class="stat-label">TOP OS</div>
+      <div class="stat-value" data-stat="top_os"><%= @top_os || "Unknown" %></div>
     </div>
     
     <div class="stat-card">
-      <div class="stat-label">Top Editor</div>
-      <div class="stat-value"><%= @top_editor || "Unknown" %></div>
+      <div class="stat-label">TOP EDITOR</div>
+      <div class="stat-value" data-stat="top_editor"><%= @top_editor || "Unknown" %></div>
     </div>
   </div>
 

@@ -49,8 +49,30 @@
 .dashboard-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--dashboard-spacing-sm);
+  grid-template-rows: 1fr 0.5fr 0.5fr;
+  gap: var(--dashboard-spacing-lg);
   width: 100%;
+  margin-top: var(--dashboard-spacing-lg);
+}
+
+.dashboard-grid .card {
+  background: var(--dashboard-bg);
+  border: 1px solid var(--dashboard-border);
+  border-radius: var(--dashboard-border-radius);
+  padding: var(--dashboard-spacing-md);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Project list card spans full height */
+.dashboard-grid .card:first-child {
+  grid-row: 1;
+}
+
+.dashboard-grid .card h2 {
+  font-size: var(--dashboard-font-lg);
+  margin-bottom: var(--dashboard-spacing-md);
+  color: var(--dashboard-text);
 }
 
 /* Stats Section */
@@ -180,12 +202,13 @@
 .chart-container {
   flex: 1;
   position: relative;
-  height: 140px;
+  min-height: 150px;
+  height: 100%;
 }
 
 .chart-container canvas {
-  max-height: 100%;
-  width: 100%;
+  height: 100% !important;
+  width: 100% !important;
 }
 
 /* Loading State */
@@ -197,13 +220,14 @@
 
 /* Bar Graph */
 .bar-graph {
-  margin-top: var(--dashboard-spacing-md);
+  margin-top: 0;
+  height: calc(100% - 40px); /* Account for header */
+  overflow-y: auto;
+  padding-right: var(--dashboard-spacing-sm);
 }
 
 .bar-row {
-  display: flex;
-  align-items: center;
-  margin-bottom: var(--dashboard-spacing-md);
+  margin-bottom: var(--dashboard-spacing-sm);
 }
 
 .bar-label {

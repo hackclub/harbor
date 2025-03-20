@@ -224,97 +224,127 @@
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  const customSelects = document.querySelectorAll('.custom-select');
+// Move the initialization logic into a function
+function initializeMultiSelect(select) {
+  // Skip if already initialized
+  if (select.dataset.initialized === 'true') return;
   
-  customSelects.forEach(select => {
-    const searchInput = select.querySelector('.search-input');
-    const optionsList = select.querySelector('.options-list');
-    const options = select.querySelectorAll('.option');
-    const optionsContainer = select.querySelector('.options-container');
-    const header = select.querySelector('.select-header');
-    const clearButton = select.querySelector('.clear-button');
-    
-    // Function to update clear button visibility
-    function updateClearButton() {
-      const checkedBoxes = select.querySelectorAll('input[type="checkbox"]:checked');
-      clearButton.style.display = checkedBoxes.length > 0 ? 'block' : 'none';
-    }
+  const searchInput = select.querySelector('.search-input');
+  const optionsList = select.querySelector('.options-list');
+  const options = select.querySelectorAll('.option');
+  const optionsContainer = select.querySelector('.options-container');
+  const header = select.querySelector('.select-header');
+  const clearButton = select.querySelector('.clear-button');
+  
+  // Function to update clear button visibility
+  function updateClearButton() {
+    const checkedBoxes = select.querySelectorAll('input[type="checkbox"]:checked');
+    clearButton.style.display = checkedBoxes.length > 0 ? 'block' : 'none';
+  }
 
-    // Initialize clear button state
-    updateClearButton();
-    
-    // Handle checkbox changes
-    options.forEach(option => {
-      const checkbox = option.querySelector('input[type="checkbox"]');
-      checkbox.addEventListener('change', () => {
-        updateClearButton();
-      });
-    });
-
-    // Handle clear button click
-    clearButton.addEventListener('click', (e) => {
-      e.stopPropagation();
-      options.forEach(option => {
-        const checkbox = option.querySelector('input[type="checkbox"]');
-        checkbox.checked = false;
-      });
+  // Initialize clear button state
+  updateClearButton();
+  
+  // Handle checkbox changes
+  options.forEach(option => {
+    const checkbox = option.querySelector('input[type="checkbox"]');
+    checkbox.addEventListener('change', () => {
       updateClearButton();
-      // Trigger change event for any external listeners
-      const event = new Event('change');
-      select.dispatchEvent(event);
-    });
-
-    // Improved search function with debugging
-    function filterOptions(searchTerm) {
-      const normalizedSearch = searchTerm.toLowerCase().trim();
-      
-      let matchCount = 0;
-      options.forEach(option => {
-        const text = option.querySelector('span').textContent.toLowerCase().trim();
-        const shouldShow = normalizedSearch === '' || text.includes(normalizedSearch);
-        
-        // Use classList instead of style.display
-        if (shouldShow) {
-          option.classList.remove('hidden');
-          matchCount++;
-        } else {
-          option.classList.add('hidden');
-        }
-      });
-    }
-
-    // Search input handler
-    searchInput.addEventListener('input', function(e) {
-      filterOptions(e.target.value);
-    });
-
-    // Prevent dropdown from closing when clicking search input
-    searchInput.addEventListener('click', function(e) {
-      e.stopPropagation();
-    });
-
-    // Toggle dropdown visibility
-    header.addEventListener('click', function() {
-      const isVisible = optionsContainer.style.display === 'block';
-      const newDisplay = isVisible ? 'none' : 'block';
-      optionsContainer.style.display = newDisplay;
-      
-      if (!isVisible) {
-        searchInput.focus();
-        searchInput.value = '';
-        filterOptions('');
-      }
-    });
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function(e) {
-      if (!select.contains(e.target)) {
-        optionsContainer.style.display = 'none';
-        searchInput.value = '';
-        filterOptions('');
-      }
     });
   });
+
+  // Handle clear button click
+  clearButton.addEventListener('click', (e) => {
+    e.stopPropagation();
+    options.forEach(option => {
+      const checkbox = option.querySelector('input[type="checkbox"]');
+      checkbox.checked = false;
+    });
+    updateClearButton();
+    // Trigger change event for any external listeners
+    const event = new Event('change');
+    select.dispatchEvent(event);
+  });
+
+  // Improved search function with debugging
+  function filterOptions(searchTerm) {
+    const normalizedSearch = searchTerm.toLowerCase().trim();
+    
+    let matchCount = 0;
+    options.forEach(option => {
+      const text = option.querySelector('span').textContent.toLowerCase().trim();
+      const shouldShow = normalizedSearch === '' || text.includes(normalizedSearch);
+      
+      // Use classList instead of style.display
+      if (shouldShow) {
+        option.classList.remove('hidden');
+        matchCount++;
+      } else {
+        option.classList.add('hidden');
+      }
+    });
+  }
+
+  // Search input handler
+  searchInput.addEventListener('input', function(e) {
+    filterOptions(e.target.value);
+  });
+
+  // Prevent dropdown from closing when clicking search input
+  searchInput.addEventListener('click', function(e) {
+    e.stopPropagation();
+  });
+
+  // Toggle dropdown visibility
+  header.addEventListener('click', function() {
+    const isVisible = optionsContainer.style.display === 'block';
+    const newDisplay = isVisible ? 'none' : 'block';
+    optionsContainer.style.display = newDisplay;
+    
+    if (!isVisible) {
+      searchInput.focus();
+      searchInput.value = '';
+      filterOptions('');
+    }
+  });
+
+  // Close dropdown when clicking outside
+  const closeDropdown = function(e) {
+    if (!select.contains(e.target)) {
+      optionsContainer.style.display = 'none';
+      searchInput.value = '';
+      filterOptions('');
+    }
+  };
+
+  // Add click listener to document and store reference for cleanup
+  document.addEventListener('click', closeDropdown);
+  select.dataset.closeDropdownHandler = closeDropdown;
+
+  // Mark as initialized
+  select.dataset.initialized = 'true';
+}
+
+// Cleanup function to remove event listeners
+function cleanupMultiSelect(select) {
+  if (select.dataset.closeDropdownHandler) {
+    document.removeEventListener('click', select.dataset.closeDropdownHandler);
+  }
+}
+
+// Initialize on both DOMContentLoaded and turbo:load
+function initializeAllMultiSelects() {
+  const customSelects = document.querySelectorAll('.custom-select');
+  customSelects.forEach(select => initializeMultiSelect(select));
+}
+
+// Cleanup before Turbo navigation
+document.addEventListener('turbo:before-render', function() {
+  const customSelects = document.querySelectorAll('.custom-select');
+  customSelects.forEach(select => cleanupMultiSelect(select));
 });
+
+// Initialize on both DOMContentLoaded and turbo:load
+document.addEventListener('DOMContentLoaded', initializeAllMultiSelects);
+document.addEventListener('turbo:load', initializeAllMultiSelects);
 </script> 

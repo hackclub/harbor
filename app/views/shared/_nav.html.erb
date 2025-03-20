@@ -43,7 +43,7 @@
         <% end %>
       </li>
       <li>
-        <%= link_to my_home_path, class: "nav-item #{current_page?(my_home_path) ? 'active' : ''}" do %>
+        <%= link_to my_home_path, class: "nav-item #{current_page?(my_home_path) ? 'active' : ''}", data: { turbo: "false" } do %>
           Dashboard
         <% end %>
       </li>

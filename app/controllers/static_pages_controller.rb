@@ -18,7 +18,7 @@ class StaticPagesController < ApplicationController
         redirect_to FlavorText.random_time_video.sample, allow_other_host: allowed_hosts
       end
 
-      @show_wakatime_setup_notice = current_user.heartbeats.empty?
+      @show_wakatime_setup_notice = current_user.heartbeats.empty? || params[:show_wakatime_setup_notice]
       @setup_social_proof = get_setup_social_proof if @show_wakatime_setup_notice
 
       # Get languages and editors in a single query using window functions

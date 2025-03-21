@@ -28,6 +28,22 @@
     
     <main style="margin-left: 250px; padding: 20px; margin-bottom: 100px;">
       <%= yield %>
+      <footer>
+        <div class="container">
+          <p>
+            Build <%= link_to Rails.application.config.git_version, Rails.application.config.commit_link %>
+            from <%= time_ago_in_words(Rails.application.config.server_start_time) %> ago.
+            <%= pluralize(Heartbeat.recent_count, 'heartbeat') %>
+            (<%= Heartbeat.recent_imported_count %> imported)
+            in the last 24 hours.
+            (DB: <%= pluralize(QueryCount::Counter.counter, "query") %>, <%= QueryCount::Counter.counter_cache %> cached)
+            (CACHE: <%= cache_stats[:hits] %> hits, <%= cache_stats[:misses] %> misses)
+          </p>
+          <% if session[:impersonater_user_id] %>
+            <%= link_to "Stop impersonating", stop_impersonating_path, class: "impersonate-link" %>
+          <% end %>
+        </div>
+      </footer>
     </main>
 
     <div class="currently-hacking-container">
@@ -37,22 +53,5 @@
         </div> %>
       <% end %>
     </div>
-
-    <footer>
-      <div class="container">
-        <p>
-          Build <%= link_to Rails.application.config.git_version, Rails.application.config.commit_link %>
-          from <%= time_ago_in_words(Rails.application.config.server_start_time) %> ago.
-          <%= pluralize(Heartbeat.recent_count, 'heartbeat') %>
-          (<%= Heartbeat.recent_imported_count %> imported)
-          in the last 24 hours.
-          (DB: <%= pluralize(QueryCount::Counter.counter, "query") %>, <%= QueryCount::Counter.counter_cache %> cached)
-          (CACHE: <%= cache_stats[:hits] %> hits, <%= cache_stats[:misses] %> misses)
-        </p>
-        <% if session[:impersonater_user_id] %>
-          <%= link_to "Stop impersonating", stop_impersonating_path, class: "impersonate-link" %>
-        <% end %>
-      </div>
-    </footer>
   </body>
 </html>

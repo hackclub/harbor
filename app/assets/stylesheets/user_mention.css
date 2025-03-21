@@ -7,6 +7,9 @@
   font-weight: bold;
   display: flex;
   align-items: center;
+}
+
+aside .current-user {
   margin-bottom: 1rem;
 }
 

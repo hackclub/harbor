@@ -7,7 +7,7 @@
 }
 
 /* Styling for the leaderboard on the homepage for unauthenticated users */
-h3 + .mini-leaderboard {
+h3+.mini-leaderboard {
   margin-bottom: 30px;
 }
 
@@ -45,7 +45,7 @@ h3 + .mini-leaderboard {
   flex: 1;
   margin: 0 12px;
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
   flex-wrap: nowrap;
   line-height: 1.2;
@@ -74,33 +74,33 @@ h3 + .mini-leaderboard {
   margin: -4px 0;
   font-weight: bold;
   letter-spacing: 2px;
-} 
+}
 
 .period-toggle {
-    display: inline-flex;
-    background-color: #f1f1f1;
-    border-radius: 999px;
-    padding: 4px;
-    margin-bottom: 16px;
+  display: inline-flex;
+  background-color: #f1f1f1;
+  border-radius: 999px;
+  padding: 4px;
+  margin-bottom: 16px;
 }
 
 .period-toggle-btn {
-    padding: 8px 16px;
-    border-radius: 999px;
-    text-decoration: none;
-    color: #444;
-    font-weight: 500;
-    transition: all 0.2s ease;
+  padding: 8px 16px;
+  border-radius: 999px;
+  text-decoration: none;
+  color: #444;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
 .period-toggle-btn.active {
-    background-color: var(--primary-color);
-    color: white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: var(--primary-color);
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .period-toggle-btn:hover:not(.active) {
-    background-color: #e0e0e0;
+  background-color: #e0e0e0;
 }
 
 /* Dark mode overrides */

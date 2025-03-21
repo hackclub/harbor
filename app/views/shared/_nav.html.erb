@@ -1,21 +1,26 @@
 <aside class="nav">
-  <% flash.each do |name, msg| %>
-    <div class="flash-message <%= name %>">
-      <%= msg %>
-    </div>
-  <% end %>
+  <li>
+    <% flash.each do |name, msg| %>
+      <div class="flash-message <%= name %>">
+        <%= msg %>
+      </div>
+    <% end %>
+  </li>
 
   <% if current_user %>
-    <%= render "shared/user_mention", user: current_user %>
-    <%= link_to "Logout", signout_path, data: { turbo_method: :delete } %>
-    <% if current_user.active_project && current_user.active_project_duration > 60 %>
-      <p>
-        Working on: <%= current_user.active_project %>
-        (<%= short_time_simple current_user.active_project_duration %> in total)
-      </p>
-    <% end %>
+    <li>
+      <%= render "shared/user_mention", user: current_user %>
+      <% if current_user.active_project && current_user.active_project_duration > 60 %>
+        <p>
+          Working on: <%= current_user.active_project %>
+          (<%= short_time_simple current_user.active_project_duration %> in total)
+        </p>
+      <% end %>
+    </li>
   <% else %>
-    <%= link_to "Login", slack_auth_path %>
+    <li>
+      <%= link_to "Login", slack_auth_path %>
+    </li>
   <% end %>
 
   <hr />
@@ -47,7 +52,13 @@
           Dashboard
         <% end %>
       </li>
+      <li>
+        <%= link_to signout_path, class: "nav-item", data: { turbo_method: :delete } do %>
+          Logout
+        <% end %>
+      </li>
     <% end %>
+    
     <% dev_tool(nil, "li") do %>
       <%= link_to letter_opener_web_path, class: "nav-item #{current_page?(letter_opener_web_path) ? 'active' : ''}" do %>
         Letter Opener

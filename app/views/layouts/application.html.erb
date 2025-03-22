@@ -23,10 +23,11 @@
     <%= Sentry.get_trace_propagation_meta.html_safe %>
   </head>
 
-  <body>
+  <body style="display: flex;">
     <%= render "shared/nav" %>
     
-    <main style="margin-left: 250px; padding: 20px; margin-bottom: 100px;">
+    <!-- 250px is defined in nav.css -->
+    <main style="margin-left: 250px; max-width: calc(100% - 250px); padding: 20px; margin-bottom: 100px;">
       <%= yield %>
       <footer>
         <div class="container">

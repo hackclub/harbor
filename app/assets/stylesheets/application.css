@@ -472,3 +472,8 @@
 .button:hover {
   background-color: #2f363d;
 }
+
+/* Prevent overflow */
+code {
+  word-break: break-word;
+}

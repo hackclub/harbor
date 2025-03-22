@@ -125,7 +125,7 @@
   </select>
   <% gh_badge = GithubReadmeStats.new(current_user.id, "darcula") %>
   <img id="badge-preview" src="<%= gh_badge.generate_badge_url %>" data-url="<%= gh_badge.generate_badge_url %>">
-  <code id="badge-url"><%= gh_badge.generate_badge_url %></code>
+  <pre id="badge-url"><%= gh_badge.generate_badge_url %></pre>
 
   <script>
     function updateBadgeTheme(theme) {

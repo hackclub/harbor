@@ -107,14 +107,14 @@ class UsersController < ApplicationController
       .group(:editor)
       .duration_seconds
       .sort_by { |_, duration| -duration }
-      .map { |k, v| [ k.presence || "Unknown", v ] }
+      .map { |k, v| [ NameNormalizerService.normalize_editor(k), v ] }
       .to_h
 
     @os_stats = @filtered_heartbeats
       .group(:operating_system)
       .duration_seconds
       .sort_by { |_, duration| -duration }
-      .map { |k, v| [ k.presence || "Unknown", v ] }
+      .map { |k, v| [ NameNormalizerService.normalize_os(k), v ] }
       .to_h
 
     # Calculate weekly project stats for the last 6 months

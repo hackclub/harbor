@@ -40,9 +40,10 @@ class StaticPagesController < ApplicationController
         .sort_by { |_, count| -count }
 
       editor_counts = results
-        .map { |r| [ r.editor, r.editor_count ] }
+        .map { |r| [ NameNormalizerService.normalize_editor(r.editor), r.editor_count ] }
         .reject { |ed, _| ed.nil? || ed.empty? }
-        .uniq
+        .group_by { |editor, _| editor }
+        .map { |editor, counts| [ editor, counts.sum { |_, count| count } ] }
         .sort_by { |_, count| -count }
 
       @todays_languages = language_counts.map(&:first)

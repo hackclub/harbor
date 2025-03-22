@@ -1,8 +1,8 @@
-<main class="container">
-  <% content_for :title do %>
-    <%= @is_own_settings ? "My Settings" : "Settings | #{@user.username}" %>
-  <% end %>
+<% content_for :title do %>
+  <%= @is_own_settings ? "My Settings" : "Settings | #{@user.username}" %>
+<% end %>
 
+<main class="container">
   <header >
     <h1><%= @is_own_settings ? "My Settings" : "Settings for #{@user.username}" %></h1>
     <p>Change your settings for Hackatime and Sailors Log.</p>

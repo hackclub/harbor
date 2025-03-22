@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_19_193636) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_20_052612) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -175,6 +175,28 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_19_193636) do
     t.integer "period_type", default: 0, null: false
   end
 
+  create_table "project_milestone_kudos", force: :cascade do |t|
+    t.bigint "project_milestone_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_milestone_id", "user_id"], name: "idx_on_project_milestone_id_user_id_218c1b857a", unique: true
+    t.index ["project_milestone_id"], name: "index_project_milestone_kudos_on_project_milestone_id"
+  end
+
+  create_table "project_milestones", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "project_name", null: false
+    t.integer "milestone_type", default: 0, null: false
+    t.integer "milestone_value", null: false
+    t.boolean "notified", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_project_milestones_on_created_at"
+    t.index ["user_id", "project_name", "milestone_type"], name: "idx_on_user_id_project_name_milestone_type_06e1e9487d"
+    t.index ["user_id"], name: "index_project_milestones_on_user_id"
+  end
+
   create_table "project_repo_mappings", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "project_name", null: false
@@ -269,6 +291,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_19_193636) do
   add_foreign_key "heartbeats", "users"
   add_foreign_key "leaderboard_entries", "leaderboards"
   add_foreign_key "leaderboard_entries", "users"
+  add_foreign_key "project_milestone_kudos", "project_milestones"
   add_foreign_key "project_repo_mappings", "users"
   add_foreign_key "sign_in_tokens", "users"
 end

@@ -1,0 +1,110 @@
+.recent-activity {
+    margin-top: 1rem;
+}
+
+.recent-activity h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+    color: var(--muted-color);
+}
+
+.activity-list {
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.activity-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    font-size: 0.9rem;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-content {
+    margin: 0.5rem 0;
+}
+
+.activity-content p {
+    margin: 0;
+}
+
+.activity-time {
+    color: var(--muted-color);
+    font-size: 0.75rem;
+}
+
+.activity-actions {
+    display: flex;
+    margin-top: 0.5rem;
+}
+
+.give-kudos-btn {
+    display: inline-flex;
+    align-items: center;
+    background-color: rgba(var(--primary-color-rgb), 0.1);
+    color: var(--primary-color);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.75rem;
+    transition: background-color 0.2s;
+}
+
+.give-kudos-btn:hover {
+    background-color: rgba(var(--primary-color-rgb), 0.2);
+}
+
+.kudos-icon {
+    margin-right: 0.25rem;
+    font-style: normal;
+}
+
+.kudos-count {
+    margin-left: 0.25rem;
+    background: rgba(var(--primary-color-rgb), 0.2);
+    border-radius: 10px;
+    padding: 0.1rem 0.4rem;
+    font-size: 0.7rem;
+}
+
+.kudos-given,
+.kudos-received {
+    display: inline-flex;
+    align-items: center;
+    color: var(--primary-color);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    background-color: rgba(var(--primary-color-rgb), 0.1);
+}
+
+/* Dark mode overrides */
+@media (prefers-color-scheme: dark) {
+    .activity-item {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .activity-time {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .give-kudos-btn {
+        background-color: rgba(var(--primary-color-rgb), 0.2);
+    }
+
+    .give-kudos-btn:hover {
+        background-color: rgba(var(--primary-color-rgb), 0.3);
+    }
+
+    .kudos-count {
+        background: rgba(var(--primary-color-rgb), 0.3);
+    }
+
+    .kudos-given,
+    .kudos-received {
+        background-color: rgba(var(--primary-color-rgb), 0.2);
+    }
+}

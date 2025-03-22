@@ -37,6 +37,10 @@ Rails.application.configure do
     scan_github_repos: {
       cron: "0 10 * * *",
       class: "ScanGithubReposJob"
+    },
+    project_milestone_check: {
+      cron: "*/5 * * * *",
+      class: "ProjectMilestoneCheckJob"
     }
   }
 end

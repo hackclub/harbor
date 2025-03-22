@@ -46,8 +46,16 @@ class WakatimeService
   def generate_summary_chunk(group_by)
     result = []
     @scope.group(group_by).duration_seconds.each do |key, value|
+      normalized_name = if group_by == :editor
+        NameNormalizerService.normalize_editor(key)
+      elsif group_by == :operating_system
+        NameNormalizerService.normalize_os(key)
+      else
+        key.presence || "Other"
+      end
+
       result << {
-        name: key.presence || "Other",
+        name: normalized_name,
         total_seconds: value,
         text: ApplicationController.helpers.short_time_simple(value),
         hours: value / 3600,

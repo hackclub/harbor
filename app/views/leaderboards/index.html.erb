@@ -25,24 +25,33 @@
 
   <div class="content">
     <% if @entries&.any? %>
-      <table>
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>User</th>
-            <th>Time</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @entries.each_with_index do |entry, index| %>
-            <tr>
-              <td><%= (index + 1).ordinalize %></td>
-              <td><%= render "shared/user_mention", user: entry.user, show: [:neighborhood, :slack] %></td>
-              <td><%= short_time_detailed entry.total_seconds %></td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
+      <div class="leaderboard-entries">
+        <% @entries.each_with_index do |entry, index| %>
+          <div class="leaderboard-entry <%= 'current-user' if entry.user_id == current_user&.id %>">
+            <span class="rank">
+              <% case index %>
+              <% when 0 then %>
+                <%= "🥇" %>
+              <% when 1 then %>
+                <%= "🥈" %>
+              <% when 2 then %>
+                <%= "🥉" %>
+              <% else %>
+                <%= (index + 1).ordinalize %>
+              <% end %>
+            </span>
+            <span class="user">
+              <%= render "shared/user_mention", user: entry.user, show: [:neighborhood, :slack] %>
+              <% if @active_projects&.dig(entry.user_id).present? %>
+                <span class="super">
+                  working on <%= link_to @active_projects[entry.user_id].project_name, @active_projects[entry.user_id].repo_url, target: "_blank" %>
+                </span>
+              <% end %>
+            </span>
+            <span class="time"><%= short_time_detailed entry.total_seconds %></span>
+          </div>
+        <% end %>
+      </div>
       <% unless @user_on_leaderboard %>
         <p>
           Don't see yourself on the leaderboard? You're probably one of the

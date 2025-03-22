@@ -46,7 +46,14 @@ class AttemptProjectRepoMappingJob < ApplicationJob
       .get("https://api.github.com/repos/#{org_name}/#{project_name}")
 
     Rails.logger.info "GitHub org repos response: #{response.body}"
-    # if not found, return nil
+
+    while response.status.moved_permanently?
+      # when the repo is transferred/renamed, we get a redirect to follow
+      sleep 1
+      response = HTTP.auth("Bearer #{@user.github_access_token}")
+        .get(response.headers["Location"])
+    end
+
     return nil unless response.status.success?
 
     repo = JSON.parse(response.body)

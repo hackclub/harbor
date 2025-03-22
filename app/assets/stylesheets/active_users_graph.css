@@ -1,0 +1,13 @@
+.active-users-graph {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.active-users-graph__hour {
+  background-color: var(--uchu-dark-gray);
+  opacity: 0.1;
+  flex-grow: 1;
+  min-width: 10px;
+}

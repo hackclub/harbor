@@ -35,6 +35,7 @@ class LeaderboardUpdateJob < ApplicationJob
       valid_user_ids.each_slice(BATCH_SIZE) do |batch_user_ids|
         entries_data = Heartbeat.where(user_id: batch_user_ids)
                                 .where(time: date_range)
+                                .coding_only
                                 .group(:user_id)
                                 .duration_seconds
 

@@ -77,7 +77,7 @@ class Api::Hackatime::V1::HackatimeController < ApplicationController
   end
 
   def queue_project_mapping(project_name)
-    AttemptProjectRepoMappingJob.perform_later(@user.id, heartbeat[:project])
+    AttemptProjectRepoMappingJob.perform_later(@user.id, project_name)
   rescue => e
     # never raise an error here because it will break the heartbeat flow
     Rails.logger.error("Error queuing project mapping: #{e.class.name} #{e.message}")

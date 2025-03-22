@@ -221,7 +221,9 @@ class User < ApplicationRecord
     nil
   end
 
-  def self.from_github_token(code, redirect_uri, current_user = nil)
+  def self.from_github_token(code, redirect_uri, current_user)
+    return nil unless current_user
+
     # Exchange code for token
     response = HTTP.headers(accept: "application/json")
       .post("https://github.com/login/oauth/access_token", form: {
@@ -243,49 +245,21 @@ class User < ApplicationRecord
     Rails.logger.info "GitHub user data: #{user_data.inspect}"
     Rails.logger.info "GitHub user ID type: #{user_data['id'].class}"
 
-    # Get user email from profile
-    primary_email = user_data["email"]
-    return nil unless primary_email
-
-    # If we have a current user, update that user
-    if current_user
-      user = current_user
-    else
-      # For new sign-ins, try to find user by GitHub ID or email
-      user = User.find_by(github_uid: user_data["id"])
-      unless user
-        email_address = EmailAddress.find_by(email: primary_email)
-        user = email_address&.user
-      end
-      # If still no user found, create a new one
-      user ||= User.new
-    end
-
     # Update GitHub-specific fields
-    user.github_uid = user_data["id"]
-    user.username ||= user_data["login"]
-    user.github_username = user_data["login"]
-    user.github_avatar_url = user_data["avatar_url"]
-    user.github_access_token = data["access_token"]
+    current_user.github_uid = user_data["id"]
+    current_user.username ||= user_data["login"]
+    current_user.github_username = user_data["login"]
+    current_user.github_avatar_url = user_data["avatar_url"]
+    current_user.github_access_token = data["access_token"]
 
-    # Save the user first
-    user.save!
+    # Save the user
+    current_user.save!
 
-    # Add the GitHub email if it's not already associated
-    unless user.email_addresses.exists?(email: primary_email)
-      begin
-        user.email_addresses.create!(email: primary_email)
-      rescue ActiveRecord::RecordInvalid => e
-        # If the email already exists for another user, we can ignore it
-        Rails.logger.info "Email #{primary_email} already exists for another user"
-      end
-    end
+    ScanGithubReposJob.perform_later(current_user.id)
 
-    ScanGithubReposJob.perform_later(user.id)
-
-    user
+    current_user
   rescue => e
-    Rails.logger.error "Error creating user from GitHub data: #{e.message}"
+    Rails.logger.error "Error linking GitHub account: #{e.message}"
     Rails.logger.error e.backtrace.join("\n")
     nil
   end
@@ -301,6 +275,7 @@ class User < ApplicationRecord
   def display_name
     return slack_username if slack_username.present?
     return github_username if github_username.present?
+    return username if username.present?
 
     # "zach@hackclub.com" -> "zach (email sign-up)"
     email = email_addresses&.first&.email

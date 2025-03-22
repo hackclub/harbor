@@ -117,6 +117,20 @@ class UsersController < ApplicationController
       .map { |k, v| [ k.presence || "Unknown", v ] }
       .to_h
 
+    # Calculate weekly project stats for the last 6 months
+    @weekly_project_stats = {}
+    (0..25).each do |week_offset|  # 26 weeks = 6 months
+      week_start = week_offset.weeks.ago.beginning_of_week
+      week_end = week_offset.weeks.ago.end_of_week
+
+      week_stats = @filtered_heartbeats
+        .where(time: week_start.to_f..week_end.to_f)
+        .group(:project)
+        .duration_seconds
+
+      @weekly_project_stats[week_start.to_date.iso8601] = week_stats
+    end
+
     respond_to do |format|
       format.html do
         if request.xhr?
@@ -142,7 +156,8 @@ class UsersController < ApplicationController
           },
           language_stats: @language_stats,
           editor_stats: @editor_stats,
-          os_stats: @os_stats
+          os_stats: @os_stats,
+          weekly_project_stats: @weekly_project_stats
         }
       end
     end

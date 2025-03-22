@@ -99,6 +99,17 @@
         <canvas id="osChart" data-stats="<%= @os_stats.to_json %>"></canvas>
       </div>
     </div>
+
+    <div>
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Project Timeline</h3>
+        </div>
+        <div class="card-body">
+          <canvas id="projectTimelineChart" data-stats="<%= @weekly_project_stats.to_json %>"></canvas>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -344,11 +355,114 @@ if (!window.hackatimeCharts) {
       });
     },
 
+    createProjectTimelineChart() {
+      const canvas = document.getElementById('projectTimelineChart');
+      if (!canvas) return;
+
+      const weeklyStats = JSON.parse(canvas.dataset.stats);
+      
+      const allProjects = new Set();
+      Object.values(weeklyStats).forEach(weekData => {
+        Object.keys(weekData).forEach(project => allProjects.add(project));
+      });
+
+      const sortedWeeks = Object.keys(weeklyStats).sort();
+
+      const datasets = Array.from(allProjects).map((project, index) => {
+        return {
+          label: project,
+          data: sortedWeeks.map(week => {
+            const value = weeklyStats[week][project] || 0;
+            return value;
+          }),
+          stack: 'stack0',
+        };
+      });
+
+      datasets.sort((a, b) => {
+        const sumA = a.data.reduce((acc, val) => acc + val, 0);
+        const sumB = b.data.reduce((acc, val) => acc + val, 0);
+        return sumB - sumA; // Sort in descending order
+      });
+
+      if (window.chartInstances['projectTimelineChart']) {
+        window.chartInstances['projectTimelineChart'].destroy();
+      }
+
+      const ctx = canvas.getContext('2d');
+      window.chartInstances['projectTimelineChart'] = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: sortedWeeks.map(week => {
+            const date = new Date(week);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          }),
+          datasets: datasets
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              stacked: true,
+              grid: {
+                display: false
+              }
+            },
+            y: {
+              stacked: true,
+              type: 'linear',
+              grid: {
+                color: (context) => {
+                  if (context.tick.value === 0) return 'transparent';
+                  return context.tick.value % 1 === 0 ? 'rgba(0, 0, 0, 0.1)' : 'rgba(0, 0, 0, 0.05)';
+                }
+              },
+              ticks: {
+                callback: function(value) {
+                  if (value === 0) return '0s';
+                  const hours = Math.floor(value / 3600);
+                  const minutes = Math.floor((value % 3600) / 60);
+                  if (hours > 0) {
+                    return `${hours}h`;
+                  }
+                  return `${minutes}m`;
+                }
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: {
+                boxWidth: 12,
+                padding: 15
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const value = context.raw;
+                  const hours = Math.floor(value / 3600);
+                  const minutes = Math.floor((value % 3600) / 60);
+                  if (hours > 0) {
+                    return `${context.dataset.label}: ${hours}h ${minutes}m`;
+                  }
+                  return `${context.dataset.label}: ${minutes}m`;
+                }
+              }
+            }
+          }
+        }
+      });
+    },
+
     // Initialize or reinitialize charts
     initializeCharts() {
       this.createPieChart('languageChart');
       this.createPieChart('editorChart');
       this.createPieChart('osChart');
+      this.createProjectTimelineChart();
     }
   };
 }

@@ -39,6 +39,16 @@ class LeaderboardsController < ApplicationController
             .pluck(:user_id)
             .count { |user_id| !tracked_user_ids.include?(user_id) }
       end
+
+      # Get active projects for the leaderboard entries
+      if @entries&.any?
+        user_ids = @entries.pluck(:user_id)
+        users = User.where(id: user_ids).includes(:project_repo_mappings)
+        @active_projects = {}
+        users.each do |user|
+          @active_projects[user.id] = user.project_repo_mappings.find { |p| p.project_name == user.active_project }
+        end
+      end
     end
   end
 end

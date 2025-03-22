@@ -1,5 +1,5 @@
 class Api::V1::StatsController < ApplicationController
-  before_action :ensure_authenticated!, unless: -> { Rails.env.development? }
+  before_action :ensure_authenticated!, only: [ :show ], unless: -> { Rails.env.development? }
 
   def show
     # take either user_id with a start date & end date
@@ -26,6 +26,17 @@ class Api::V1::StatsController < ApplicationController
     end
 
     render plain: query.duration_seconds
+  end
+
+  def user_stats
+    user = User.where(id: params[:username]).first
+    user ||= User.where(slack_uid: params[:username]).first
+
+    return render plain: "User not found", status: :not_found unless user.present?
+
+    summary = WakatimeService.new(user, languages: true).generate_summary
+
+    render json: { data: summary }
   end
 
   private

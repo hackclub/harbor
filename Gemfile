@@ -22,6 +22,8 @@ gem "jbuilder"
 gem "avo", ">= 3.2.1"
 # PaperTrail for auditing
 gem "paper_trail"
+# Handle CORS (Cross-Origin Resource Sharing)
+gem "rack-cors"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"

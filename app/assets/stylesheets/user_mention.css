@@ -1,9 +1,17 @@
 .avatar {
   border-radius: 50%;
+  margin-right: 8px;
+  aspect-ratio: 1;
 }
 
 .current-user {
   font-weight: bold;
+  display: flex;
+  align-items: center;
+}
+
+aside .current-user {
+  margin-bottom: 1rem;
 }
 
 .current-user .avatar {
@@ -17,6 +25,11 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }

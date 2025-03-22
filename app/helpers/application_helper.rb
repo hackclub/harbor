@@ -15,6 +15,14 @@ module ApplicationHelper
     concat content_tag(element, class: "dev-tool #{class_name}", **options, &block)
   end
 
+  def digital_time(time)
+    hours = time.to_i / 3600
+    minutes = (time.to_i % 3600) / 60
+    seconds = time.to_i % 60
+
+    [ hours, minutes, seconds ].map { |part| part.to_s.rjust(2, "0") }.join(":")
+  end
+
   def short_time_simple(time)
     hours = time.to_i / 3600
     minutes = (time.to_i % 3600) / 60

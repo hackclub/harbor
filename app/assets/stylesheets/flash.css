@@ -1,6 +1,7 @@
 .flash-message {
+  width: 100%;
   padding: 1rem;
-  margin: 1rem;
+  margin-bottom: 1rem;
   border-radius: 4px;
   text-align: center;
 }
@@ -24,16 +25,47 @@
 }
 
 footer {
-  position: fixed;
-  bottom: 0;
+  position: relative;
   width: 100%;
+  margin: 50px 0 20px 0;
   padding: 10px;
   text-align: center;
   font-size: 12px;
-  opacity: 0.1;
-  transition: opacity 0.3s ease;
+  color: rgba(150, 150, 150, 0.8);
+  background: none;
+  border-top: none;
 }
 
 footer:hover {
+  color: rgba(100, 100, 100, 1);
+}
+
+footer a {
+  color: inherit;
+  text-decoration: underline;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+footer a:hover {
   opacity: 1;
+}
+
+.impersonate-link {
+  color: #cc5555 !important;
+  font-weight: bold;
+}
+
+@media (prefers-color-scheme: dark) {
+  footer {
+    color: rgba(180, 180, 180, 0.6);
+  }
+
+  footer:hover {
+    color: rgba(220, 220, 220, 0.9);
+  }
+
+  .impersonate-link {
+    color: #ff9999 !important;
+  }
 }

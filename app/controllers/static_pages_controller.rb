@@ -18,7 +18,7 @@ class StaticPagesController < ApplicationController
         redirect_to FlavorText.random_time_video.sample, allow_other_host: allowed_hosts
       end
 
-      @show_wakatime_setup_notice = current_user.heartbeats.empty?
+      @show_wakatime_setup_notice = current_user.heartbeats.empty? || params[:show_wakatime_setup_notice]
       @setup_social_proof = get_setup_social_proof if @show_wakatime_setup_notice
 
       # Get languages and editors in a single query using window functions
@@ -115,11 +115,11 @@ class StaticPagesController < ApplicationController
     }
   end
 
-
   def currently_hacking
     # Get all users who have heartbeats in the last 15 minutes
     users = Rails.cache.fetch("currently_hacking", expires_in: 1.minute) do
       user_ids = Heartbeat.where("time > ?", 5.minutes.ago.to_f)
+                          .coding_only
                           .distinct
                           .pluck(:user_id)
 
@@ -176,20 +176,36 @@ class StaticPagesController < ApplicationController
 
   def get_setup_social_proof
     # Count users who set up in different time periods
-    social_proof_for_time_period(5.minutes.ago, 1, "in the last 5 minutes") ||
+    result = social_proof_for_time_period(5.minutes.ago, 1, "in the last 5 minutes") ||
       social_proof_for_time_period(1.hour.ago, 3, "in the last hour") ||
       social_proof_for_time_period(1.day.ago, 5, "today") ||
       social_proof_for_time_period(1.week.ago, 5, "in the past week") ||
       social_proof_for_time_period(1.month.ago, 5, "in the past month") ||
       social_proof_for_time_period(Time.current.beginning_of_year, 5, "this year")
+
+    result
   end
 
   def social_proof_for_time_period(time_period, threshold, humanized_time_period)
-    count_unique = Heartbeat.where("time > ?", time_period.to_f)
-                            .where(source_type: :test_entry)
-                            .distinct.count(:user_id)
+    user_ids = Heartbeat.where("time > ?", time_period.to_f)
+                         .where(source_type: :test_entry)
+                         .distinct
+                         .pluck(:user_id)
 
+
+    count_unique = user_ids.count
     return nil if count_unique < threshold
+
+    all_setup_users = User.where(id: user_ids).flat_map do |user|
+      {
+        id: user.id,
+        avatar_url: user.avatar_url,
+        display_name: user.display_name || "Hack Clubber"
+      }
+    end
+
+    @all_setup_users = all_setup_users
+    @recent_setup_users = all_setup_users.take(5)
 
     "#{count_unique.to_s + ' Hack Clubber'.pluralize(count_unique)} set up Hackatime #{humanized_time_period}"
   end

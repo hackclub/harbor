@@ -217,4 +217,19 @@ class FlavorText
 
     r
   end
+
+  def self.latin_phrases
+    [
+      "carpe diem", # "seize the day"
+      "nemo sine vitio est", # "no one is without fault"
+      "docendo discimus", # "by teaching, we learn"
+      "per aspera ad astra", # "through adversity to the stars"
+      "ex nihilo nihil", # "from nothing, nothing"
+      "aut viam inveniam aut faciam", # "i will either find a way or make one"
+      "semper ad mellora", # "always towards better things"
+      "soli fortes, una fortiores", # "strong alone, stronger together"
+      "nulla tenaci invia est via", # "for the tenacious, no road is impassable"
+      "nihil boni sine labore" # "nothing achieved without hard work"
+    ]
+  end
 end

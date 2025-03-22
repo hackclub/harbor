@@ -1,0 +1,9 @@
+<div class="active-users-graph">
+  <!-- "nihil boni sine labore" -->
+  <% hours.each_with_index do |h, i| %>
+    <div class="active-users-graph__hour"
+      title="<%= pluralize(i + 1, 'hour') %> ago, <%= pluralize(h[:users], 'people') %> logged time. '<%= FlavorText.latin_phrases.sample %>.'"
+      style="height: <%= h[:height] %>px;">
+    </div>
+  <% end %>
+</div>

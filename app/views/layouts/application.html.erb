@@ -15,6 +15,8 @@
 
     <%= favicon_link_tag asset_path('favicon.png'), type: 'image/png' %>
 
+    <script defer data-domain="hackatime.hackclub.com" src="https://plausible.io/js/script.file-downloads.hash.js"></script>
+
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app %>
     <%= javascript_importmap_tags %>
@@ -26,6 +28,23 @@
     
     <main style="margin-left: 250px; padding: 20px; margin-bottom: 100px;">
       <%= yield %>
+      <footer>
+        <div class="container">
+          <p>
+            Build <%= link_to Rails.application.config.git_version, Rails.application.config.commit_link %>
+            from <%= time_ago_in_words(Rails.application.config.server_start_time) %> ago.
+            <%= pluralize(Heartbeat.recent_count, 'heartbeat') %>
+            (<%= Heartbeat.recent_imported_count %> imported)
+            in the last 24 hours.
+            (DB: <%= pluralize(QueryCount::Counter.counter, "query") %>, <%= QueryCount::Counter.counter_cache %> cached)
+            (CACHE: <%= cache_stats[:hits] %> hits, <%= cache_stats[:misses] %> misses)
+          </p>
+          <% if session[:impersonater_user_id] %>
+            <%= link_to "Stop impersonating", stop_impersonating_path, class: "impersonate-link" %>
+          <% end %>
+        </div>
+        <%= render "static_pages/active_users_graph", hours: active_users_graph_data %>
+      </footer>
     </main>
 
     <div class="currently-hacking-container">
@@ -35,22 +54,5 @@
         </div> %>
       <% end %>
     </div>
-
-    <footer>
-      <div class="container">
-        <p>
-          Build <%= link_to Rails.application.config.git_version, Rails.application.config.commit_link %>
-          from <%= time_ago_in_words(Rails.application.config.server_start_time) %> ago.
-          <%= pluralize(Heartbeat.recent_count, 'heartbeat') %>
-          (<%= Heartbeat.recent_imported_count %> imported)
-          in the last 24 hours.
-          (DB: <%= pluralize(QueryCount::Counter.counter, "query") %>, <%= QueryCount::Counter.counter_cache %> cached)
-          (CACHE: <%= cache_stats[:hits] %> hits, <%= cache_stats[:misses] %> misses)
-        </p>
-        <% if session[:impersonater_user_id] %>
-          <%= link_to "Stop impersonating", stop_impersonating_path, class: "impersonate-link" %>
-        <% end %>
-      </div>
-    </footer>
   </body>
 </html>

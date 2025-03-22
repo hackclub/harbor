@@ -34,6 +34,11 @@ class SessionsController < ApplicationController
   end
 
   def github_new
+    unless current_user
+      redirect_to root_path, alert: "Please sign in first to link your GitHub account"
+      return
+    end
+
     redirect_uri = url_for(action: :github_create, only_path: false)
     Rails.logger.info "Starting GitHub OAuth flow with redirect URI: #{redirect_uri}"
     redirect_to User.github_authorize_url(redirect_uri),
@@ -41,6 +46,11 @@ class SessionsController < ApplicationController
   end
 
   def github_create
+    unless current_user
+      redirect_to root_path, alert: "Please sign in first to link your GitHub account"
+      return
+    end
+
     redirect_uri = url_for(action: :github_create, only_path: false)
 
     if params[:error].present?
@@ -52,17 +62,10 @@ class SessionsController < ApplicationController
     @user = User.from_github_token(params[:code], redirect_uri, current_user)
 
     if @user&.persisted?
-      session[:user_id] = @user.id unless current_user # Only set session if this is a new sign-in
-
-      if @user.data_migration_jobs.empty?
-        # if they don't have a data migration job, add one to the queue
-        OneTime::MigrateUserFromHackatimeJob.perform_later(@user.id)
-      end
-
-      redirect_to root_path, notice: current_user ? "Successfully linked GitHub account!" : "Successfully signed in with GitHub!"
+      redirect_to root_path, notice: "Successfully linked GitHub account!"
     else
-      Rails.logger.error "Failed to create/update user from GitHub data"
-      redirect_to root_path, alert: "Failed to sign in with GitHub"
+      Rails.logger.error "Failed to link GitHub account"
+      redirect_to root_path, alert: "Failed to link GitHub account"
     end
   end
 

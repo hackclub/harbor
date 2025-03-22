@@ -78,6 +78,9 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  # Rubocop - A Ruby linter and formatter
+  gem "rubocop", "~> 1.74", require: false
 end
 
 group :development do

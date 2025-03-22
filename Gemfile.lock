@@ -357,7 +357,7 @@ GEM
     request_store (1.7.0)
       rack (>= 1.4)
     rexml (3.4.1)
-    rubocop (1.72.2)
+    rubocop (1.74.0)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -504,6 +504,7 @@ DEPENDENCIES
   rack-cors
   rack-mini-profiler
   rails (~> 8.0.2)
+  rubocop (~> 1.74)
   rubocop-rails-omakase
   selenium-webdriver
   sentry-rails

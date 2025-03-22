@@ -5,7 +5,7 @@ class ApplicationController < ActionController::Base
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   # allow_browser versions: :modern
 
-  helper_method :current_user, :user_signed_in?
+  helper_method :current_user, :user_signed_in?, :active_users_graph_data
 
   private
 
@@ -34,5 +34,25 @@ class ApplicationController < ActionController::Base
 
   def increment_cache_misses
     Thread.current[:cache_misses] += 1
+  end
+
+  def active_users_graph_data
+    # over the last 24 hours, count the number of people who were active each hour
+    hours = Heartbeat.coding_only
+                     .with_valid_timestamps
+                     .where("time > ?", 24.hours.ago.to_f)
+                     .select("(EXTRACT(EPOCH FROM to_timestamp(time))::bigint / 3600 * 3600) as hour, COUNT(DISTINCT user_id) as count")
+                     .group("hour")
+                     .order("hour DESC")
+
+    top_hour_count = hours.max_by(&:count).count
+
+    hours = hours.map do |h|
+      {
+        hour: Time.at(h.hour),
+        users: h.count,
+        height: (h.count.to_f / top_hour_count * 100).round
+      }
+    end
   end
 end

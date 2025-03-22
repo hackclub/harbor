@@ -43,6 +43,7 @@
             <%= link_to "Stop impersonating", stop_impersonating_path, class: "impersonate-link" %>
           <% end %>
         </div>
+        <%= render "static_pages/active_users_graph", hours: active_users_graph_data %>
       </footer>
     </main>
 

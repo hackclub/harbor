@@ -7,26 +7,26 @@ if Rails.env.development?
   puts "=== Seeding development database ==="
 
   LANGUAGES = {
-    "ruby" => [".rb"],
-    "javascript" => [".js", ".jsx", ".mjs"],
-    "typescript" => [".ts", ".tsx"],
-    "python" => [".py"],
-    "go" => [".go"],
-    "java" => [".java"],
-    "c++" => [".cpp", ".hpp", ".cc", ".h"],
-    "c#" => [".cs"],
-    "html" => [".html", ".htm"],
-    "css" => [".css", ".scss", ".sass"],
-    "php" => [".php"],
-    "rust" => [".rs"],
-    "swift" => [".swift"],
-    "kotlin" => [".kt"],
-    "markdown" => [".md", ".markdown"]
+    "ruby" => [ ".rb" ],
+    "javascript" => [ ".js", ".jsx", ".mjs" ],
+    "typescript" => [ ".ts", ".tsx" ],
+    "python" => [ ".py" ],
+    "go" => [ ".go" ],
+    "java" => [ ".java" ],
+    "c++" => [ ".cpp", ".hpp", ".cc", ".h" ],
+    "c#" => [ ".cs" ],
+    "html" => [ ".html", ".htm" ],
+    "css" => [ ".css", ".scss", ".sass" ],
+    "php" => [ ".php" ],
+    "rust" => [ ".rs" ],
+    "swift" => [ ".swift" ],
+    "kotlin" => [ ".kt" ],
+    "markdown" => [ ".md", ".markdown" ]
   }
 
-  EDITORS = ["VS Code", "Vim", "Emacs", "Sublime Text", "IntelliJ IDEA", "PyCharm", "RubyMine", "Atom", "Notepad++", "Eclipse"]
+  EDITORS = [ "VS Code", "Vim", "Emacs", "Sublime Text", "IntelliJ IDEA", "PyCharm", "RubyMine", "Atom", "Notepad++", "Eclipse" ]
 
-  OPERATING_SYSTEMS = ["Mac OS X", "Windows 10", "Linux Ubuntu", "Linux Fedora", "Linux Arch", "Linux Debian"]
+  OPERATING_SYSTEMS = [ "Mac OS X", "Windows 10", "Linux Ubuntu", "Linux Fedora", "Linux Arch", "Linux Debian" ]
 
   PROJECTS = [
     { name: "personal-website", description: "Personal portfolio site" },
@@ -43,12 +43,12 @@ if Rails.env.development?
   ]
 
   PROJECT_STRUCTURES = {
-    "web-app" => ["app/controllers", "app/models", "app/views", "config", "db", "lib", "public", "spec", "test"],
-    "mobile-app" => ["src/components", "src/screens", "src/utils", "assets", "tests"],
-    "api" => ["app/controllers", "app/models", "config", "db", "lib", "spec"],
-    "cli-tool" => ["src", "bin", "lib", "test"],
-    "game" => ["src/engine", "src/levels", "src/characters", "assets", "scripts"],
-    "data-science" => ["notebooks", "data", "models", "scripts", "visualizations"]
+    "web-app" => [ "app/controllers", "app/models", "app/views", "config", "db", "lib", "public", "spec", "test" ],
+    "mobile-app" => [ "src/components", "src/screens", "src/utils", "assets", "tests" ],
+    "api" => [ "app/controllers", "app/models", "config", "db", "lib", "spec" ],
+    "cli-tool" => [ "src", "bin", "lib", "test" ],
+    "game" => [ "src/engine", "src/levels", "src/characters", "assets", "scripts" ],
+    "data-science" => [ "notebooks", "data", "models", "scripts", "visualizations" ]
   }
 
   test_user = User.find_or_create_by(slack_uid: 'TEST123456') do |user|
@@ -168,7 +168,7 @@ if Rails.env.development?
     t.auth_type = :email
   end
 
-  users = [test_user, admin_user, github_user, emoji_user, compliment_user]
+  users = [ test_user, admin_user, github_user, emoji_user, compliment_user ]
 
   # Helper to create a unique heartbeat using fields_hash
   def create_unique_heartbeat(user, attrs)
@@ -194,7 +194,7 @@ if Rails.env.development?
 
       # Select 3-5 projects for this user
       user_projects = PROJECTS.sample(rand(3..5))
-      
+
       # Create project-repo mappings for GitHub users
       if user.github_username.present?
         user_projects.each do |project|
@@ -207,38 +207,38 @@ if Rails.env.development?
       # Create heartbeats for the last 30 days
       (0..30).each do |days_ago|
         date = Date.current - days_ago.days
-        
+
         # Pick 1-3 projects for this day
         day_projects = user_projects.sample(rand(1..3))
-        
+
         day_projects.each do |project|
           # Choose a structure for this project
           project_structure = PROJECT_STRUCTURES.keys.sample
           folders = PROJECT_STRUCTURES[project_structure]
-          
+
           # Choose main language for this project
           language = LANGUAGES.keys.sample
           extension = LANGUAGES[language].sample
-          
+
           # Choose editor and OS
           editor = EDITORS.sample
           os = OPERATING_SYSTEMS.sample
 
           is_active_now = (user.uses_slack_status? && days_ago == 0 && project == day_projects.first)
-          
+
           heartbeat_count = is_active_now ? rand(15..25) : rand(4..12)
-          
+
           (1..24).to_a.sample(heartbeat_count).sort.each do |hour|
             time = if is_active_now && hour > 20
               date.to_time + hour.hours + rand(Time.now.min).minutes
             else
               date.to_time + hour.hours + rand(0..59).minutes
             end
-            
+
             folder = folders.sample
-            filename = ["main", "index", "app", "utils", "helpers", "models", "views", "components", "services"].sample
+            filename = [ "main", "index", "app", "utils", "helpers", "models", "views", "components", "services" ].sample
             file_path = "#{project[:name]}/#{folder}/#{filename}#{extension}"
-            
+
             attrs = {
               time: time.to_f,
               entity: file_path,
@@ -247,7 +247,7 @@ if Rails.env.development?
               editor: editor,
               operating_system: os,
               source_type: :direct_entry,
-              is_write: [true, false].sample,
+              is_write: [ true, false ].sample,
               category: 'coding',
               type: 'file',
               line_additions: rand(1..50),
@@ -316,7 +316,7 @@ if Rails.env.development?
 
   # Rank the entries
   puts "Ranking leaderboard entries..."
-  [daily_leaderboard, weekly_leaderboard].each do |leaderboard|
+  [ daily_leaderboard, weekly_leaderboard ].each do |leaderboard|
     leaderboard.entries.order(total_seconds: :desc).each_with_index do |entry, index|
       entry.update(rank: index + 1)
     end

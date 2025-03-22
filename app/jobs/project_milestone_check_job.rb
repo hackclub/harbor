@@ -2,8 +2,6 @@ class ProjectMilestoneCheckJob < ApplicationJob
   queue_as :default
 
   def perform
-    Rails.logger.info "Checking for project milestones"
-
     # Get all users with heartbeats in the last hour
     active_users = Heartbeat.where("created_at > ?", 1.hour.ago)
                           .distinct.pluck(:user_id)

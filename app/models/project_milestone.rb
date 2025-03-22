@@ -7,6 +7,7 @@ class ProjectMilestone < ApplicationRecord
   validates :milestone_type, presence: true
   validates :milestone_value, presence: true
 
+  # We keep this because I don't want to change the database schema
   enum :milestone_type, {
     hourly: 0,
     daily: 1,
@@ -15,7 +16,8 @@ class ProjectMilestone < ApplicationRecord
 
   # Get milestones for display in the sidebar
   def self.recent_for_display(limit = 20)
-    order(created_at: :desc)
+    where(milestone_type: :hourly)
+      .order(created_at: :desc)
       .includes(:user, :project_milestone_kudos)
       .limit(limit)
   end
@@ -30,15 +32,7 @@ class ProjectMilestone < ApplicationRecord
     project_milestone_kudos.count
   end
 
-  # Format the milestone message
   def formatted_message
-    case milestone_type
-    when "hourly"
-      "completed #{milestone_value} hour#{'s' if milestone_value > 1} on #{project_name}"
-    when "daily"
-      "worked on #{project_name} for #{ApplicationController.helpers.short_time_simple(milestone_value)} today"
-    when "weekly"
-      "spent #{ApplicationController.helpers.short_time_simple(milestone_value)} on #{project_name} this week"
-    end
+    "completed #{milestone_value} hour#{'s' if milestone_value > 1} on #{project_name}"
   end
 end

@@ -504,7 +504,6 @@ DEPENDENCIES
   rack-cors
   rack-mini-profiler
   rails (~> 8.0.2)
-  rubocop (~> 1.74)
   rubocop-rails-omakase
   selenium-webdriver
   sentry-rails

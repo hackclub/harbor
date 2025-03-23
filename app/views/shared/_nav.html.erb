@@ -73,4 +73,44 @@
       <% end %>
     <% end %>
   </ul>
+
+  <% if current_user %>
+    <hr />
+    
+    <div class="recent-activity">
+      <h3>Recent activity</h3>
+      
+      <div class="activity-list">
+        <% ProjectMilestone.recent_for_display(10).each do |milestone| %>
+          <div class="activity-item">
+            <%= render "shared/user_mention", user: milestone.user %>
+            <div class="activity-content">
+              <p><%= milestone.formatted_message %></p>
+              <div class="activity-actions">
+                <% if current_user.id != milestone.user_id %>
+                  <% if milestone.kudos_from?(current_user.id) %>
+                    <span class="kudos-given">
+                      <i class="kudos-icon">👏</i> <%= milestone.kudos_count %>
+                    </span>
+                  <% else %>
+                    <%= link_to give_kudos_project_milestone_path(milestone), 
+                                data: { turbo_method: :post, controller: "kudos", action: "click->kudos#giveKudos" },
+                                class: "give-kudos-btn" do %>
+                      <i class="kudos-icon">👏</i> Give kudos
+                      <% if milestone.kudos_count > 0 %><span class="kudos-count"><%= milestone.kudos_count %></span><% end %>
+                    <% end %>
+                  <% end %>
+                <% elsif milestone.kudos_count > 0 %>
+                  <span class="kudos-received">
+                    <i class="kudos-icon">👏</i> <%= milestone.kudos_count %>
+                  </span>
+                <% end %>
+              </div>
+            </div>
+            <span class="activity-time"><%= time_ago_in_words(milestone.created_at) %> ago</span>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
 </aside>

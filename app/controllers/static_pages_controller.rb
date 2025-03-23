@@ -130,6 +130,15 @@ class StaticPagesController < ApplicationController
         active_projects[user.id] = user.project_repo_mappings.find { |p| p.project_name == user.active_project }
       end
 
+      users = users.sort_by do |user|
+        [
+          active_projects[user.id].present? ? 0 : 1,
+          user.username.present? ? 0 : 1,
+          user.slack_username.present? ? 0 : 1,
+          user.github_username.present? ? 0 : 1
+        ]
+      end
+
       { users: users, active_projects: active_projects }
     end
 

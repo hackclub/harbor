@@ -6,6 +6,7 @@
 if Rails.env.development?
   puts "=== Seeding development database ==="
 
+  # Reference data for generating realistic heartbeats
   LANGUAGES = {
     "ruby" => [ ".rb" ],
     "javascript" => [ ".js", ".jsx", ".mjs" ],
@@ -50,6 +51,8 @@ if Rails.env.development?
     "game" => [ "src/engine", "src/levels", "src/characters", "assets", "scripts" ],
     "data-science" => [ "notebooks", "data", "models", "scripts", "visualizations" ]
   }
+
+  puts "Creating test users..."
 
   test_user = User.find_or_create_by(slack_uid: 'TEST123456') do |user|
     user.username = 'testuser'
@@ -170,157 +173,125 @@ if Rails.env.development?
 
   users = [ test_user, admin_user, github_user, emoji_user, compliment_user ]
 
-  # Helper to create a unique heartbeat using fields_hash
-  def create_unique_heartbeat(user, attrs)
-    fields_hash = Heartbeat.generate_fields_hash(attrs)
-    return if Heartbeat.where(fields_hash: fields_hash).exists?
+  if Heartbeat.count > 0
+    puts "Heartbeats already exist, skipping heartbeat creation"
+  else
+    # Helper to create a unique heartbeat using fields_hash
+    def create_unique_heartbeat(user, attrs)
+      fields_hash = Heartbeat.generate_fields_hash(attrs)
+      return if Heartbeat.where(fields_hash: fields_hash).exists?
 
-    heartbeat = user.heartbeats.new(attrs)
-    heartbeat.fields_hash = fields_hash
-    heartbeat.save!
-  rescue ActiveRecord::RecordNotUnique
-    # Skip if there's a race condition
-  end
+      heartbeat = user.heartbeats.new(attrs)
+      heartbeat.fields_hash = fields_hash
+      heartbeat.save!
+    rescue ActiveRecord::RecordNotUnique
+      # Skip if there's a race condition
+    end
 
-  # Create heartbeats for each user
-  puts "Creating heartbeats..."
+    puts "Creating heartbeats..."
 
-  # Transaction to speed up database operations
-  ActiveRecord::Base.transaction do
-    users.each do |user|
-      next if user.heartbeats.count > 0
+    # Transaction to speed up database operations
+    ActiveRecord::Base.transaction do
+      users.each do |user|
+        puts "Creating heartbeats for #{user.username}..."
 
-      puts "Creating heartbeats for #{user.username}..."
+        # Select 3-5 projects for this user
+        user_projects = PROJECTS.sample(rand(3..5))
 
-      # Select 3-5 projects for this user
-      user_projects = PROJECTS.sample(rand(3..5))
-
-      # Create project-repo mappings for GitHub users
-      if user.github_username.present?
-        user_projects.each do |project|
-          user.project_repo_mappings.find_or_create_by(project_name: project[:name]) do |mapping|
-            mapping.repo_url = "https://github.com/#{user.github_username}/#{project[:name]}"
-          end
-        end
-      end
-
-      # Create heartbeats for the last 30 days
-      (0..30).each do |days_ago|
-        date = Date.current - days_ago.days
-
-        # Pick 1-3 projects for this day
-        day_projects = user_projects.sample(rand(1..3))
-
-        day_projects.each do |project|
-          # Choose a structure for this project
-          project_structure = PROJECT_STRUCTURES.keys.sample
-          folders = PROJECT_STRUCTURES[project_structure]
-
-          # Choose main language for this project
-          language = LANGUAGES.keys.sample
-          extension = LANGUAGES[language].sample
-
-          # Choose editor and OS
-          editor = EDITORS.sample
-          os = OPERATING_SYSTEMS.sample
-
-          is_active_now = (user.uses_slack_status? && days_ago == 0 && project == day_projects.first)
-
-          heartbeat_count = is_active_now ? rand(15..25) : rand(4..12)
-
-          (1..24).to_a.sample(heartbeat_count).sort.each do |hour|
-            time = if is_active_now && hour > 20
-              date.to_time + hour.hours + rand(Time.now.min).minutes
-            else
-              date.to_time + hour.hours + rand(0..59).minutes
+        # Create project-repo mappings for GitHub users
+        if user.github_username.present?
+          user_projects.each do |project|
+            user.project_repo_mappings.find_or_create_by(project_name: project[:name]) do |mapping|
+              mapping.repo_url = "https://github.com/#{user.github_username}/#{project[:name]}"
             end
+          end
+        end
 
-            folder = folders.sample
-            filename = [ "main", "index", "app", "utils", "helpers", "models", "views", "components", "services" ].sample
-            file_path = "#{project[:name]}/#{folder}/#{filename}#{extension}"
+        # Create heartbeats for the last 30 days
+        (0..30).each do |days_ago|
+          date = Date.current - days_ago.days
 
-            attrs = {
-              time: time.to_f,
-              entity: file_path,
-              project: project[:name],
-              language: language,
-              editor: editor,
-              operating_system: os,
-              source_type: :direct_entry,
-              is_write: [ true, false ].sample,
-              category: 'coding',
-              type: 'file',
-              line_additions: rand(1..50),
-              line_deletions: rand(0..10),
-              lineno: rand(1..100),
-              lines: rand(100..1000),
-              cursorpos: rand(1..500)
-            }
+          # Skip if date is in the future
+          next if date > Date.current
 
-            create_unique_heartbeat(user, attrs)
+          # Pick 1-3 projects for this day
+          day_projects = user_projects.sample(rand(1..3))
+
+          day_projects.each do |project|
+            # Choose a structure for this project
+            project_structure = PROJECT_STRUCTURES.keys.sample
+            folders = PROJECT_STRUCTURES[project_structure]
+
+            # Choose main language for this project
+            language = LANGUAGES.keys.sample
+            extension = LANGUAGES[language].sample
+
+            # Choose editor and OS
+            editor = EDITORS.sample
+            os = OPERATING_SYSTEMS.sample
+
+            is_active_now = (user.uses_slack_status? && days_ago == 0 && project == day_projects.first)
+
+            heartbeat_count = is_active_now ? rand(15..25) : rand(4..12)
+
+            (1..24).to_a.sample(heartbeat_count).sort.each do |hour|
+              time = if is_active_now && hour > 20
+                date.to_time + hour.hours + rand(Time.now.min).minutes
+              else
+                date.to_time + hour.hours + rand(0..59).minutes
+              end
+
+              folder = folders.sample
+              filename = [ "main", "index", "app", "utils", "helpers", "models", "views", "components", "services" ].sample
+              file_path = "#{project[:name]}/#{folder}/#{filename}#{extension}"
+
+              attrs = {
+                time: time.to_f,
+                entity: file_path,
+                project: project[:name],
+                language: language,
+                editor: editor,
+                operating_system: os,
+                source_type: :direct_entry,
+                is_write: [ true, false ].sample,
+                category: 'coding',
+                type: 'file',
+                line_additions: rand(1..50),
+                line_deletions: rand(0..10),
+                lineno: rand(1..100),
+                lines: rand(100..1000),
+                cursorpos: rand(1..500)
+              }
+
+              create_unique_heartbeat(user, attrs)
+            end
           end
         end
       end
     end
   end
 
-  # Create leaderboards
-  puts "Creating leaderboards..."
-
-  # Daily leaderboard for today
-  daily_leaderboard = Leaderboard.find_or_create_by(
-    start_date: Date.current,
-    period_type: :daily
-  ) do |leaderboard|
-    leaderboard.finished_generating_at = Time.current
+  # Update or create GitHub repo mappings for all users with GitHub accounts
+  puts "Scanning GitHub repos..."
+  users.select { |u| u.github_username.present? }.each do |user|
+    ScanGithubReposJob.perform_now(user.id)
   end
 
-  # Weekly leaderboard for this week
-  weekly_leaderboard = Leaderboard.find_or_create_by(
-    start_date: Date.current.beginning_of_week,
-    period_type: :weekly
-  ) do |leaderboard|
-    leaderboard.finished_generating_at = Time.current
-  end
 
-  # Create leaderboard entries
-  puts "Creating leaderboard entries..."
+  # Generate leaderboards using the application's job classes
+  puts "Generating leaderboards..."
 
-  users.each do |user|
-    # Daily leaderboard entry
-    daily_seconds = user.heartbeats.where("DATE(to_timestamp(time)) = ?", Date.current).duration_seconds
+  puts "  Creating daily leaderboard..."
+  daily_leaderboard = LeaderboardUpdateJob.perform_now(:daily, Date.current)
 
-    if daily_seconds > 0
-      LeaderboardEntry.find_or_create_by(
-        leaderboard: daily_leaderboard,
-        user: user
-      ) do |entry|
-        entry.total_seconds = daily_seconds
-      end
-    end
+  puts "  Creating weekly leaderboard..."
+  weekly_leaderboard = LeaderboardUpdateJob.perform_now(:weekly, Date.current.beginning_of_week)
 
-    # Weekly leaderboard entry
-    week_start = Time.current.beginning_of_week.to_i
-    week_end = Time.current.end_of_week.to_i
-    weekly_seconds = user.heartbeats.where("time >= ? AND time <= ?", week_start, week_end).duration_seconds
+  puts "Updating Slack statuses..."
+  UserSlackStatusUpdateJob.perform_now
 
-    if weekly_seconds > 0
-      LeaderboardEntry.find_or_create_by(
-        leaderboard: weekly_leaderboard,
-        user: user
-      ) do |entry|
-        entry.total_seconds = weekly_seconds
-      end
-    end
-  end
-
-  # Rank the entries
-  puts "Ranking leaderboard entries..."
-  [ daily_leaderboard, weekly_leaderboard ].each do |leaderboard|
-    leaderboard.entries.order(total_seconds: :desc).each_with_index do |entry, index|
-      entry.update(rank: index + 1)
-    end
-  end
+  puts "Caching home stats..."
+  CacheHomeStatsJob.perform_now
 
   puts "=== Seed completed successfully ==="
 else

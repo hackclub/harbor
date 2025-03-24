@@ -23,6 +23,8 @@ class User < ApplicationRecord
 
   has_many :api_keys
 
+  delegate :streak_days, :streak_days_formatted, to: :heartbeats
+
   enum :hackatime_extension_text_type, {
     simple_text: 0,
     clock_emoji: 1,

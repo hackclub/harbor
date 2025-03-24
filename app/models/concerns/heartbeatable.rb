@@ -37,6 +37,18 @@ module Heartbeatable
       streak
     end
 
+    def streak_days_formatted(start_date: 8.days.ago)
+      result = streak_days(start_date: start_date)
+
+      if result > 7
+        "7+"
+      elsif result < 1
+        nil
+      else
+        result.to_s
+      end
+    end
+
     def duration_formatted(scope = all)
       seconds = duration_seconds(scope)
       hours = seconds / 3600

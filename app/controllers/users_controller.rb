@@ -64,7 +64,42 @@ class UsersController < ApplicationController
     else
       current_user
     end
+  end
 
+  def filterable_dashboard_content
+    @user = current_user
+
+    cached_data = filterable_dashboard_data
+    cached_data.entries.each do |key, value|
+      instance_variable_set("@#{key}", value)
+    end
+
+    render partial: "filterable_dashboard_content"
+  end
+
+  def filterable_dashboard
+    # Use current_user for /my/home route, otherwise find by id
+    @user = if params[:id].present?
+      User.find(params[:id])
+    else
+      current_user
+    end
+
+    cached_data = filterable_dashboard_data
+    cached_data.entries.each do |key, value|
+      instance_variable_set("@#{key}", value)
+    end
+
+    if turbo_frame_request?
+      render partial: "filterable_dashboard"
+    else
+      render :show
+    end
+  end
+
+  private
+
+  def filterable_dashboard_data
     # Cache key based on user and filter parameters
     cache_key = [
       @user,
@@ -74,24 +109,37 @@ class UsersController < ApplicationController
       params[:editor]
     ]
 
+    Rails.logger.info "Filterable Dashboard Data - Params: #{params.inspect}"
+    Rails.logger.info "Projects param type: #{params[:projects].class}"
+    Rails.logger.info "Projects param value: #{params[:projects]}"
+
     # Load filter options and apply filters with caching
-    cached_data = Rails.cache.fetch(cache_key, expires_in: 5.minutes) do
+    Rails.cache.fetch(cache_key, expires_in: 5.minutes) do
       result = {}
       # Load filter options
       result[:projects] = @user.heartbeats.select(:project).distinct.order(:project).pluck(:project)
+      Rails.logger.info "Available projects: #{result[:projects].inspect}"
+
       result[:languages] = @user.heartbeats.select(:language).distinct.order(:language).pluck(:language)
       result[:operating_systems] = @user.heartbeats.select(:operating_system).distinct.order(:operating_system).pluck(:operating_system)
       result[:editors] = @user.heartbeats.select(:editor).distinct.order(:editor).pluck(:editor)
 
       # Apply filters to heartbeats
       filtered_heartbeats = @user.heartbeats
-      filtered_heartbeats = filtered_heartbeats.where(project: params[:projects].split(",")) if params[:projects].present?
+
+      if params[:projects].present?
+        Rails.logger.info "Applying project filter with value: #{params[:projects]}"
+        project_filter = params[:projects].split(",")
+        Rails.logger.info "Split project filter: #{project_filter.inspect}"
+        filtered_heartbeats = filtered_heartbeats.where(project: project_filter)
+        Rails.logger.info "SQL query for projects: #{filtered_heartbeats.to_sql}"
+      end
+
       filtered_heartbeats = filtered_heartbeats.where(language: params[:language].split(",")) if params[:language].present?
       filtered_heartbeats = filtered_heartbeats.where(operating_system: params[:os].split(",")) if params[:os].present?
       filtered_heartbeats = filtered_heartbeats.where(editor: params[:editor].split(",")) if params[:editor].present?
 
       result[:filtered_heartbeats] = filtered_heartbeats
-
 
       # Calculate stats for filtered data
       result[:total_time] = filtered_heartbeats.duration_seconds
@@ -148,44 +196,7 @@ class UsersController < ApplicationController
 
       result
     end
-
-    cached_data.entries.each do |key, value|
-      instance_variable_set("@#{key}", value)
-    end
-
-    respond_to do |format|
-      format.html do
-        if request.xhr?
-          render partial: "filterable_dashboard_content"
-        end
-      end
-
-      format.json do
-        render json: {
-          stats: {
-            total_time: ApplicationController.helpers.short_time_simple(@total_time),
-            total_heartbeats: number_with_delimiter(@total_heartbeats),
-            top_project: @top_project || "None",
-            top_language: @top_language || "Unknown",
-            top_os: @top_os || "Unknown",
-            top_editor: @top_editor || "Unknown"
-          },
-          project_durations: @project_durations.transform_values { |v|
-            {
-              seconds: v,
-              formatted: ApplicationController.helpers.short_time_simple(v)
-            }
-          },
-          language_stats: @language_stats,
-          editor_stats: @editor_stats,
-          os_stats: @os_stats,
-          weekly_project_stats: @weekly_project_stats
-        }
-      end
-    end
   end
-
-  private
 
   def require_admin
     unless current_user.admin?

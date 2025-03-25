@@ -1,6 +1,6 @@
 <div class="filter">
   <label class="filter-label">▼ <%= label %></label>
-  <div class="custom-select" data-param="<%= param %>">
+  <div class="custom-select" id="<%= param %>-select" data-param="<%= param %>">
     <div class="select-header-container">
       <div class="select-header">
         Filter by <%= label.downcase %>...
@@ -71,7 +71,7 @@
 }
 
 .filter .option {
-  display: flex !important;
+  display: flex;
   align-items: center !important;
   padding: 6px 8px !important;
   cursor: pointer !important;
@@ -123,7 +123,7 @@
 }
 
 .filter .select-header-container {
-  display: flex !important;
+  display: flex;
   align-items: center !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
   border-radius: 4px !important;
@@ -224,10 +224,11 @@
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  const customSelects = document.querySelectorAll('.custom-select');
+window.initializeMultiSelects = window.initializeMultiSelects || function() {
+  const customSelects = document.querySelectorAll('.custom-select:not([data-initialized])');
   
   customSelects.forEach(select => {
+    select.dataset.initialized = 'true';
     const searchInput = select.querySelector('.search-input');
     const optionsList = select.querySelector('.options-list');
     const options = select.querySelectorAll('.option');
@@ -249,72 +250,54 @@ document.addEventListener('DOMContentLoaded', function() {
       const checkbox = option.querySelector('input[type="checkbox"]');
       checkbox.addEventListener('change', () => {
         updateClearButton();
+        if (typeof window.updateSelect === 'function') {
+          window.updateSelect(select);
+        }
       });
     });
 
-    // Handle clear button click
-    clearButton.addEventListener('click', (e) => {
-      e.stopPropagation();
-      options.forEach(option => {
-        const checkbox = option.querySelector('input[type="checkbox"]');
-        checkbox.checked = false;
+    // Handle search input
+    if (searchInput) {
+      searchInput.addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase().trim();
+        options.forEach(option => {
+          const text = option.querySelector('span').textContent.toLowerCase().trim();
+          option.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
       });
-      updateClearButton();
-      // Trigger change event for any external listeners
-      const event = new Event('change');
-      select.dispatchEvent(event);
+    }
+
+    // Handle header click
+    header.addEventListener('click', () => {
+      const isVisible = optionsContainer.style.display === 'block';
+      optionsContainer.style.display = isVisible ? 'none' : 'block';
+      if (!isVisible && searchInput) {
+        searchInput.focus();
+      }
     });
 
-    // Improved search function with debugging
-    function filterOptions(searchTerm) {
-      const normalizedSearch = searchTerm.toLowerCase().trim();
-      
-      let matchCount = 0;
-      options.forEach(option => {
-        const text = option.querySelector('span').textContent.toLowerCase().trim();
-        const shouldShow = normalizedSearch === '' || text.includes(normalizedSearch);
-        
-        // Use classList instead of style.display
-        if (shouldShow) {
-          option.classList.remove('hidden');
-          matchCount++;
-        } else {
-          option.classList.add('hidden');
+    // Handle clear button
+    if (clearButton) {
+      clearButton.addEventListener('click', () => {
+        options.forEach(option => {
+          const checkbox = option.querySelector('input[type="checkbox"]');
+          checkbox.checked = false;
+        });
+        updateClearButton();
+        if (typeof window.updateSelect === 'function') {
+          window.updateSelect(select);
         }
       });
     }
 
-    // Search input handler
-    searchInput.addEventListener('input', function(e) {
-      filterOptions(e.target.value);
-    });
-
-    // Prevent dropdown from closing when clicking search input
-    searchInput.addEventListener('click', function(e) {
-      e.stopPropagation();
-    });
-
-    // Toggle dropdown visibility
-    header.addEventListener('click', function() {
-      const isVisible = optionsContainer.style.display === 'block';
-      const newDisplay = isVisible ? 'none' : 'block';
-      optionsContainer.style.display = newDisplay;
-      
-      if (!isVisible) {
-        searchInput.focus();
-        searchInput.value = '';
-        filterOptions('');
-      }
-    });
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function(e) {
-      if (!select.contains(e.target)) {
-        optionsContainer.style.display = 'none';
-        searchInput.value = '';
-        filterOptions('');
-      }
-    });
+    // Mark as initialized
+    select.dataset.initialized = 'true';
   });
-});
+};
+
+// Initialize on DOMContentLoaded
+// document.addEventListener('DOMContentLoaded', window.initializeMultiSelects);
+
+// Initialize on turbo:frame-load
+// document.addEventListener('turbo:frame-load', window.initializeMultiSelects);
 </script> 

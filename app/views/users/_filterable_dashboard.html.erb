@@ -1,0 +1,39 @@
+<%= turbo_frame_tag "filterable_dashboard" do %>
+  <div class="container">
+    <div class="content">
+      <div class="filters-section">
+        <%= render partial: 'shared/multi_select', locals: {
+          label: 'Project',
+          param: 'projects',
+          values: @projects,
+          selected: params[:projects]
+        } %>
+
+        <%= render partial: 'shared/multi_select', locals: {
+          label: 'Language',
+          param: 'language',
+          values: @languages,
+          selected: params[:language]
+        } %>
+
+        <%= render partial: 'shared/multi_select', locals: {
+          label: 'OS',
+          param: 'os',
+          values: @operating_systems,
+          selected: params[:os]
+        } %>
+
+        <%= render partial: 'shared/multi_select', locals: {
+          label: 'Editor',
+          param: 'editor',
+          values: @editors,
+          selected: params[:editor]
+        } %>
+      </div>
+    </div>
+  </div>
+
+  <div id="filterable_dashboard_content">
+    <%= render partial: 'filterable_dashboard_content' %> 
+  </div>
+<% end %>

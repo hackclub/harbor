@@ -61,7 +61,7 @@
           </div>
         <% end %>
       </div>
-      <% unless @user_on_leaderboard %>
+      <% unless @user_on_leaderboard && @untracked_entries != 0 %>
         <p>
           Don't see yourself on the leaderboard? You're probably one of the
           <%= pluralize(@untracked_entries, "user") %>

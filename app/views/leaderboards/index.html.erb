@@ -47,12 +47,21 @@
                   working on <%= link_to @active_projects[entry.user_id].project_name, @active_projects[entry.user_id].repo_url, target: "_blank" %>
                 </span>
               <% end %>
+              <% if entry.streak_count > 7 %>
+                <span class="super" title="7+ daily streak">
+                  🔥 7+
+                </span>
+              <% elsif entry.streak_count > 0 %>
+                <span class="super" title="<%= entry.streak_count %> day streak">
+                  🔥 <%= entry.streak_count %>
+                </span>
+              <% end %>
             </span>
             <span class="time"><%= short_time_detailed entry.total_seconds %></span>
           </div>
         <% end %>
       </div>
-      <% unless @user_on_leaderboard %>
+      <% unless @user_on_leaderboard && @untracked_entries != 0 %>
         <p>
           Don't see yourself on the leaderboard? You're probably one of the
           <%= pluralize(@untracked_entries, "user") %>

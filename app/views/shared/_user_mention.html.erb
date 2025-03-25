@@ -13,7 +13,7 @@
   <% end %>
   <% unless current_user == user %>
     <% admin_tool('', 'span') do %>
-      <%= link_to impersonate_user_path(user), class: "impersonate-link", data: { turbo_frame: "_top" } do %>
+      <%= link_to impersonate_user_path(user), class: "impersonate-link", data: { turbo_frame: "_top", turbo_prefetch: "false" } do %>
         🥸
       <% end %>
     <% end %>

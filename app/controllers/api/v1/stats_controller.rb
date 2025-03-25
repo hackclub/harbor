@@ -29,12 +29,25 @@ class Api::V1::StatsController < ApplicationController
   end
 
   def user_stats
+    # Used by the github stats page feature
     user = User.where(id: params[:username]).first
     user ||= User.where(slack_uid: params[:username]).first
 
+    timezone = params[:timezone] || user.timezone || "UTC"
+
+    start_date = Date.parse(params[:start_date]).beginning_of_day.in_time_zone(timezone) if params[:start_date].present?
+    start_date ||= 10.years.ago.in_time_zone(timezone)
+    end_date = Date.parse(params[:end_date]).end_of_day.in_time_zone(timezone) if params[:end_date].present?
+    end_date ||= Date.today.end_of_day.in_time_zone(timezone)
+
     return render plain: "User not found", status: :not_found unless user.present?
 
-    summary = WakatimeService.new(user, languages: true).generate_summary
+    limit = params[:limit].to_i
+
+    enabled_features = params[:features]&.split(",")&.map(&:to_sym)
+    enabled_features ||= %i[languages]
+
+    summary = WakatimeService.new(user: user, specific_filters: enabled_features, allow_cache: false, limit: limit, start_date: start_date, end_date: end_date).generate_summary
 
     render json: { data: summary }
   end

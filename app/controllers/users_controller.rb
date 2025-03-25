@@ -81,10 +81,10 @@ class UsersController < ApplicationController
     # Calculate stats for filtered data
     @total_time = @filtered_heartbeats.duration_seconds
     @total_heartbeats = @filtered_heartbeats.count
-    @top_project = @filtered_heartbeats.group(:project).count.max_by { |_, v| v }&.first
-    @top_language = @filtered_heartbeats.group(:language).count.max_by { |_, v| v }&.first
-    @top_os = @filtered_heartbeats.group(:operating_system).count.max_by { |_, v| v }&.first
-    @top_editor = @filtered_heartbeats.group(:editor).count.max_by { |_, v| v }&.first
+    @top_project = @filtered_heartbeats.group(:project).duration_seconds.max_by { |_, v| v }&.first
+    @top_language = @filtered_heartbeats.group(:language).duration_seconds.max_by { |_, v| v }&.first
+    @top_os = @filtered_heartbeats.group(:operating_system).duration_seconds.max_by { |_, v| v }&.first
+    @top_editor = @filtered_heartbeats.group(:editor).duration_seconds.max_by { |_, v| v }&.first
 
     # Prepare project durations data
     @project_durations = @filtered_heartbeats

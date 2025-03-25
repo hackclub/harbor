@@ -406,6 +406,11 @@ document.addEventListener('DOMContentLoaded', function() {
           }
         });
 
+        const projectTimelineCanvas = document.getElementById('projectTimelineChart');
+        if (projectTimelineCanvas && data.weekly_project_stats) {
+          projectTimelineCanvas.dataset.stats = JSON.stringify(data.weekly_project_stats);
+        }
+
         // Reinitialize charts with new data
         if (typeof window.hackatimeCharts !== 'undefined') {
           window.hackatimeCharts.initializeCharts();

@@ -1,9 +1,17 @@
 include ApplicationHelper
 
 class WakatimeService
-  def initialize(user = nil, specific_filters = {}, allow_cache = true)
+  def initialize(user: nil, specific_filters: [], allow_cache: true, limit: 10, start_date: nil, end_date: nil)
     @scope = Heartbeat.all
     @user = user
+
+    @start_date = start_date || @scope.minimum(:time)
+    @end_date = end_date || @scope.maximum(:time)
+
+    @scope = @scope.where(time: @start_date..@end_date)
+
+    @limit = limit
+    @limit = nil if @limit&.zero?
 
     @scope = @scope.where(user_id: @user.id) if @user.present?
 
@@ -37,10 +45,10 @@ class WakatimeService
     summary[:human_readable_total] = ApplicationController.helpers.short_time_detailed(@total_seconds)
     summary[:human_readable_daily_average] = ApplicationController.helpers.short_time_detailed(summary[:daily_average])
 
-    summary[:languages] = generate_summary_chunk(:language) if @specific_filters[:languages]
-    summary[:projects] = generate_summary_chunk(:project) if @specific_filters[:projects]
-    summary[:editors] = generate_summary_chunk(:editor) if @specific_filters[:editors]
-    summary[:operating_systems] = generate_summary_chunk(:operating_system) if @specific_filters[:operating_systems]
+    summary[:languages] = generate_summary_chunk(:language) if @specific_filters.include? :languages
+    summary[:projects] = generate_summary_chunk(:project) if @specific_filters.include? :projects
+    summary[:editors] = generate_summary_chunk(:editor) if @specific_filters.include? :editors
+    summary[:operating_systems] = generate_summary_chunk(:operating_system) if @specific_filters.include? :operating_systems
 
     summary
   end
@@ -66,7 +74,9 @@ class WakatimeService
         digital: ApplicationController.helpers.digital_time(value)
       }
     end
-    result.sort_by { |item| -item[:total_seconds] }.first(10)
+    result = result.sort_by { |item| -item[:total_seconds] }
+    result = result.first(@limit) if @limit.present?
+    result
   end
 
   def normalize_editor(editor)

@@ -23,6 +23,8 @@ class User < ApplicationRecord
 
   has_many :api_keys
 
+  delegate :streak_days, :streak_days_formatted, to: :heartbeats
+
   enum :hackatime_extension_text_type, {
     simple_text: 0,
     clock_emoji: 1,
@@ -89,6 +91,32 @@ class User < ApplicationRecord
     update!(is_admin: false)
   end
 
+  def raw_slack_user_info
+    return nil unless slack_uid.present?
+    return nil unless slack_access_token.present?
+
+    @slack_user_info ||= HTTP.auth("Bearer #{slack_access_token}")
+      .get("https://slack.com/api/users.info?user=#{slack_uid}")
+
+    JSON.parse(@slack_user_info.body.to_s).dig("user")
+  end
+
+  def update_from_slack
+    user_data = raw_slack_user_info
+
+    return unless user_data.present?
+
+    profile = user_data.dig("profile")
+
+    self.slack_avatar_url = profile.dig("image_192") || profile.dig("image_72")
+
+    self.slack_username = profile.dig("username").presence
+    self.slack_username ||= profile.dig("display_name_normalized").presence
+    self.slack_username ||= profile.dig("real_name_normalized").presence
+
+    self.username.blank? && self.username = self.slack_username
+  end
+
   def update_slack_status
     return unless uses_slack_status?
 
@@ -102,7 +130,7 @@ class User < ApplicationRecord
 
     custom_status_regex = /spent on \w+ today$/
     status_present = current_status.dig("profile", "status_text").present?
-    status_custom = !current_status.dig("profile", "status_text").match?(custom_status_regex)
+    status_custom = !current_status.dig("profile", "status_text")&.match?(custom_status_regex)
 
     return if status_present && status_custom
 
@@ -273,9 +301,11 @@ class User < ApplicationRecord
   end
 
   def display_name
-    return slack_username if slack_username.present?
-    return github_username if github_username.present?
-    return username if username.present?
+    return slack_username.presence.truncate(10) if slack_username.present?
+    return github_username.presence.truncate(10) if github_username.present?
+    return username.presence.truncate(10) if username.present?
+
+    debugger if slack_uid == "U0824J5AHRB"
 
     # "zach@hackclub.com" -> "zach (email sign-up)"
     email = email_addresses&.first&.email

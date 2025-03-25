@@ -10,6 +10,11 @@
   <% if current_user %>
     <li>
       <%= render "shared/user_mention", user: current_user %>
+      <% if current_user.streak_days_formatted %>
+        <p title="🔥 <%= current_user.streak_days_formatted %> day streak">
+          <%= current_user.streak_days_formatted %> 🔥
+        </p>
+      <% end %>
       <% if current_user.active_project && current_user.active_project_duration > 60 %>
         <p>
           Working on: <%= current_user.active_project %>
@@ -22,8 +27,6 @@
       <%= link_to "Login", slack_auth_path %>
     </li>
   <% end %>
-
-  <hr />
 
   <ul>
     <li>

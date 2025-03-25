@@ -1,6 +1,6 @@
 class LeaderboardUpdateJob < ApplicationJob
   queue_as :default
-  BATCH_SIZE = 100
+  BATCH_SIZE = 1000
 
   include GoodJob::ActiveJobExtensions::Concurrency
 
@@ -36,16 +36,21 @@ class LeaderboardUpdateJob < ApplicationJob
         entries_data = Heartbeat.where(user_id: batch_user_ids)
                                 .where(time: date_range)
                                 .coding_only
+                                .with_valid_timestamps
                                 .group(:user_id)
                                 .duration_seconds
 
         entries_data = entries_data.filter { |_, total_seconds| total_seconds > 60 }
 
+        # Calculate streaks for all users in this batch in a single query
+        streaks = Heartbeat.daily_streaks_for_users(entries_data.map { |user_id, _| user_id })
+
         entries_data = entries_data.map do |user_id, total_seconds|
           {
             leaderboard_id: leaderboard.id,
             user_id: user_id,
-            total_seconds: total_seconds
+            total_seconds: total_seconds,
+            streak_count: streaks[user_id] || 0
           }
         end
 

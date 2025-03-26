@@ -166,6 +166,14 @@ class FlavorText
     ]
   end
 
+  def self.obvious
+    [
+      "obv.",
+      "duh",
+      "clearly"
+    ]
+  end
+
   def self.motto
     [
       "track your time before it tracks you!",

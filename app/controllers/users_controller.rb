@@ -100,54 +100,46 @@ class UsersController < ApplicationController
   private
 
   def filterable_dashboard_data
+    filters = %i[project language operating_system editor]
+
     # Cache key based on user and filter parameters
-    cache_key = [
-      @user,
-      params[:projects],
-      params[:language],
-      params[:os],
-      params[:editor]
-    ]
+    cache_key = []
+    cache_key << @user
+    filters.each do |filter|
+      cache_key << params[filter]
+    end
 
-    Rails.logger.info "Filterable Dashboard Data - Params: #{params.inspect}"
-    Rails.logger.info "Projects param type: #{params[:projects].class}"
-    Rails.logger.info "Projects param value: #{params[:projects]}"
-
+    filtered_heartbeats = @user.heartbeats
     # Load filter options and apply filters with caching
     Rails.cache.fetch(cache_key, expires_in: 5.minutes) do
       result = {}
       # Load filter options
-      result[:projects] = @user.heartbeats.select(:project).distinct.order(:project).pluck(:project)
-      Rails.logger.info "Available projects: #{result[:projects].inspect}"
+      filters.each do |filter|
+        group_by_time = @user.heartbeats.group(filter).duration_seconds
+        result[filter] = group_by_time.sort_by { |k, v| v }
+                                      .reverse.map(&:first)
+                                      .compact_blank
 
-      result[:languages] = @user.heartbeats.select(:language).distinct.order(:language).pluck(:language)
-      result[:operating_systems] = @user.heartbeats.select(:operating_system).distinct.order(:operating_system).pluck(:operating_system)
-      result[:editors] = @user.heartbeats.select(:editor).distinct.order(:editor).pluck(:editor)
+        if params[filter].present?
+          filter_arr = params[filter].split(",")
+          filtered_heartbeats = filtered_heartbeats.where(filter => filter_arr)
 
-      # Apply filters to heartbeats
-      filtered_heartbeats = @user.heartbeats
-
-      if params[:projects].present?
-        Rails.logger.info "Applying project filter with value: #{params[:projects]}"
-        project_filter = params[:projects].split(",")
-        Rails.logger.info "Split project filter: #{project_filter.inspect}"
-        filtered_heartbeats = filtered_heartbeats.where(project: project_filter)
-        Rails.logger.info "SQL query for projects: #{filtered_heartbeats.to_sql}"
+          result["singular_#{filter}"] = filter_arr.length == 1
+        end
       end
-
-      filtered_heartbeats = filtered_heartbeats.where(language: params[:language].split(",")) if params[:language].present?
-      filtered_heartbeats = filtered_heartbeats.where(operating_system: params[:os].split(",")) if params[:os].present?
-      filtered_heartbeats = filtered_heartbeats.where(editor: params[:editor].split(",")) if params[:editor].present?
 
       result[:filtered_heartbeats] = filtered_heartbeats
 
       # Calculate stats for filtered data
       result[:total_time] = filtered_heartbeats.duration_seconds
       result[:total_heartbeats] = filtered_heartbeats.count
-      result[:top_project] = filtered_heartbeats.group(:project).duration_seconds.max_by { |_, v| v }&.first
-      result[:top_language] = filtered_heartbeats.group(:language).duration_seconds.max_by { |_, v| v }&.first
-      result[:top_os] = filtered_heartbeats.group(:operating_system).duration_seconds.max_by { |_, v| v }&.first
-      result[:top_editor] = filtered_heartbeats.group(:editor).duration_seconds.max_by { |_, v| v }&.first
+
+      filters.each do |filter|
+        result["top_#{filter}"] = filtered_heartbeats.group(filter)
+                                                     .duration_seconds
+                                                     .max_by { |_, v| v }
+                                                     &.first
+      end
 
       # Prepare project durations data
       result[:project_durations] = filtered_heartbeats
@@ -155,7 +147,7 @@ class UsersController < ApplicationController
         .duration_seconds
         .sort_by { |_, duration| -duration }
         .first(10)
-        .to_h
+        .to_h unless result["singular_project"]
 
       # Prepare pie chart data
       result[:language_stats] = filtered_heartbeats
@@ -164,21 +156,21 @@ class UsersController < ApplicationController
         .sort_by { |_, duration| -duration }
         .first(10)
         .map { |k, v| [ k.presence || "Unknown", v ] }
-        .to_h
+        .to_h unless result["singular_language"]
 
       result[:editor_stats] = filtered_heartbeats
         .group(:editor)
         .duration_seconds
         .sort_by { |_, duration| -duration }
         .map { |k, v| [ k.presence || "Unknown", v ] }
-        .to_h
+        .to_h unless result["singular_editor"]
 
-      result[:os_stats] = filtered_heartbeats
+      result[:operating_system_stats] = filtered_heartbeats
         .group(:operating_system)
         .duration_seconds
         .sort_by { |_, duration| -duration }
         .map { |k, v| [ k.presence || "Unknown", v ] }
-        .to_h
+        .to_h unless result["singular_operating_system"]
 
       # Calculate weekly project stats for the last 6 months
       result[:weekly_project_stats] = {}

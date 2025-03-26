@@ -5,28 +5,28 @@
         <%= render partial: 'shared/multi_select', locals: {
           label: 'Project',
           param: 'projects',
-          values: @projects,
-          selected: params[:projects]
+          values: @project,
+          selected: params[:project]
         } %>
 
         <%= render partial: 'shared/multi_select', locals: {
           label: 'Language',
           param: 'language',
-          values: @languages,
+          values: @language,
           selected: params[:language]
         } %>
 
         <%= render partial: 'shared/multi_select', locals: {
           label: 'OS',
-          param: 'os',
-          values: @operating_systems,
-          selected: params[:os]
+          param: 'operating_system',
+          values: @operating_system,
+          selected: params[:operating_system]
         } %>
 
         <%= render partial: 'shared/multi_select', locals: {
           label: 'Editor',
           param: 'editor',
-          values: @editors,
+          values: @editor,
           selected: params[:editor]
         } %>
       </div>
@@ -213,7 +213,7 @@
         initializeCharts() {
           this.createPieChart('languageChart');
           this.createPieChart('editorChart');
-          this.createPieChart('osChart');
+          this.createPieChart('operatingSystemChart');
           this.createProjectTimelineChart();
         }
       };

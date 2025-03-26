@@ -7,27 +7,49 @@
     
     <div class="stat-card">
       <div class="stat-label">TOTAL HEARTBEATS</div>
-      <div class="stat-value" data-stat="total_heartbeats"><%= number_with_delimiter(@total_heartbeats) %></div>
+      <div class="stat-value" data-stat="total_heartbeats">
+        <%= number_with_delimiter(@total_heartbeats) %>
+      </div>
     </div>
     
     <div class="stat-card">
       <div class="stat-label">TOP PROJECT</div>
-      <div class="stat-value" data-stat="top_project"><%= @top_project || "None" %></div>
+      <div class="stat-value" data-stat="top_project">
+        <%= @top_project || "None" %>
+        <% if @singular_project %>
+          <span class="super"><%= FlavorText.obvious.sample %></span>
+        <% end %>
+      </div>
     </div>
     
     <div class="stat-card">
       <div class="stat-label">TOP LANGUAGE</div>
-      <div class="stat-value" data-stat="top_language"><%= @top_language || "Unknown" %></div>
+      <div class="stat-value" data-stat="top_language">
+        <%= @top_language || "Unknown" %>
+        <% if @singular_language %>
+          <span class="super"><%= FlavorText.obvious.sample %></span>
+        <% end %>
+      </div>
     </div>
     
     <div class="stat-card">
       <div class="stat-label">TOP OS</div>
-      <div class="stat-value" data-stat="top_os"><%= @top_os || "Unknown" %></div>
+      <div class="stat-value" data-stat="top_operating_system">
+        <%= @top_operating_system || "Unknown" %>
+        <% if @singular_operating_system %>
+          <span class="super"><%= FlavorText.obvious.sample %></span>
+        <% end %>
+      </div>
     </div>
     
     <div class="stat-card">
       <div class="stat-label">TOP EDITOR</div>
-      <div class="stat-value" data-stat="top_editor"><%= @top_editor || "Unknown" %></div>
+      <div class="stat-value" data-stat="top_editor">
+        <%= @top_editor || "Unknown" %>
+        <% if @singular_editor %>
+          <span class="super"><%= FlavorText.obvious.sample %></span>
+        <% end %>
+      </div>
     </div>
   </div>
 
@@ -75,28 +97,34 @@
     <% end %>
 
     <%# Language distribution %>
-    <div class="card">
-      <h2>Languages</h2>
-      <div class="chart-container">
-        <canvas id="languageChart" data-stats="<%= @language_stats.to_json %>"></canvas>
+    <% if @language_stats.present? %>
+      <div class="card">
+        <h2>Languages</h2>
+        <div class="chart-container">
+          <canvas id="languageChart" data-stats="<%= @language_stats.to_json %>"></canvas>
+        </div>
       </div>
-    </div>
+    <% end %>
 
     <%# Editor distribution %>
-    <div class="card">
-      <h2>Editors</h2>
-      <div class="chart-container">
-        <canvas id="editorChart" data-stats="<%= @editor_stats.to_json %>"></canvas>
+    <% if @editor_stats.present? %>
+      <div class="card">
+        <h2>Editors</h2>
+        <div class="chart-container">
+          <canvas id="editorChart" data-stats="<%= @editor_stats.to_json %>"></canvas>
+        </div>
       </div>
-    </div>
+    <% end %>
 
     <%# OS distribution %>
-    <div class="card">
-      <h2>Operating Systems</h2>
-      <div class="chart-container">
-        <canvas id="osChart" data-stats="<%= @os_stats.to_json %>"></canvas>
+    <% if @operating_system_stats.present? %>
+      <div class="card">
+        <h2>Operating Systems</h2>
+        <div class="chart-container">
+          <canvas id="operatingSystemChart" data-stats="<%= @operating_system_stats.to_json %>"></canvas>
+        </div>
       </div>
-    </div>
+    <% end %>
 
     <div>
       <div class="card">

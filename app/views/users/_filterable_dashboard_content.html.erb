@@ -471,7 +471,7 @@ if (!window.hackatimeCharts) {
 if (!window.chartListenersInitialized) {
   window.chartListenersInitialized = true;
   
-  document.addEventListener('turbo:render', () => {
+  document.addEventListener('turbo:frame-load', () => {
     // Wait for Chart.js to load
     if (typeof Chart === 'undefined') {
       const checkChart = setInterval(() => {

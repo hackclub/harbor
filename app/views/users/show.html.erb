@@ -301,8 +301,10 @@ window.updateSelect = window.updateSelect || function(select) {
   }).then(response => response.text()).then(html => {
     frame.innerHTML = html;
     frame.classList.remove('loading');
+    if (window.hackatimeCharts) {
+      window.hackatimeCharts.initializeCharts();
+    }
   });
-
 };
 
 // Initialize multi-selects when the frame loads

@@ -35,8 +35,10 @@
       <% end %>
     </li>
     <li>
-      <%= link_to scrapyard_leaderboards_path, class: "nav-item #{current_page?(scrapyard_leaderboards_path) ? 'active' : ''}" do %>
-        Scrapyard
+      <% unless !Rails.env.development? %>
+        <%= link_to scrapyard_leaderboards_path, class: "nav-item #{current_page?(scrapyard_leaderboards_path) ? 'active' : ''}" do %>
+          Scrapyard
+        <% end %>
       <% end %>
     </li>
     <li>

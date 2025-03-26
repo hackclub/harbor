@@ -1,0 +1,43 @@
+<style>
+  .timeline {
+    position: relative;
+    height: 100px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .timeline__chunk {
+    position: absolute;
+    height: 100%;
+    background-color: #4f46e5;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+  }
+
+  .timeline__chunk:hover {
+    background-color: #4338ca;
+    z-index: 1;
+  }
+
+  .timeline__chunk--unknown {
+    background-color: #9ca3af;
+  }
+
+  .timeline__chunk--unknown:hover {
+    background-color: #6b7280;
+  }
+</style>
+
+<div class="timeline">
+  <%# total width is always 100% of the timeline container %>
+
+  <% @timeline_data.each do |chunk| %>
+    <div 
+      class="timeline__chunk <%= 'timeline__chunk--unknown' if chunk[:project] == 'Unknown' %>"
+      style="left: <%= chunk[:start_percentage] %>%; width: <%= chunk[:duration_percentage] %>%;"
+      title="<%= chunk[:project] %> (<%= chunk[:humanized_duration] %>)"
+    >
+    </div>
+  <% end %>
+</div>

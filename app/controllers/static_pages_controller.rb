@@ -18,6 +18,8 @@ class StaticPagesController < ApplicationController
         redirect_to FlavorText.random_time_video.sample, allow_other_host: allowed_hosts
       end
 
+      @timeline_data = timeline_data
+
       @show_wakatime_setup_notice = current_user.heartbeats.empty? || params[:show_wakatime_setup_notice]
       @setup_social_proof = get_setup_social_proof if @show_wakatime_setup_notice
 
@@ -336,6 +338,90 @@ class StaticPagesController < ApplicationController
       end
 
       result
+    end
+  end
+
+  def timeline_data
+    chunk_timeout = 1.hours
+    params[:start_date] ||= 1.week.ago.to_date.beginning_of_day
+    @timeline_start_time = params[:start_date].to_f
+    params[:end_date] ||= Date.current.end_of_day
+    @timeline_end_time = params[:end_date].to_f
+
+    @heartbeats = current_user.heartbeats.where(time: params[:start_date].to_f..params[:end_date].to_f)
+
+    # Group heartbeats by project and create time chunks
+    @timeline_chunks = Rails.cache.fetch("user_#{current_user.id}_timeline_#{params[:start_date]}_#{params[:end_date]}", expires_in: 5.seconds) do
+      # Order heartbeats by time to ensure proper chunking
+      ordered_heartbeats = @heartbeats.order(:time)
+
+      chunks = []
+      current_chunk = nil
+
+      ordered_heartbeats.each do |heartbeat|
+        if current_chunk.nil?
+          current_chunk = {
+            project: heartbeat.project || "Unknown",
+            start_time: heartbeat.time,
+            start_percentage: ((heartbeat.time - @timeline_start_time) / (@timeline_end_time - @timeline_start_time)) * 100,
+            end_time: heartbeat.time,
+            duration: 0
+          }
+        elsif current_chunk[:project] == (heartbeat.project || "Unknown")
+          # If the gap between heartbeats is greater than the timeout, end the current chunk
+          if (heartbeat.time - current_chunk[:end_time]) > chunk_timeout.to_f
+            # End the current chunk
+            current_chunk[:duration_percentage] = (current_chunk[:duration] / (@timeline_end_time - @timeline_start_time)) * 100
+            chunks << current_chunk
+            # Start a new chunk
+            current_chunk = {
+              project: heartbeat.project || "Unknown",
+              start_time: heartbeat.time,
+              start_percentage: ((heartbeat.time - @timeline_start_time) / (@timeline_end_time - @timeline_start_time)) * 100,
+              end_time: heartbeat.time,
+              duration: 0
+            }
+          else
+            # Extend current chunk
+            current_chunk[:end_time] = heartbeat.time
+            current_chunk[:duration] = current_chunk[:end_time] - current_chunk[:start_time]
+          end
+        else
+          # Different project, start a new chunk
+          current_chunk[:duration_percentage] = (current_chunk[:duration] / (@timeline_end_time - @timeline_start_time)) * 100
+          chunks << current_chunk
+          current_chunk = {
+            project: heartbeat.project || "Unknown",
+            start_time: heartbeat.time,
+            start_percentage: ((heartbeat.time - @timeline_start_time) / (@timeline_end_time - @timeline_start_time)) * 100,
+            end_time: heartbeat.time,
+            duration: 0
+          }
+        end
+      end
+
+      # Add the last chunk if it exists
+      if current_chunk
+        current_chunk[:duration_percentage] = (current_chunk[:duration] / (@timeline_end_time - @timeline_start_time)) * 100
+        chunks << current_chunk
+      end
+
+      # Format timestamps for JSON serialization and ensure percentages are valid
+      chunks.map do |chunk|
+        # Ensure duration percentage doesn't exceed 100%
+        duration_percentage = [ chunk[:duration_percentage], 100 ].min
+        # Ensure start percentage + duration percentage doesn't exceed 100%
+        if chunk[:start_percentage] + duration_percentage > 100
+          duration_percentage = 100 - chunk[:start_percentage]
+        end
+
+        chunk.merge(
+          start_time: Time.at(chunk[:start_time]).to_i,
+          end_time: Time.at(chunk[:end_time]).to_i,
+          duration_percentage: duration_percentage,
+          humanized_duration: ActionController::Base.helpers.distance_of_time_in_words(chunk[:duration])
+        )
+      end
     end
   end
 end

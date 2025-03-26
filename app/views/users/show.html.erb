@@ -294,15 +294,21 @@ window.updateSelect = window.updateSelect || function(select) {
 
   // Let Turbo handle the content update
   frame.src = contentUrl.toString();
+  
+  // Track this request with a timestamp
+  const requestTimestamp = Date.now();
+  window.lastRequestTimestamp = requestTimestamp;
+
   fetch(contentUrl.toString(), {
     headers: {
       'Accept': 'text/html'
     }
   }).then(response => response.text()).then(html => {
-    frame.innerHTML = html;
-    frame.classList.remove('loading');
-    if (window.hackatimeCharts) {
-      window.hackatimeCharts.initializeCharts();
+    // Only update if this is still the most recent request
+    if (requestTimestamp === window.lastRequestTimestamp) {
+      frame.innerHTML = html;
+      frame.classList.remove('loading');
+      window.hackatimeCharts?.initializeCharts();
     }
   });
 };

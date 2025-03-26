@@ -35,6 +35,8 @@ Rails.application.routes.draw do
       get :project_durations
       get :activity_graph
       get :currently_hacking
+      get :filterable_dashboard_content
+      get :filterable_dashboard
       get "🃏", to: "static_pages#🃏", as: :wildcard
     end
   end
@@ -57,8 +59,6 @@ Rails.application.routes.draw do
 
   # Namespace for current user actions
   get "my/home", to: "users#show", as: :my_home
-  get "my/filterable_dashboard", to: "users#filterable_dashboard", as: :my_filterable_dashboard
-  get "my/filterable_dashboard_content", to: "users#filterable_dashboard_content", as: :my_filterable_dashboard_content
   get "my/settings", to: "users#edit", as: :my_settings
   patch "my/settings", to: "users#update"
   post "my/settings/migrate_heartbeats", to: "users#migrate_heartbeats", as: :my_settings_migrate_heartbeats

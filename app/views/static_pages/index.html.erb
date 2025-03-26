@@ -105,6 +105,10 @@
         Loading project durations...
       </div>
     <% end %>
+
+    <%= turbo_frame_tag "filterable_dashboard", src: filterable_dashboard_static_pages_path do %>
+      <span>Loading...</span>
+    <% end %>
   <% else %>
     <% if @leaderboard %>
       <h3>Today's Top Hack Clubbers</h3>

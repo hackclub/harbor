@@ -48,6 +48,11 @@ class StaticPagesController < ApplicationController
       @todays_languages = language_counts.map(&:first)
       @todays_editors = editor_counts.map(&:first)
       @show_logged_time_sentence = @todays_languages.any? || @todays_editors.any?
+
+      cached_data = filterable_dashboard_data
+      cached_data.entries.each do |key, value|
+        instance_variable_set("@#{key}", value)
+      end
     else
       @social_proof ||= begin
         # Only run queries as needed, starting with the smallest time range
@@ -145,6 +150,24 @@ class StaticPagesController < ApplicationController
     render partial: "currently_hacking", locals: locals
   end
 
+  def filterable_dashboard
+    cached_data = filterable_dashboard_data
+    cached_data.entries.each do |key, value|
+      instance_variable_set("@#{key}", value)
+    end
+
+    render partial: "filterable_dashboard"
+  end
+
+  def filterable_dashboard_content
+    cached_data = filterable_dashboard_data
+    cached_data.entries.each do |key, value|
+      instance_variable_set("@#{key}", value)
+    end
+
+    render partial: "filterable_dashboard_content"
+  end
+
   def 🃏
     redirect_to root_path unless current_user && current_user.slack_uid.present?
 
@@ -219,5 +242,96 @@ class StaticPagesController < ApplicationController
     @recent_setup_users = all_setup_users.take(5)
 
     "#{count_unique.to_s + ' Hack Clubber'.pluralize(count_unique)} set up Hackatime #{humanized_time_period}"
+  end
+
+  def filterable_dashboard_data
+    filters = %i[project language operating_system editor]
+
+    # Cache key based on user and filter parameters
+    cache_key = []
+    cache_key << current_user
+    filters.each do |filter|
+      cache_key << params[filter]
+    end
+
+    filtered_heartbeats = current_user.heartbeats
+    # Load filter options and apply filters with caching
+    Rails.cache.fetch(cache_key, expires_in: 5.minutes) do
+      result = {}
+      # Load filter options
+      filters.each do |filter|
+        group_by_time = current_user.heartbeats.group(filter).duration_seconds
+        result[filter] = group_by_time.sort_by { |k, v| v }
+                                      .reverse.map(&:first)
+                                      .compact_blank
+
+        if params[filter].present?
+          filter_arr = params[filter].split(",")
+          filtered_heartbeats = filtered_heartbeats.where(filter => filter_arr)
+
+          result["singular_#{filter}"] = filter_arr.length == 1
+        end
+      end
+
+      result[:filtered_heartbeats] = filtered_heartbeats
+
+      # Calculate stats for filtered data
+      result[:total_time] = filtered_heartbeats.duration_seconds
+      result[:total_heartbeats] = filtered_heartbeats.count
+
+      filters.each do |filter|
+        result["top_#{filter}"] = filtered_heartbeats.group(filter)
+                                                     .duration_seconds
+                                                     .max_by { |_, v| v }
+                                                     &.first
+      end
+
+      # Prepare project durations data
+      result[:project_durations] = filtered_heartbeats
+        .group(:project)
+        .duration_seconds
+        .sort_by { |_, duration| -duration }
+        .first(10)
+        .to_h unless result["singular_project"]
+
+      # Prepare pie chart data
+      result[:language_stats] = filtered_heartbeats
+        .group(:language)
+        .duration_seconds
+        .sort_by { |_, duration| -duration }
+        .first(10)
+        .map { |k, v| [ k.presence || "Unknown", v ] }
+        .to_h unless result["singular_language"]
+
+      result[:editor_stats] = filtered_heartbeats
+        .group(:editor)
+        .duration_seconds
+        .sort_by { |_, duration| -duration }
+        .map { |k, v| [ k.presence || "Unknown", v ] }
+        .to_h unless result["singular_editor"]
+
+      result[:operating_system_stats] = filtered_heartbeats
+        .group(:operating_system)
+        .duration_seconds
+        .sort_by { |_, duration| -duration }
+        .map { |k, v| [ k.presence || "Unknown", v ] }
+        .to_h unless result["singular_operating_system"]
+
+      # Calculate weekly project stats for the last 6 months
+      result[:weekly_project_stats] = {}
+      (0..25).each do |week_offset|  # 26 weeks = 6 months
+        week_start = week_offset.weeks.ago.beginning_of_week
+        week_end = week_offset.weeks.ago.end_of_week
+
+        week_stats = filtered_heartbeats
+          .where(time: week_start.to_f..week_end.to_f)
+          .group(:project)
+          .duration_seconds
+
+        result[:weekly_project_stats][week_start.to_date.iso8601] = week_stats
+      end
+
+      result
+    end
   end
 end

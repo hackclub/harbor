@@ -54,7 +54,7 @@
   </div>
 
   <div class="dashboard-grid">
-    <% if @project_durations.size > 1 %>
+    <% if @project_durations&.size&.> 1 %>
     <div class="card">
       <h2>Project Durations</h2>
       <div class="bar-graph">

@@ -311,7 +311,7 @@ window.updateSelect = window.updateSelect || function(select) {
 document.addEventListener('turbo:frame-load', function(event) {
   if (event.target.id === 'filterable_dashboard') {
     // Initialize each multi-select
-    ['projects', 'language', 'editor', 'operating_system'].forEach(type => {
+    ['project', 'language', 'editor', 'operating_system'].forEach(type => {
       window.initializeMultiSelect(`${type}-select`);
     });
 

@@ -69,7 +69,7 @@
 
     <% if @show_logged_time_sentence %>
       You've logged
-      <%= short_time_detailed current_user.heartbeats.today.duration_seconds %>
+      <%= short_time_detailed @todays_duration %>
       <% if @todays_languages.any? || @todays_editors.any? %>
         across
         <% if @todays_languages.any? %>

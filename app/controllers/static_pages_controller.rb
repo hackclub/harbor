@@ -47,7 +47,11 @@ class StaticPagesController < ApplicationController
 
       @todays_languages = language_counts.map(&:first)
       @todays_editors = editor_counts.map(&:first)
-      @show_logged_time_sentence = @todays_languages.any? || @todays_editors.any?
+      @todays_duration = current_user.heartbeats.today.duration_seconds
+
+      if @todays_duration > 1.minute
+        @show_logged_time_sentence = @todays_languages.any? || @todays_editors.any?
+      end
 
       cached_data = filterable_dashboard_data
       cached_data.entries.each do |key, value|

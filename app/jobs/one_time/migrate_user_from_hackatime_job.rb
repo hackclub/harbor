@@ -23,6 +23,7 @@ class OneTime::MigrateUserFromHackatimeJob < ApplicationJob
 
     Hackatime::Heartbeat.where(user_id: @user.slack_uid).find_in_batches do |batch|
       records_to_upsert = batch.map do |heartbeat|
+        raw_data = heartbeat.to_json
         # Convert dependencies to proper array format or default to empty array
         dependencies = if heartbeat.dependencies.is_a?(String)
           # If it's a string, try to parse it as JSON, fallback to empty array
@@ -62,6 +63,7 @@ class OneTime::MigrateUserFromHackatimeJob < ApplicationJob
 
         {
           **attrs,
+          raw_data: raw_data,
           fields_hash: Heartbeat.generate_fields_hash(attrs)
         }
       end

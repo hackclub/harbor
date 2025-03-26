@@ -57,15 +57,6 @@ class UsersController < ApplicationController
     ].sample
   end
 
-  def show
-    # Use current_user for /my/home route, otherwise find by id
-    @user = if params[:id].present?
-      User.find(params[:id])
-    else
-      current_user
-    end
-  end
-
   private
 
   def require_admin

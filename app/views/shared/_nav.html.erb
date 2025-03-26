@@ -51,11 +51,6 @@
         <% end %>
       </li>
       <li>
-        <%= link_to my_home_path, class: "nav-item #{current_page?(my_home_path) ? 'active' : ''}", data: { turbo: false } do %>
-          Dashboard
-        <% end %>
-      </li>
-      <li>
         <%= link_to signout_path, class: "nav-item", data: { turbo_method: :delete } do %>
           Logout
         <% end %>

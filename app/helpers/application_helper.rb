@@ -31,6 +31,8 @@ module ApplicationHelper
     hours = time.to_i / 3600
     minutes = (time.to_i % 3600) / 60
 
+    return "0m" if hours.zero? && minutes.zero?
+
     time_parts = []
     time_parts << "#{hours}h" if hours.positive?
     time_parts << "#{minutes}m" if minutes.positive?

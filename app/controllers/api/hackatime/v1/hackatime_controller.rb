@@ -92,6 +92,9 @@ class Api::Hackatime::V1::HackatimeController < ApplicationController
     elsif header_type == "Basic"
       api_token = Base64.decode64(raw_token)
     end
+    if params[:api_key].present?
+      api_token ||= params[:api_key]
+    end
     return render json: { error: "Unauthorized" }, status: :unauthorized unless api_token.present?
     valid_key = ApiKey.find_by(token: api_token)
     return render json: { error: "Unauthorized" }, status: :unauthorized unless valid_key.present?

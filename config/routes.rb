@@ -37,6 +37,7 @@ Rails.application.routes.draw do
       get :currently_hacking
       get :filterable_dashboard_content
       get :filterable_dashboard
+      get :timeline
       get "🃏", to: "static_pages#🃏", as: :wildcard
     end
   end

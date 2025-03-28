@@ -84,7 +84,7 @@ class WakatimeService
       end
 
       editor = matches[2]
-      editor = matches[3] if editor.empty?
+      editor ||= matches[3]
       editor = "kate" if editor == "KTextEditor"
 
       { os: os, editor: editor, err: nil }
@@ -92,9 +92,9 @@ class WakatimeService
       # Try parsing as browser user agent as fallback
       if browser_ua = user_agent.match(/([^\/]+)\/([^\/]+)/)
         os = if user_agent.downcase.include?("windows")
-              "Windows"
+          "Windows"
         else
-              browser_ua[1].capitalize
+          browser_ua[1].capitalize
         end
         { os: os, editor: browser_ua[2], err: nil }
       else

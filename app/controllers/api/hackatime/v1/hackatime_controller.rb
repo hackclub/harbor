@@ -96,10 +96,11 @@ class Api::Hackatime::V1::HackatimeController < ApplicationController
       api_token ||= params[:api_key]
     end
     return render json: { error: "Unauthorized" }, status: :unauthorized unless api_token.present?
-    valid_key = ApiKey.find_by(token: api_token)
+
+    valid_key = ApiKey.find_by(token: api_token, owner_type: "User")
     return render json: { error: "Unauthorized" }, status: :unauthorized unless valid_key.present?
 
-    @user = valid_key.user
+    @user = valid_key.owner
     render json: { error: "Unauthorized" }, status: :unauthorized unless @user
   end
 

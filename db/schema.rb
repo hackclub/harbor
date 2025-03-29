@@ -10,20 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_24_203539) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_29_121106) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   create_table "api_keys", force: :cascade do |t|
-    t.bigint "user_id", null: false
     t.text "name", null: false
     t.text "token", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "owner_type", null: false
+    t.bigint "owner_id", null: false
+    t.index ["owner_type", "owner_id", "name"], name: "index_api_keys_on_owner_type_and_owner_id_and_name", unique: true
+    t.index ["owner_type", "owner_id", "token"], name: "index_api_keys_on_owner_type_and_owner_id_and_token", unique: true
+    t.index ["owner_type", "owner_id"], name: "index_api_keys_on_owner_type_and_owner_id"
     t.index ["token"], name: "index_api_keys_on_token", unique: true
-    t.index ["user_id", "name"], name: "index_api_keys_on_user_id_and_name", unique: true
-    t.index ["user_id", "token"], name: "index_api_keys_on_user_id_and_token", unique: true
-    t.index ["user_id"], name: "index_api_keys_on_user_id"
   end
 
   create_table "email_addresses", force: :cascade do |t|
@@ -33,6 +34,26 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_24_203539) do
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_email_addresses_on_email", unique: true
     t.index ["user_id"], name: "index_email_addresses_on_user_id"
+  end
+
+  create_table "external_durations", force: :cascade do |t|
+    t.datetime "start_time", precision: nil
+    t.datetime "end_time", precision: nil
+    t.string "provider"
+    t.string "external_id"
+    t.integer "type"
+    t.integer "category"
+    t.string "project"
+    t.string "branch"
+    t.string "language"
+    t.string "meta"
+    t.inet "ip_address"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "ysws_provider_id", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_external_durations_on_user_id"
+    t.index ["ysws_provider_id"], name: "index_external_durations_on_ysws_provider_id"
   end
 
   create_table "good_job_batches", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -265,8 +286,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_24_203539) do
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 
-  add_foreign_key "api_keys", "users"
+  create_table "ysws_providers", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "name"
+  end
+
   add_foreign_key "email_addresses", "users"
+  add_foreign_key "external_durations", "users"
+  add_foreign_key "external_durations", "ysws_providers"
   add_foreign_key "heartbeats", "users"
   add_foreign_key "leaderboard_entries", "leaderboards"
   add_foreign_key "leaderboard_entries", "users"

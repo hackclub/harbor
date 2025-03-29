@@ -21,7 +21,7 @@ class User < ApplicationRecord
     primary_key: :slack_uid,
     class_name: "Hackatime::ProjectLabel"
 
-  has_many :api_keys
+  has_many :api_keys, as: :owner
 
   delegate :streak_days, :streak_days_formatted, to: :heartbeats
 

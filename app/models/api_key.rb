@@ -2,7 +2,8 @@ class ApiKey < ApplicationRecord
   belongs_to :owner, polymorphic: true
 
   validates :token, presence: true, uniqueness: true
-  validates :name, presence: true, uniqueness: { scope: :owner_id }
+  validates :name, presence: true,
+                   uniqueness: { scope: [ :owner_type, :owner_id ] }
 
   before_validation :generate_token!, on: :create
 

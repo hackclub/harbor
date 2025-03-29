@@ -4,7 +4,7 @@ class Avo::Resources::ExternalDuration < Avo::BaseResource
   # self.search = {
   #   query: -> { query.ransack(id_eq: params[:q], m: "or").result(distinct: false) }
   # }
-  
+
   def fields
     field :id, as: :id
     field :start_time, as: :date_time

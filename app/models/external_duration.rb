@@ -5,13 +5,13 @@ class ExternalDuration < ApplicationRecord
   # This is to prevent Rails from trying to use STI even though we have a "type" column
   self.inheritance_column = nil
 
-  enum type: { # the type of the entity
+  enum :type, { # the type of the entity
     file: 0,
     app: 1,
     domain: 2
   }
 
-  enum category: { # These come from https://wakatime.com/developers#external_durations
+  enum :category, { # These come from https://wakatime.com/developers#external_durations
     coding: 0,
     building: 1,
     indexing: 2,

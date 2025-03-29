@@ -1,4 +1,5 @@
 class User < ApplicationRecord
+  include HasApiKeys
   has_paper_trail
   encrypts :slack_access_token, :github_access_token
 
@@ -20,8 +21,6 @@ class User < ApplicationRecord
     foreign_key: :user_id,
     primary_key: :slack_uid,
     class_name: "Hackatime::ProjectLabel"
-
-  has_many :api_keys, as: :owner
 
   delegate :streak_days, :streak_days_formatted, to: :heartbeats
 

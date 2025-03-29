@@ -2,6 +2,9 @@ class ExternalDuration < ApplicationRecord
   belongs_to :ysws_provider
   belongs_to :user
 
+  # This is to prevent Rails from trying to use STI even though we have a "type" column
+  self.inheritance_column = nil
+
   enum type: { # the type of the entity
     file: 0,
     app: 1,

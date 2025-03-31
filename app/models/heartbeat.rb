@@ -2,6 +2,7 @@ class Heartbeat < ApplicationRecord
   before_save :set_fields_hash!
 
   include Heartbeatable
+  include Webhookable
 
   scope :today, -> { where(time: Time.current.beginning_of_day..Time.current.end_of_day) }
   scope :recent, -> { where("created_at > ?", 24.hours.ago) }

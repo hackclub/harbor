@@ -5,30 +5,24 @@
 #   gem "sqlite3"
 #
 default: &default
+  adapter: postgresql
+  encoding: unicode
+  # For details on connection pooling, see Rails configuration guide
+  # https://guides.rubyonrails.org/configuring.html#database-pooling
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  timeout: 5000
 
 development:
   primary:
     <<: *default
-    adapter: postgresql
-    encoding: unicode
-    pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-    url: <%= ENV['DATABASE_URL'] %>
+    database: harbour1_development
   wakatime:
-    adapter: postgresql
-    encoding: unicode
-    url: <%= ENV['WAKATIME_DATABASE_URL'] %>
+    database: harbour1_wt_development
     replica: true
   sailors_log:
-    adapter: postgresql
-    encoding: unicode
-    url: <%= ENV['SAILORS_LOG_DATABASE_URL'] %>
+    database: harbour1_sl_development
     replica: true
   warehouse:
-    adapter: postgresql
-    encoding: unicode
-    url: <%= ENV['WAREHOUSE_DATABASE_URL'] %>
+    database: harbour1_wh_development
     replica: true
 
 # Warning: The database defined as "test" will be erased and
@@ -37,14 +31,10 @@ development:
 test:
   primary:
     <<: *default
-    database: test_db
-    username: postgres
-    password: postgres
-    # url: <%= ENV['TEST_DATABASE_URL'] %>
+    database: harbour1_test
   wakatime:
-    url: <%= ENV['WAKATIME_DATABASE_URL'] %>
+    database: harbour1_wt_test
     replica: true
-
 
 # Store production database in the storage/ directory, which by default
 # is mounted as a persistent Docker volume in config/deploy.yml.
@@ -54,7 +44,7 @@ production:
     adapter: postgresql
     encoding: unicode
     pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-    url: <%= ENV['DATABASE_URL'] %>
+    url: <%= ENV['PROD_DATABASE_URL'] %>
   wakatime:
     adapter: postgresql
     encoding: unicode

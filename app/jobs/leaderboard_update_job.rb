@@ -14,7 +14,7 @@ class LeaderboardUpdateJob < ApplicationJob
   def perform(period_type = :daily, date = Date.current)
     parsed_date = date.is_a?(Date) ? date : Date.parse(date.to_s)
 
-    parsed_date = parsed_date.beginning_of_week if period_type == :weekly
+    parsed_date = parsed_date.beginning_of_day - 1.week if period_type == :weekly
 
     leaderboard = Leaderboard.create!(
       start_date: parsed_date,
@@ -26,7 +26,7 @@ class LeaderboardUpdateJob < ApplicationJob
     return if valid_user_ids.empty?
 
     date_range = if period_type == :weekly
-      (parsed_date.beginning_of_day...(parsed_date + 7.days).beginning_of_day)
+      (parsed_date...(Date.current).end_of_day)
     else
       parsed_date.all_day
     end

@@ -15,16 +15,14 @@ FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 WORKDIR /rails
 
 # Install base packages
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y \
+RUN apt-get install --no-install-recommends -y \
     curl \
     libjemalloc2 \
     libvips \
     sqlite3 \
     libpq5 \
     vim \
-    wget && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+    wget
 
 # Set production environment
 ENV RAILS_ENV="production" \
@@ -35,10 +33,12 @@ ENV RAILS_ENV="production" \
 # Throw-away build stage to reduce size of final image
 FROM base AS build
 
-# Install packages needed to build gems
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential git pkg-config libpq-dev && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+# Install build dependencies
+RUN apt-get install --no-install-recommends -y \
+    build-essential \
+    git \
+    pkg-config \
+    libpq-dev
 
 # Install application gems
 COPY Gemfile Gemfile.lock ./

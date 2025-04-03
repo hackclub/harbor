@@ -53,8 +53,11 @@ class Api::Hackatime::V1::HackatimeController < ApplicationController
 
   def handle_heartbeat(heartbeat_array)
     results = []
+    wakatime_service = WakatimeService.new
     heartbeat_array.each do |heartbeat|
       source_type = :direct_entry
+
+      parsed_ua = wakatime_service.parse_user_agent(heartbeat[:user_agent])
 
       # special case: if the entity is "test.txt", this is a test heartbeat
       if heartbeat[:entity] == "test.txt"
@@ -64,7 +67,9 @@ class Api::Hackatime::V1::HackatimeController < ApplicationController
       attrs = heartbeat.merge({
         user_id: @user.id,
         source_type: source_type,
-        ip_address: request.remote_ip
+        ip_address: request.remote_ip,
+        editor: parsed_ua[:editor],
+        operating_system: parsed_ua[:os]
       })
       new_heartbeat = Heartbeat.find_or_create_by(attrs)
       queue_project_mapping(heartbeat[:project])

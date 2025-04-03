@@ -7,7 +7,8 @@ class Leaderboard < ApplicationRecord
 
   enum :period_type, {
     daily: 0,
-    weekly: 1
+    weekly: 1,
+    last_7_days: 2
   }
 
   def finished_generating?
@@ -15,8 +16,11 @@ class Leaderboard < ApplicationRecord
   end
 
   def period_end_date
-    if weekly?
+    case period_type
+    when "weekly"
       start_date + 6.days
+    when "last_7_days"
+      start_date
     else
       start_date
     end

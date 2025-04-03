@@ -2,23 +2,36 @@
   <div class="header">
     <h1>Leaderboard</h1>
 
-    <em>This leaderboard runs in UTC time!</em>
+    <%# <em>This leaderboard runs in UTC time!</em> %>
     
     <div class="period-toggle">
       <%= link_to "Daily", leaderboards_path(period_type: 'daily'), 
                   class: "period-toggle-btn #{@period_type == :daily ? 'active' : ''}" %>
       <%= link_to "Weekly", leaderboards_path(period_type: 'weekly'), 
                   class: "period-toggle-btn #{@period_type == :weekly ? 'active' : ''}" %>
+      <%= link_to "Last 7 Days", leaderboards_path(period_type: 'last_7_days'), 
+                  class: "period-toggle-btn #{@period_type == :last_7_days ? 'active' : ''}" %>
     </div>
     
     <p class="date">
       <% if @leaderboard %>
         <%= @leaderboard.date_range_text %>
-        <em>Updated <%= time_ago_in_words(@leaderboard.updated_at) %> ago</em>
+
+        <% if @leaderboard.finished_generating? %>
+          <span class="super">
+            Updated <%= time_ago_in_words(@leaderboard.updated_at) %> ago.
+          </span>
+        <% end %>
+
       <% else %>
-        <%= @period_type == :weekly ? 
-            "#{Date.current.beginning_of_week.strftime('%B %d')} - #{(Date.current.beginning_of_week + 6.days).strftime('%B %d, %Y')}" : 
-            Date.current.strftime("%B %d, %Y") %>
+        <%= case @period_type
+            when :weekly
+              "#{Date.current.beginning_of_week.strftime('%B %d')} - #{(Date.current.beginning_of_week + 6.days).strftime('%B %d, %Y')}"
+            when :last_7_days
+              "#{(Date.current - 6.days).strftime('%B %d')} - #{Date.current.strftime('%B %d, %Y')}"
+            else
+              Date.current.strftime('%B %d, %Y')
+            end %>
       <% end %>
     </p>
   </div>
@@ -72,10 +85,16 @@
           <%= link_to "updated their wakatime config", my_settings_path, target: "_blank" %>.
         </p>
       <% end %>
+      <% if @leaderboard.finished_generating? %>
+        <span class="super">
+          Generated in <%= @leaderboard.finished_generating_at - @leaderboard.created_at %> seconds
+        </span>
+      <% end %>
+
     <% else %>
       <div class="empty-state">
         <h3>No data available</h3>
-        <p>Check back later for <%= @period_type == :weekly ? "this week's" : "today's" %> results!</p>
+        <p>Check back later for <%= @period_type == :weekly ? "this week's" : @period_type == :last_7_days ? "the last 7 days" : "today's" %> results!</p>
       </div>
     <% end %>
   </div>

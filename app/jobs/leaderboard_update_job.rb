@@ -25,41 +25,42 @@ class LeaderboardUpdateJob < ApplicationJob
     valid_user_ids = User.pluck(:id)
     return if valid_user_ids.empty?
 
-    date_range = if period_type == :weekly
+    date_range = case period_type
+    when :weekly
       (parsed_date.beginning_of_day...(parsed_date + 7.days).beginning_of_day)
+    when :last_7_days
+      ((parsed_date - 6.days).beginning_of_day...parsed_date.end_of_day)
     else
       parsed_date.all_day
     end
 
+    Rails.logger.info "Starting leaderboard generation for #{period_type} on #{parsed_date}"
+
     ActiveRecord::Base.transaction do
-      valid_user_ids.each_slice(BATCH_SIZE) do |batch_user_ids|
-        entries_data = Heartbeat.where(user_id: batch_user_ids)
-                                .where(time: date_range)
-                                .coding_only
-                                .with_valid_timestamps
-                                .group(:user_id)
-                                .duration_seconds
+      entries_data = Heartbeat.where(time: date_range)
+                              .coding_only
+                              .with_valid_timestamps
+                              .group(:user_id)
+                              .duration_seconds
 
-        entries_data = entries_data.filter { |_, total_seconds| total_seconds > 60 }
+      entries_data = entries_data.filter { |_, total_seconds| total_seconds > 60 }
 
-        # Calculate streaks for all users in this batch in a single query
-        streaks = Heartbeat.daily_streaks_for_users(entries_data.map { |user_id, _| user_id })
+      streaks = Heartbeat.daily_streaks_for_users(entries_data.map { |user_id, _| user_id })
 
-        entries_data = entries_data.map do |user_id, total_seconds|
-          {
-            leaderboard_id: leaderboard.id,
-            user_id: user_id,
-            total_seconds: total_seconds,
-            streak_count: streaks[user_id] || 0
-          }
-        end
-
-        # Batch insert new entries for this batch
-        LeaderboardEntry.insert_all!(entries_data) if entries_data.any?
+      entries_data = entries_data.map do |user_id, total_seconds|
+        {
+          leaderboard_id: leaderboard.id,
+          user_id: user_id,
+          total_seconds: total_seconds,
+          streak_count: streaks[user_id] || 0
+        }
       end
+
+      LeaderboardEntry.insert_all!(entries_data) if entries_data.any?
     end
 
-    # Set finished_generating_at after successful completion
+    Rails.logger.info "\nTiming breakdown:\n#{timing_info.join("\n")}"
+
     leaderboard.finished_generating_at = Time.current
     leaderboard.save!
 

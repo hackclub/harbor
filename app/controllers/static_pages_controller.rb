@@ -22,35 +22,37 @@ class StaticPagesController < ApplicationController
       @setup_social_proof = get_setup_social_proof if @show_wakatime_setup_notice
 
       # Get languages and editors in a single query using window functions
-      results = current_user.heartbeats.today
-        .select(
-          :language,
-          :editor,
-          "COUNT(*) OVER (PARTITION BY language) as language_count",
-          "COUNT(*) OVER (PARTITION BY editor) as editor_count"
-        )
-        .distinct
-        .to_a
+      Time.use_zone(current_user.timezone) do
+        results = current_user.heartbeats.today
+          .select(
+            :language,
+            :editor,
+            "COUNT(*) OVER (PARTITION BY language) as language_count",
+            "COUNT(*) OVER (PARTITION BY editor) as editor_count"
+          )
+          .distinct
+          .to_a
 
-      # Process results to get sorted languages and editors
-      language_counts = results
-        .map { |r| [ r.language, r.language_count ] }
-        .reject { |lang, _| lang.nil? || lang.empty? }
-        .uniq
-        .sort_by { |_, count| -count }
+        # Process results to get sorted languages and editors
+        language_counts = results
+          .map { |r| [ r.language, r.language_count ] }
+          .reject { |lang, _| lang.nil? || lang.empty? }
+          .uniq
+          .sort_by { |_, count| -count }
 
-      editor_counts = results
-        .map { |r| [ r.editor, r.editor_count ] }
-        .reject { |ed, _| ed.nil? || ed.empty? }
-        .uniq
-        .sort_by { |_, count| -count }
+        editor_counts = results
+          .map { |r| [ r.editor, r.editor_count ] }
+          .reject { |ed, _| ed.nil? || ed.empty? }
+          .uniq
+          .sort_by { |_, count| -count }
 
-      @todays_languages = language_counts.map(&:first)
-      @todays_editors = editor_counts.map(&:first)
-      @todays_duration = current_user.heartbeats.today.duration_seconds
+        @todays_languages = language_counts.map(&:first)
+        @todays_editors = editor_counts.map(&:first)
+        @todays_duration = current_user.heartbeats.today.duration_seconds
 
-      if @todays_duration > 1.minute
-        @show_logged_time_sentence = @todays_languages.any? || @todays_editors.any?
+        if @todays_duration > 1.minute
+          @show_logged_time_sentence = @todays_languages.any? || @todays_editors.any?
+        end
       end
 
       cached_data = filterable_dashboard_data
@@ -263,76 +265,78 @@ class StaticPagesController < ApplicationController
     Rails.cache.fetch(cache_key, expires_in: 5.minutes) do
       result = {}
       # Load filter options
-      filters.each do |filter|
-        group_by_time = current_user.heartbeats.group(filter).duration_seconds
-        result[filter] = group_by_time.sort_by { |k, v| v }
-                                      .reverse.map(&:first)
-                                      .compact_blank
+      Time.use_zone(current_user.timezone) do
+        filters.each do |filter|
+          group_by_time = current_user.heartbeats.group(filter).duration_seconds
+          result[filter] = group_by_time.sort_by { |k, v| v }
+                                        .reverse.map(&:first)
+                                        .compact_blank
 
-        if params[filter].present?
-          filter_arr = params[filter].split(",")
-          filtered_heartbeats = filtered_heartbeats.where(filter => filter_arr)
+          if params[filter].present?
+            filter_arr = params[filter].split(",")
+            filtered_heartbeats = filtered_heartbeats.where(filter => filter_arr)
 
-          result["singular_#{filter}"] = filter_arr.length == 1
+            result["singular_#{filter}"] = filter_arr.length == 1
+          end
         end
-      end
 
-      result[:filtered_heartbeats] = filtered_heartbeats
+        result[:filtered_heartbeats] = filtered_heartbeats
 
-      # Calculate stats for filtered data
-      result[:total_time] = filtered_heartbeats.duration_seconds
-      result[:total_heartbeats] = filtered_heartbeats.count
+        # Calculate stats for filtered data
+        result[:total_time] = filtered_heartbeats.duration_seconds
+        result[:total_heartbeats] = filtered_heartbeats.count
 
-      filters.each do |filter|
-        result["top_#{filter}"] = filtered_heartbeats.group(filter)
-                                                     .duration_seconds
-                                                     .max_by { |_, v| v }
-                                                     &.first
-      end
+        filters.each do |filter|
+          result["top_#{filter}"] = filtered_heartbeats.group(filter)
+                                                       .duration_seconds
+                                                       .max_by { |_, v| v }
+                                                       &.first
+        end
 
-      # Prepare project durations data
-      result[:project_durations] = filtered_heartbeats
-        .group(:project)
-        .duration_seconds
-        .sort_by { |_, duration| -duration }
-        .first(10)
-        .to_h unless result["singular_project"]
-
-      # Prepare pie chart data
-      result[:language_stats] = filtered_heartbeats
-        .group(:language)
-        .duration_seconds
-        .sort_by { |_, duration| -duration }
-        .first(10)
-        .map { |k, v| [ k.presence || "Unknown", v ] }
-        .to_h unless result["singular_language"]
-
-      result[:editor_stats] = filtered_heartbeats
-        .group(:editor)
-        .duration_seconds
-        .sort_by { |_, duration| -duration }
-        .map { |k, v| [ k.presence || "Unknown", v ] }
-        .to_h unless result["singular_editor"]
-
-      result[:operating_system_stats] = filtered_heartbeats
-        .group(:operating_system)
-        .duration_seconds
-        .sort_by { |_, duration| -duration }
-        .map { |k, v| [ k.presence || "Unknown", v ] }
-        .to_h unless result["singular_operating_system"]
-
-      # Calculate weekly project stats for the last 6 months
-      result[:weekly_project_stats] = {}
-      (0..25).each do |week_offset|  # 26 weeks = 6 months
-        week_start = week_offset.weeks.ago.beginning_of_week
-        week_end = week_offset.weeks.ago.end_of_week
-
-        week_stats = filtered_heartbeats
-          .where(time: week_start.to_f..week_end.to_f)
+        # Prepare project durations data
+        result[:project_durations] = filtered_heartbeats
           .group(:project)
           .duration_seconds
+          .sort_by { |_, duration| -duration }
+          .first(10)
+          .to_h unless result["singular_project"]
 
-        result[:weekly_project_stats][week_start.to_date.iso8601] = week_stats
+        # Prepare pie chart data
+        result[:language_stats] = filtered_heartbeats
+          .group(:language)
+          .duration_seconds
+          .sort_by { |_, duration| -duration }
+          .first(10)
+          .map { |k, v| [ k.presence || "Unknown", v ] }
+          .to_h unless result["singular_language"]
+
+        result[:editor_stats] = filtered_heartbeats
+          .group(:editor)
+          .duration_seconds
+          .sort_by { |_, duration| -duration }
+          .map { |k, v| [ k.presence || "Unknown", v ] }
+          .to_h unless result["singular_editor"]
+
+        result[:operating_system_stats] = filtered_heartbeats
+          .group(:operating_system)
+          .duration_seconds
+          .sort_by { |_, duration| -duration }
+          .map { |k, v| [ k.presence || "Unknown", v ] }
+          .to_h unless result["singular_operating_system"]
+
+        # Calculate weekly project stats for the last 6 months
+        result[:weekly_project_stats] = {}
+        (0..25).each do |week_offset|  # 26 weeks = 6 months
+          week_start = week_offset.weeks.ago.beginning_of_week
+          week_end = week_offset.weeks.ago.end_of_week
+
+          week_stats = filtered_heartbeats
+            .where(time: week_start.to_f..week_end.to_f)
+            .group(:project)
+            .duration_seconds
+
+          result[:weekly_project_stats][week_start.to_date.iso8601] = week_stats
+        end
       end
 
       result

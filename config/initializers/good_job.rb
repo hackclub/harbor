@@ -9,14 +9,19 @@ Rails.application.configure do
       class: "UserSlackStatusUpdateJob"
     },
     daily_leaderboard_update: {
-      cron: "*/5 * * * *",
+      cron: "* * * * *",
       class: "LeaderboardUpdateJob",
       args: [ :daily ]
     },
     weekly_leaderboard_update: {
-      cron: "*/10 * * * *",
+      cron: "*/2 * * * *",
       class: "LeaderboardUpdateJob",
       args: [ :weekly ]
+    },
+    last_7_days_leaderboard_update: {
+      cron: "*/7 * * * *",
+      class: "LeaderboardUpdateJob",
+      args: [ :last_7_days ]
     },
     sailors_log_poll: {
       cron: "* * * * *",

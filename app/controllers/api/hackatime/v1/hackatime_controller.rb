@@ -53,11 +53,10 @@ class Api::Hackatime::V1::HackatimeController < ApplicationController
 
   def handle_heartbeat(heartbeat_array)
     results = []
-    wakatime_service = WakatimeService.new
     heartbeat_array.each do |heartbeat|
       source_type = :direct_entry
 
-      parsed_ua = wakatime_service.parse_user_agent(heartbeat[:user_agent])
+      parsed_ua = WakatimeService.parse_user_agent(heartbeat[:user_agent])
 
       # special case: if the entity is "test.txt", this is a test heartbeat
       if heartbeat[:entity] == "test.txt"

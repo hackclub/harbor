@@ -4,11 +4,10 @@ class OneTime::BackfillHeartbeatEditorJob < ApplicationJob
   def perform(dry_run = true)
     puts "Processing heartbeats" if dry_run
 
-    wakatime_service = WakatimeService.new
     processed_heartbeats = []
 
     heartbeats_to_categorize.find_each(batch_size: 1000) do |heartbeat|
-      parsed_ua = wakatime_service.parse_user_agent(heartbeat.user_agent)
+      parsed_ua = WakatimeService.parse_user_agent(heartbeat.user_agent)
       if parsed_ua[:err].present?
         puts "Error parsing user agent for heartbeat #{heartbeat.id}, user_agent: #{heartbeat.user_agent}, error: #{parsed_ua[:err]}"
         next

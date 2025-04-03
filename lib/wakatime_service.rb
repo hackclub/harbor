@@ -71,7 +71,7 @@ class WakatimeService
     result
   end
 
-  def parse_user_agent(user_agent)
+  def self.parse_user_agent(user_agent)
     # Based on https://github.com/muety/wakapi/blob/b3668085c01dc0724d8330f4d51efd5b5aecaeb2/utils/http.go#L89
 
     # Regex pattern to match wakatime client user agents

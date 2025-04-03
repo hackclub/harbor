@@ -49,10 +49,22 @@ class LeaderboardsController < ApplicationController
       # Get active projects for the leaderboard entries
       if @entries&.any?
         user_ids = @entries.pluck(:user_id)
-        users = User.where(id: user_ids).includes(:project_repo_mappings)
+
+        # Get the most recent direct entry heartbeat for each user
+        recent_heartbeats = Heartbeat.where(user_id: user_ids, source_type: :direct_entry)
+                                   .select("DISTINCT ON (user_id) user_id, project, time")
+                                   .order("user_id, time DESC")
+                                   .index_by(&:user_id)
+
+        # Load users with their project mappings
+        users = User.where(id: user_ids)
+                   .includes(:project_repo_mappings)
+                   .distinct
+
         @active_projects = {}
         users.each do |user|
-          @active_projects[user.id] = user.project_repo_mappings.find { |p| p.project_name == user.active_project }
+          recent_heartbeat = recent_heartbeats[user.id]
+          @active_projects[user.id] = user.project_repo_mappings.find { |p| p.project_name == recent_heartbeat&.project }
         end
       end
     end

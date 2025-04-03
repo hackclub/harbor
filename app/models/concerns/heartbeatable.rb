@@ -78,27 +78,69 @@ module Heartbeatable
     end
 
     def daily_streaks_for_users(user_ids, start_date: 8.days.ago)
-      require "set"
-
-      heartbeats = where(user_id: user_ids)
+      # First get the raw durations using window function
+      raw_durations = joins(:user)
+        .where(user_id: user_ids)
         .coding_only
         .with_valid_timestamps
         .where(time: start_date..Time.current)
+        .select(
+          :user_id,
+          "users.timezone as user_timezone",
+          Arel.sql("DATE_TRUNC('day', to_timestamp(time) AT TIME ZONE users.timezone) as day_group"),
+          Arel.sql("LEAST(EXTRACT(EPOCH FROM (to_timestamp(time) - to_timestamp(LAG(time) OVER (PARTITION BY user_id, DATE_TRUNC('day', to_timestamp(time) AT TIME ZONE users.timezone) ORDER BY time)))), #{heartbeat_timeout_duration.to_i}) as diff")
+        )
 
-      user_ids.each_with_object(Hash.new(0)) do |user_id, hash|
+      # Then aggregate the results
+      daily_durations = connection.select_all(
+        "SELECT user_id, user_timezone, day_group, COALESCE(SUM(diff), 0)::integer as duration
+         FROM (#{raw_durations.to_sql}) AS diffs
+         GROUP BY user_id, user_timezone, day_group"
+      ).group_by { |row| row["user_id"] }
+       .transform_values do |rows|
+         timezone = rows.first["user_timezone"]
+         current_date = Time.current.in_time_zone(timezone).to_date
+         {
+           current_date: current_date,
+           days: rows.map do |row|
+             [ row["day_group"].to_date, row["duration"].to_i ]
+           end.sort_by { |date, _| date }.reverse
+         }
+       end
+
+      # Initialize the result hash with zeros for all users
+      result = user_ids.index_with { 0 }
+
+      # Then calculate streaks for each user
+      daily_durations.each do |user_id, data|
+        current_date = data[:current_date]
+        days = data[:days]
+
+        # Calculate streak
         streak = 0
-        days_for_user = heartbeats.where(user_id: user_id).daily_durations(start_date: start_date)
-        days_for_user.sort_by { |date, _| date }
-                     .reverse
-                     .each do |_, duration|
-                       if duration >= 15 * 60
-                         streak += 1
-                       else
-                         break
-                       end
-                     end
-        hash[user_id] = streak
+        days.each do |date, duration|
+          # Skip if this day is in the future
+          next if date > current_date
+
+          # If they didn't code enough today, just skip
+          if date == current_date
+            next unless duration >= 15 * 60
+            streak += 1
+            next
+          end
+
+          # For previous days, check if it's the next day in the streak
+          if date == current_date - streak.days && duration >= 15 * 60
+            streak += 1
+          else
+            break
+          end
+        end
+
+        result[user_id] = streak
       end
+
+      result
     end
 
     def daily_durations(start_date: 365.days.ago, end_date: Time.current)

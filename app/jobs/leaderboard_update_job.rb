@@ -21,10 +21,6 @@ class LeaderboardUpdateJob < ApplicationJob
       period_type: period_type
     )
 
-    # Get list of valid user IDs from our database
-    valid_user_ids = User.pluck(:id)
-    return if valid_user_ids.empty?
-
     date_range = case period_type
     when :weekly
       (parsed_date.beginning_of_day...(parsed_date + 7.days).beginning_of_day)
@@ -58,8 +54,6 @@ class LeaderboardUpdateJob < ApplicationJob
 
       LeaderboardEntry.insert_all!(entries_data) if entries_data.any?
     end
-
-    Rails.logger.info "\nTiming breakdown:\n#{timing_info.join("\n")}"
 
     leaderboard.finished_generating_at = Time.current
     leaderboard.save!

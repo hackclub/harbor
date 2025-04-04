@@ -107,3 +107,5 @@ group :test do
 end
 
 gem "avo-record_link_field", "~> 0.0.2"
+
+gem "faye-websocket", "~> 0.11.3"

@@ -22,8 +22,9 @@ class LeaderboardsController < ApplicationController
       LeaderboardUpdateJob.perform_later(start_date, @period_type)
       flash.now[:notice] = "Leaderboard is being updated..."
     else
+      # Load entries with users and their project repo mappings in a single query
       @entries = @leaderboard.entries
-                             .includes(:user)
+                             .includes(user: :project_repo_mappings)
                              .order(total_seconds: :desc)
 
       tracked_user_ids = @leaderboard.entries.distinct.pluck(:user_id)
@@ -50,19 +51,16 @@ class LeaderboardsController < ApplicationController
       if @entries&.any?
         user_ids = @entries.pluck(:user_id)
 
-        # Get the most recent direct entry heartbeat for each user
+        # Use the faster DISTINCT ON approach for heartbeats
+        # This query gets the most recent heartbeat for each user in a single efficient query
         recent_heartbeats = Heartbeat.where(user_id: user_ids, source_type: :direct_entry)
                                    .select("DISTINCT ON (user_id) user_id, project, time")
                                    .order("user_id, time DESC")
                                    .index_by(&:user_id)
 
-        # Load users with their project mappings
-        users = User.where(id: user_ids)
-                   .includes(:project_repo_mappings)
-                   .distinct
-
         @active_projects = {}
-        users.each do |user|
+        @entries.each do |entry|
+          user = entry.user
           recent_heartbeat = recent_heartbeats[user.id]
           @active_projects[user.id] = user.project_repo_mappings.find { |p| p.project_name == recent_heartbeat&.project }
         end

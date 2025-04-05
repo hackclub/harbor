@@ -76,6 +76,12 @@ Rails.application.routes.draw do
       get "stats", to: "stats#show"
       get "users/:username/stats", to: "stats#user_stats"
 
+      namespace :neighborhood do
+        resources :external_durations, only: [ :create ]
+        get "lookup/email", to: "external_durations#lookup_by_email"
+        get "lookup/slack", to: "external_durations#lookup_by_slack"
+      end
+
       namespace :my do
         get "heartbeats/most_recent", to: "heartbeats#most_recent"
         get "heartbeats", to: "heartbeats#index"

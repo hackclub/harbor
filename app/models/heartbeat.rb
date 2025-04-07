@@ -16,6 +16,7 @@ class Heartbeat < ApplicationRecord
   self.inheritance_column = nil
 
   belongs_to :user
+  belongs_to :project_repo_mappings, through: :user # optional
 
   validates :time, presence: true
 

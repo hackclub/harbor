@@ -7,6 +7,16 @@ class StaticPagesController < ApplicationController
                               .distinct
                               .first
 
+    # Get active projects for the mini leaderboard
+    if @leaderboard
+      user_ids = @leaderboard.entries.pluck(:user_id)
+      users = User.where(id: user_ids).includes(:project_repo_mappings)
+      @active_projects = {}
+      users.each do |user|
+        @active_projects[user.id] = user.project_repo_mappings.find { |p| p.project_name == user.active_project }
+      end
+    end
+
     if current_user
       flavor_texts = FlavorText.motto + FlavorText.conditional_mottos(current_user)
       flavor_texts += FlavorText.rare_motto if Random.rand(10) < 1
@@ -71,18 +81,7 @@ class StaticPagesController < ApplicationController
         end
       end
 
-      @home_stats = Rails.cache.read("home_stats")
-      CacheHomeStatsJob.perform_later if @home_stats.nil?
-    end
-
-    # Get active projects for the mini leaderboard
-    if @leaderboard
-      user_ids = @leaderboard.entries.pluck(:user_id)
-      users = User.where(id: user_ids).includes(:project_repo_mappings)
-      @active_projects = {}
-      users.each do |user|
-        @active_projects[user.id] = user.project_repo_mappings.find { |p| p.project_name == user.active_project }
-      end
+      @home_stats = Cache::HomeStatsJob.perform_now
     end
   end
 
@@ -127,31 +126,7 @@ class StaticPagesController < ApplicationController
   end
 
   def currently_hacking
-    # Get all users who have heartbeats in the last 15 minutes
-    locals = Rails.cache.fetch("currently_hacking", expires_in: 10.seconds) do
-      user_ids = Heartbeat.where("time > ?", 5.minutes.ago.to_f)
-                          .coding_only
-                          .distinct
-                          .pluck(:user_id)
-
-      users = User.where(id: user_ids).includes(:project_repo_mappings)
-
-      active_projects = {}
-      users.each do |user|
-        active_projects[user.id] = user.project_repo_mappings.find { |p| p.project_name == user.active_project }
-      end
-
-      users = users.sort_by do |user|
-        [
-          active_projects[user.id].present? ? 0 : 1,
-          user.username.present? ? 0 : 1,
-          user.slack_username.present? ? 0 : 1,
-          user.github_username.present? ? 0 : 1
-        ]
-      end
-
-      { users: users, active_projects: active_projects }
-    end
+    locals = Cache::CurrentlyHackingJob.perform_now
 
     render partial: "currently_hacking", locals: locals
   end

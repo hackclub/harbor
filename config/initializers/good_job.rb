@@ -35,13 +35,24 @@ Rails.application.configure do
       cron: "0 0 * * *",
       class: "SlackUsernameUpdateJob"
     },
-    cache_home_stats: {
-      cron: "0/10 * * * *",
-      class: "CacheHomeStatsJob"
-    },
     scan_github_repos: {
       cron: "0 10 * * *",
       class: "ScanGithubReposJob"
-    }
+    },
+    cache_active_user_graph_data_job: {
+      cron: "*/10 * * * *",
+      class: "Cache::ActiveUsersGraphDataJob",
+      args: [ true ]
+    },
+    cache_currently_hacking: {
+      cron: "* * * * *",
+      class: "Cache::CurrentlyHacking",
+      args: [ true ]
+    },
+    cache_home_stats: {
+      cron: "*/10 * * * *",
+      class: "Cache::HomeStatsJob",
+      args: [ true ]
+    },
   }
 end

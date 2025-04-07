@@ -1,4 +1,4 @@
-class CacheHomeStatsJob < ApplicationJob
+class Cache::HomeStatsJob < ApplicationJob
   include GoodJob::ActiveJobExtensions::Concurrency
 
   # Limits concurrency to 1 job per date
@@ -7,13 +7,23 @@ class CacheHomeStatsJob < ApplicationJob
     drop: true
   )
 
-  def perform
+  def perform(force_reload: false)
+    key = "home_stats"
+    expiration = 1.hour
+    Rails.cache.write(key, calculate, expires_in: expiration) if force_reload
+
+    Rails.cache.fetch(key, expires_in: expiration, ) do
+      calculate
+    end
+  end
+
+  private
+
+  def calculate
     seconds_by_user = Heartbeat.group(:user_id).duration_seconds
-    home_stats = {
+    {
       users_tracked: seconds_by_user.size,
       seconds_tracked: seconds_by_user.values.sum
     }
-    Rails.cache.write("home_stats", home_stats, expires_in: 1.hour)
-    home_stats
   end
 end

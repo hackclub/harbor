@@ -27,7 +27,7 @@ class Cache::CurrentlyHackingJob < ApplicationJob
                                 .where("time > ?", 5.minutes.ago.to_f)
                                 .select("DISTINCT ON (user_id) user_id, project, time, users.*")
                                 .order("user_id, time DESC")
-                                .includes(:user => :project_repo_mappings)
+                                .includes(user: :project_repo_mappings)
                                 .index_by(&:user_id)
 
     users = recent_heartbeats.values.map(&:user)

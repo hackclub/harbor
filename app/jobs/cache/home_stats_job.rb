@@ -12,7 +12,7 @@ class Cache::HomeStatsJob < ApplicationJob
     expiration = 1.hour
     Rails.cache.write(key, calculate, expires_in: expiration) if force_reload
 
-    Rails.cache.fetch(key, expires_in: expiration, ) do
+    Rails.cache.fetch(key, expires_in: expiration,) do
       calculate
     end
   end

@@ -53,6 +53,6 @@ Rails.application.configure do
       cron: "*/10 * * * *",
       class: "Cache::HomeStatsJob",
       args: [ true ]
-    },
+    }
   }
 end

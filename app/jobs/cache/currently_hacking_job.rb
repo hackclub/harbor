@@ -20,17 +20,22 @@ class Cache::CurrentlyHackingJob < ApplicationJob
   private
 
   def calculate
-    # Get all users who have heartbeats in the last 15 minutes
-    user_ids = Heartbeat.where("time > ?", 5.minutes.ago.to_f)
-                        .coding_only
-                        .distinct
-                        .pluck(:user_id)
+    # Get most recent heartbeats and users in a single query
+    recent_heartbeats = Heartbeat.joins(:user)
+                                .where(source_type: :direct_entry)
+                                .coding_only
+                                .where("time > ?", 5.minutes.ago.to_f)
+                                .select("DISTINCT ON (user_id) user_id, project, time, users.*")
+                                .order("user_id, time DESC")
+                                .includes(:user => :project_repo_mappings)
+                                .index_by(&:user_id)
 
-    users = User.where(id: user_ids).includes(:project_repo_mappings)
+    users = recent_heartbeats.values.map(&:user)
 
     active_projects = {}
     users.each do |user|
-      active_projects[user.id] = user.project_repo_mappings.find { |p| p.project_name == user.active_project }
+      recent_heartbeat = recent_heartbeats[user.id]
+      active_projects[user.id] = user.project_repo_mappings.find { |p| p.project_name == recent_heartbeat&.project }
     end
 
     users = users.sort_by do |user|

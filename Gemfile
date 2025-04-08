@@ -77,7 +77,6 @@ gem "rack-mini-profiler"
 # For memory profiling via RMP
 gem "memory_profiler"
 gem "flamegraph"
-gem "stackprof"
 
 gem "skylight"
 

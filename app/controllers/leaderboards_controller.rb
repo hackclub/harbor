@@ -24,7 +24,7 @@ class LeaderboardsController < ApplicationController
     else
       # Load entries with users and their project repo mappings in a single query
       @entries = @leaderboard.entries
-                             .includes(user: :project_repo_mappings)
+                             .includes(:user)
                              .order(total_seconds: :desc)
 
       tracked_user_ids = @leaderboard.entries.distinct.pluck(:user_id)
@@ -47,24 +47,7 @@ class LeaderboardsController < ApplicationController
             .count { |user_id| !tracked_user_ids.include?(user_id) }
       end
 
-      # Get active projects for the leaderboard entries
-      if @entries&.any?
-        user_ids = @entries.pluck(:user_id)
-
-        # Use the faster DISTINCT ON approach for heartbeats
-        # This query gets the most recent heartbeat for each user in a single efficient query
-        recent_heartbeats = Heartbeat.where(user_id: user_ids, source_type: :direct_entry)
-                                   .select("DISTINCT ON (user_id) user_id, project, time")
-                                   .order("user_id, time DESC")
-                                   .index_by(&:user_id)
-
-        @active_projects = {}
-        @entries.each do |entry|
-          user = entry.user
-          recent_heartbeat = recent_heartbeats[user.id]
-          @active_projects[user.id] = user.project_repo_mappings.find { |p| p.project_name == recent_heartbeat&.project }
-        end
-      end
+      @active_projects = Cache::ActiveProjectsJob.perform_now
     end
   end
 end

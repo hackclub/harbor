@@ -8,14 +8,7 @@ class StaticPagesController < ApplicationController
                               .first
 
     # Get active projects for the mini leaderboard
-    if @leaderboard
-      user_ids = @leaderboard.entries.pluck(:user_id)
-      users = User.where(id: user_ids).includes(:project_repo_mappings)
-      @active_projects = {}
-      users.each do |user|
-        @active_projects[user.id] = user.project_repo_mappings.find { |p| p.project_name == user.active_project }
-      end
-    end
+    @active_projects = Cache::ActiveProjectsJob.perform_now
 
     if current_user
       flavor_texts = FlavorText.motto + FlavorText.conditional_mottos(current_user)

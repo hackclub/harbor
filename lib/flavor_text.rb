@@ -228,8 +228,8 @@ class FlavorText
     r << "in the nick of time!" if %w[nick nicholas nickolas].include?(user.username)
     r << "just-in time!" if %w[justin justine].include?(user.username)
 
-    minutes_logged = Heartbeat.where("time > ?", 1.hour.ago.to_f).duration_seconds / 60
-    r << "in the past hour, #{minutes_logged} minutes have passed" if minutes_logged > 0
+    # minutes_logged = -> Heartbeat.where("time > ?", 1.hour.ago.to_f..Time.current.to_f).duration_seconds / 60
+    # r << "in the past hour, #{minutes_logged} minutes have passed" if minutes_logged > 0
 
     r
   end

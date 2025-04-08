@@ -42,17 +42,22 @@ Rails.application.configure do
     cache_active_user_graph_data_job: {
       cron: "*/10 * * * *",
       class: "Cache::ActiveUsersGraphDataJob",
-      args: [ true ]
+      args: [ dry_run: false ]
     },
     cache_currently_hacking: {
       cron: "* * * * *",
       class: "Cache::CurrentlyHacking",
-      args: [ true ]
+      args: [ dry_run: false ]
     },
     cache_home_stats: {
       cron: "*/10 * * * *",
       class: "Cache::HomeStatsJob",
-      args: [ true ]
+      args: [ dry_run: false ]
+    },
+    cache_active_projects: {
+      cron: "* * * * *",
+      class: "Cache::ActiveProjectsJob",
+      args: [ dry_run: false ]
     }
   }
 end

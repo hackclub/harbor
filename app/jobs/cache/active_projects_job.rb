@@ -1,4 +1,4 @@
-class Cache::ActiveProjectsJob
+class Cache::ActiveProjectsJob < ApplicationJob
   include GoodJob::ActiveJobExtensions::Concurrency
 
   # Limits concurrency to 1 job per date
@@ -20,14 +20,13 @@ class Cache::ActiveProjectsJob
   private
 
   def calculate
-    # TODO: check if we can join heartbeats to project_repo_mappings through users
-    recent_heartbeats = Heartbeat.where(source_type: :direct_entry)
-                                 .where(time: 5.minutes.ago.to_f..CurrenTime.current)
-                                 .includes(user: :project_repo_mappings)
-                                 .select("DISTINCT ON (user_id) user_id, project, time")
-                                 .order("user_id, time DESC")
-                                 .index_by(&:user_id)
-
-    # return a hash of user to project_repo_mappings
+    # Get recent heartbeats with matching project_repo_mappings in a single SQL query
+    ProjectRepoMapping.joins("INNER JOIN heartbeats ON heartbeats.project = project_repo_mappings.project_name")
+                      .joins("INNER JOIN users ON users.id = heartbeats.user_id")
+                      .where("heartbeats.source_type = ?", Heartbeat.source_types[:direct_entry])
+                      .where("heartbeats.time > ?", 5.minutes.ago.to_f)
+                      .select("DISTINCT ON (heartbeats.user_id) project_repo_mappings.*, heartbeats.user_id")
+                      .order("heartbeats.user_id, heartbeats.time DESC")
+                      .index_by(&:user_id)
   end
 end

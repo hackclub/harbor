@@ -15,12 +15,6 @@
           <%= current_user.streak_days_formatted %> 🔥
         </p>
       <% end %>
-      <% if current_user.active_project && current_user.active_project_duration > 60 %>
-        <p>
-          Working on: <%= current_user.active_project %>
-          (<%= short_time_simple current_user.active_project_duration %> in total)
-        </p>
-      <% end %>
     </li>
   <% else %>
     <li>

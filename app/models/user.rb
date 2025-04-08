@@ -312,20 +312,6 @@ class User < ApplicationRecord
     email.split("@")&.first.truncate(10) + " (email sign-up)"
   end
 
-  def project_names
-    heartbeats.select(:project).distinct.pluck(:project)
-  end
-
-  def active_project
-    most_recent_direct_entry_heartbeat&.project
-  end
-
-  def active_project_duration
-    return nil unless active_project
-
-    heartbeats.where(project: active_project).duration_seconds
-  end
-
   def most_recent_direct_entry_heartbeat
     heartbeats.where(source_type: :direct_entry).order(time: :desc).first
   end

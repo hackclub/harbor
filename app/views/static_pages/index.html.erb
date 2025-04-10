@@ -67,46 +67,40 @@
 
     <%# render "scrapyard" %>
 
-    <% if @show_logged_time_sentence %>
-      You've logged
-      <%= short_time_detailed @todays_duration %>
-      <% if @todays_languages.any? || @todays_editors.any? %>
-        across
-        <% if @todays_languages.any? %>
-          <% if @todays_languages.length >= 4 %>
-            <%= @todays_languages[0..1].join(", ") %> <span title="<%= @todays_languages[2..].join(", ") %>">(& <%= pluralize(@todays_languages.length - 2, 'other language') %>)</span>
-          <% else %>
-            <%= @todays_languages.to_sentence %>
+    <p>
+      <% if @show_logged_time_sentence %>
+        You've logged
+        <%= short_time_detailed @todays_duration %>
+        <% if @todays_languages.any? || @todays_editors.any? %>
+          across
+          <% if @todays_languages.any? %>
+            <% if @todays_languages.length >= 4 %>
+              <%= @todays_languages[0..1].join(", ") %> <span title="<%= @todays_languages[2..].join(", ") %>">(& <%= pluralize(@todays_languages.length - 2, 'other language') %>)</span>
+            <% else %>
+              <%= @todays_languages.to_sentence %>
+            <% end %>
           <% end %>
+          <% if @todays_languages.any? && @todays_editors.any? %>
+            using
+          <% end %>
+          <% if @todays_editors.any? %>
+            <%= @todays_editors.to_sentence %>
+          <% end %>.
         <% end %>
-        <% if @todays_languages.any? && @todays_editors.any? %>
-          using
-        <% end %>
-        <% if @todays_editors.any? %>
-          <%= @todays_editors.to_sentence %>
-        <% end %>
+      <% else %>
+        No time logged today... but you can change that!
       <% end %>
-    <% else %>
-      No time logged today... but you can change that!
-    <% end %>
+    </p>
 
     <% if @leaderboard %>
       <%= render "leaderboards/mini_leaderboard", leaderboard: @leaderboard, current_user: current_user %>
     <% end %>
 
-    <%= turbo_frame_tag "activity_graph", src: activity_graph_static_pages_path do %>
-      <div class="loading">
-        Loading activity graph...
-      </div>
-    <% end %>
-
-    <%= turbo_frame_tag "project_durations", src: project_durations_static_pages_path do %>
-      <div class="loading">
-        Loading project durations...
-      </div>
-    <% end %>
-
     <%= turbo_frame_tag "filterable_dashboard", src: filterable_dashboard_static_pages_path do %>
+      <span>Loading...</span>
+    <% end %>
+
+    <%= turbo_frame_tag "activity_graph", src: activity_graph_static_pages_path do %>
       <span>Loading...</span>
     <% end %>
   <% else %>

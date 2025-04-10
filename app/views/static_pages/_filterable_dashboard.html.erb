@@ -1,5 +1,4 @@
 <%= turbo_frame_tag "filterable_dashboard" do %>
-  <div class="container">
     <div class="content">
       <div class="filters-section">
         <%= render partial: 'shared/multi_select', locals: {
@@ -37,7 +36,6 @@
           selected: params[:category]
         } %>
       </div>
-    </div>
   </div>
 
   <div id="filterable_dashboard_content">

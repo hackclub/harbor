@@ -11,7 +11,7 @@ class UsersController < ApplicationController
     @enabled_sailors_logs = SailorsLogNotificationPreference.where(
       slack_uid: @user.slack_uid,
       enabled: true,
-    ).where.not(slack_channel_id: "C0835AZP9GB")
+    ).where.not(slack_channel_id: SailorsLog::DEFAULT_CHANNELS)
 
     @heartbeats_migration_jobs = @user.data_migration_jobs
   end

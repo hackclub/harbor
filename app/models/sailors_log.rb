@@ -16,6 +16,8 @@ class SailorsLog < ApplicationRecord
            foreign_key: :slack_uid,
            primary_key: :slack_uid
 
+  DEFAULT_CHANNELS = %w[C0835AZP9GB]
+
   private
 
   def initialize_projects_summary
@@ -26,7 +28,9 @@ class SailorsLog < ApplicationRecord
   end
 
   def ensure_notification_preference_for_debug_channel
-    return if notification_preferences.any? { |np| np.slack_channel_id == "C0835AZP9GB" && np.enabled }
-    notification_preferences.create!(slack_channel_id: "C0835AZP9GB", enabled: true)
+    return if notification_preferences.any? { |np| SailorsLog::DEFAULT_CHANNELS.include?(np.slack_channel_id) && np.enabled }
+    SailorsLog::DEFAULT_CHANNELS.each do |channel_id|
+      notification_preferences.create!(slack_channel_id: channel_id, enabled: true)
+    end
   end
 end

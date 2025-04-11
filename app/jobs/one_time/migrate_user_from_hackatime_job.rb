@@ -77,11 +77,12 @@ class OneTime::MigrateUserFromHackatimeJob < ApplicationJob
 
     ApiKey.upsert(
       {
-        user_id: @user.id,
+        owner_type: "User",
+        owner_id: @user.id,
         name: "Imported from Hackatime",
         token: hackatime_user.api_key
       },
-      unique_by: [ :user_id, :token ]
+      unique_by: [ :owner_type, :owner_id, :token ]
     )
   end
 end

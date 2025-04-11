@@ -23,6 +23,11 @@ class User < ApplicationRecord
 
   has_many :api_keys
 
+  has_one :sailors_log,
+    foreign_key: :slack_uid,
+    primary_key: :slack_uid,
+    class_name: "SailorsLog"
+
   delegate :streak_days, :streak_days_formatted, to: :heartbeats
 
   enum :hackatime_extension_text_type, {

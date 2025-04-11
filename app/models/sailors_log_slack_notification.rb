@@ -4,4 +4,8 @@ class SailorsLogSlackNotification < ApplicationRecord
 
     SailorsLogNotifyJob.perform_now(self.id)
   end
+
+  def notify_user_later!
+    SailorsLogNotifyJob.perform_later(self.id)
+  end
 end

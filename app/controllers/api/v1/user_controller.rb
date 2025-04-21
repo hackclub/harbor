@@ -8,7 +8,7 @@ class Api::V1::UserController < ApplicationController
   private
 
   def authenticate_api_key
-    api_key = request.headers["Authorization"]&.split(" ")&.last
+    api_key = request.headers[ "Authorization" ]&.split( " " )&.last
     return render json: { error: "Unauthorized" }, status: :unauthorized unless api_key
 
     api_key_record = ApiKey.find_by(token: api_key)

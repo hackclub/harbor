@@ -8,7 +8,7 @@ class SailorsLogLeaderboard < ApplicationRecord
   def generate_message
     stats = SailorsLogLeaderboard.generate_leaderboard_stats(slack_channel_id)
     msg = "*:boat: Sailor's Log - Today*"
-    medals = [ "first_place_medal", "second_place_medal", "third_place_medal" ]
+    medals = ["first_place_medal", "second_place_medal", "third_place_medal"]
 
     stats.each_with_index do |entry, index|
       medal = medals[index] || "white_small_square"
@@ -90,7 +90,7 @@ class SailorsLogLeaderboard < ApplicationRecord
     language = language.downcase
     case language
     when "ruby"
-      [ ":#{language}:" || ":-ruby:" ].sample
+      [":#{language}:" || ":-ruby:"].sample
     when "javascript"
       ":js:"
     when "typescript"
@@ -98,25 +98,25 @@ class SailorsLogLeaderboard < ApplicationRecord
     when "html"
       ":#{language}:"
     when "java"
-      [ ":java:", ":java_duke:" ].sample
+      [":java:", ":java_duke:"].sample
     when "unity"
-      [ ":unity:", ":unity_new:" ].sample
+      [":unity:", ":unity_new:"].sample
     when "c++"
       ":#{language}:"
     when "c"
-      [ ":c:", ":c_1:" ].sample
+      [":c:", ":c_1:"].sample
     when "c#"
       ":eyeglasses:"
     when "onshape"
       ":#{language}:"
     when "rust"
-      [ ":ferris:", ":crab:", ":ferrisowo:" ].sample
+      [":ferris:", ":crab:", ":ferrisowo:"].sample
     when "python"
-      [ ":snake:", ":python:", ":pf:", ":tw_snake:" ].sample
+      [":snake:", ":python:", ":pf:", ":tw_snake:"].sample
     when "nix"
-      [ ":nix:", ":parrot-nix:" ].sample
+      [":nix:", ":parrot-nix:"].sample
     when "go"
-      [ ":golang:", ":gopher:", ":gothonk:" ].sample
+      [":golang:", ":gopher:", ":gothonk:"].sample
     when "kotlin"
       ":#{language}:"
     when "astro"

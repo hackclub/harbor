@@ -30,7 +30,7 @@ Rails.application.routes.draw do
 
   root "static_pages#index"
 
-  resources :static_pages, only: [ :index ] do
+  resources :static_pages, only: [:index] do
     collection do
       get :project_durations
       get :activity_graph
@@ -50,10 +50,10 @@ Rails.application.routes.draw do
   get "/auth/token/:token", to: "sessions#token", as: :auth_token
   delete "signout", to: "sessions#destroy", as: "signout"
 
-  resources :leaderboards, only: [ :index ]
+  resources :leaderboards, only: [:index]
 
   # Nested under users for admin access
-  resources :users, only: [ ] do
+  resources :users, only: [] do
     get "settings", on: :member, to: "users#edit"
   end
 
@@ -92,5 +92,5 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :scrapyard_leaderboards, only: [ :index, :show ]
+  resources :scrapyard_leaderboards, only: [:index, :show]
 end

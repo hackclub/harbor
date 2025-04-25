@@ -1,0 +1,12 @@
+<h1>My Projects</h1>
+
+<% if current_user.github_uid.blank? %>
+  <div class="notice">
+    You can't tie your projects to GitHub until you connect your GitHub account.
+    <%= link_to "Sign in with GitHub", github_auth_path, class: "btn btn-primary" %>
+  </div>
+<% end %>
+
+<%= turbo_frame_tag "project_durations", src: project_durations_static_pages_path do %>
+  <span>Loading...</span>
+<% end %>

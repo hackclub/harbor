@@ -1,0 +1,20 @@
+<div class="container">
+  <h1>Edit Repository Mapping</h1>
+
+  <%= form_with(model: @project_repo_mapping, url: my_project_repo_mapping_path(@project_repo_mapping.project_name), method: :patch, local: true) do |f| %>
+    <div class="field">
+      <%= f.label :project_name %>
+      <%= f.text_field :project_name, value: @project_repo_mapping.project_name, disabled: true %>
+    </div>
+
+    <div class="field">
+      <%= f.label :repo_url %>
+      <%= f.url_field :repo_url, placeholder: "https://github.com/username/repo" %>
+    </div>
+
+    <div class="actions">
+      <%= f.submit "Update Mapping" %>
+      <%= link_to "Cancel", root_path, class: "button" %>
+    </div>
+  <% end %>
+</div> 

@@ -78,6 +78,9 @@ class StaticPagesController < ApplicationController
     end
   end
 
+  def my_projects
+  end
+
   def project_durations
     return unless current_user
 
@@ -93,7 +96,7 @@ class StaticPagesController < ApplicationController
           repo_url: @project_repo_mappings.find { |p| p.project_name == project }&.repo_url,
           duration: duration
         }
-      end.filter { |p| p[:duration].positive? }.sort_by { |p| p[:duration] }.reverse.first(4)
+      end.filter { |p| p[:duration].positive? }.sort_by { |p| p[:duration] }.reverse
     end
 
     render partial: "project_durations", locals: { project_durations: project_durations }

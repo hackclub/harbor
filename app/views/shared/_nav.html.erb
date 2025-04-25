@@ -35,6 +35,11 @@
     </li>
     <% if current_user %>
       <li>
+        <%= link_to my_projects_static_pages_path, class: "nav-item #{current_page?(my_projects_static_pages_path) ? 'active' : ''}" do %>
+          My Projects
+        <% end %>
+      </li>
+      <li>
         <%= link_to my_settings_path, class: "nav-item #{current_page?(my_settings_path) ? 'active' : ''}" do %>
           Settings
         <% end %>

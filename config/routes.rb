@@ -37,6 +37,7 @@ Rails.application.routes.draw do
       get :currently_hacking
       get :filterable_dashboard_content
       get :filterable_dashboard
+      get :my_projects
       get "🃏", to: "static_pages#🃏", as: :wildcard
     end
   end
@@ -61,6 +62,10 @@ Rails.application.routes.draw do
   get "my/settings", to: "users#edit", as: :my_settings
   patch "my/settings", to: "users#update"
   post "my/settings/migrate_heartbeats", to: "users#migrate_heartbeats", as: :my_settings_migrate_heartbeats
+
+  namespace :my do
+    resources :project_repo_mappings, param: :project_name, only: [ :edit, :update ]
+  end
 
   get "my/wakatime_setup", to: "users#wakatime_setup"
   get "my/wakatime_setup/step-2", to: "users#wakatime_setup_step_2"

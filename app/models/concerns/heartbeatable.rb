@@ -20,6 +20,9 @@ module Heartbeatable
     end
 
     def streak_days(start_date: 8.days.ago)
+      timezone = all.first&.user&.timezone || "UTC"
+      current_date = Time.current.in_time_zone(timezone).to_date
+
       scope = coding_only.with_valid_timestamps
       days = scope.daily_durations(start_date: start_date, end_date: Time.current)
                 .sort_by { |date, _| date }
@@ -27,7 +30,15 @@ module Heartbeatable
 
       streak = 0
       days.each do |date, duration|
-        if duration >= 15 * 60
+        next if date > current_date
+
+        if date == current_date
+          next unless duration >= 15 * 60
+          streak += 1
+          next
+        end
+
+        if date == current_date - streak.days && duration >= 15 * 60
           streak += 1
         else
           break

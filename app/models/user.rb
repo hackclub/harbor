@@ -1,4 +1,5 @@
 class User < ApplicationRecord
+  include MembershipRequirements
   has_paper_trail
   encrypts :slack_access_token, :github_access_token
 
@@ -30,6 +31,15 @@ class User < ApplicationRecord
 
   delegate :streak_days, :streak_days_formatted, to: :heartbeats
 
+  enum :membership_type, {
+    basic: 0,
+    bronze: 1,
+    silver: 2,
+    gold: 3,
+    platinum: 4
+  }, prefix: "membership"
+  enum :membership_eligibility_sent_for_status, User.membership_types, prefix: "sent_notice_of_membership"
+
   enum :hackatime_extension_text_type, {
     simple_text: 0,
     clock_emoji: 1,
@@ -46,11 +56,41 @@ class User < ApplicationRecord
     ).order(created_at: :desc).limit(10).all
   end
 
-  def format_extension_text(duration)
-    case hackatime_extension_text_type
+  def leaderboard_rank_text
+    @leaderboard_rank_text ||= begin
+      entry = LeaderboardEntry.joins(:leaderboard)
+                                .where(user: self)
+                                .where(leaderboards: { period_type: [ :daily, :weekly, :last_7_days ] })
+                                .where(rank: 1..3)
+                                .order("leaderboards.period_type ASC")
+                                .first
+
+      return nil unless entry
+
+      rank_emoji = {
+        1 => "🥇",
+        2 => "🥈",
+        3 => "🥉"
+      }[entry.rank]
+
+      leaderboard_type = case entry.leaderboard.period_type
+      when "daily" then "daily"
+      when "weekly" then "weekly"
+      when "last_7_days" then "7-day"
+      end
+
+      "#{rank_emoji} on #{leaderboard_type} ldbrd"
+    end
+  end
+
+  def format_extension_text(duration, text_type = hackatime_extension_text_type)
+    case text_type
     when "simple_text"
       return "Start coding to track your time" if duration.zero?
-      ::ApplicationController.helpers.short_time_simple(duration)
+
+      msg = ::ApplicationController.helpers.short_time_simple(duration)
+      msg += " (#{leaderboard_rank_text})" if leaderboard_rank_text.present?
+      msg
     when "clock_emoji"
       ::ApplicationController.helpers.time_in_emoji(duration)
     when "compliment_text"
@@ -327,6 +367,39 @@ class User < ApplicationRecord
 
   def find_valid_token(token)
     sign_in_tokens.valid.find_by(token: token)
+  end
+
+  def membership
+    @membership ||= Membership.new(self)
+  end
+
+  def total_hours
+    membership.total_hours
+  end
+
+  def ysws_projects
+    membership.ysws_projects
+  end
+
+  def member_since
+    membership.member_since
+  end
+
+  def current_status
+    MembershipRequirements.current_status(self)
+  end
+
+  def next_status
+    MembershipRequirements.next_status(current_status)
+  end
+
+  def eligible_for_status?(status)
+    MembershipRequirements.eligible_for_status?(self, status)
+  end
+
+  def eligible_for_next_status?
+    next_status_type = next_status
+    next_status_type && eligible_for_status?(next_status_type)
   end
 
   private

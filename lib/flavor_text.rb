@@ -11,6 +11,14 @@ class FlavorText
     ]
   end
 
+  def self.legal_thingies
+    [
+      "©",
+      "™",
+      "®"
+    ]
+  end
+
   def self.slack_loading_messages
     [
       ".split() === :large_blue_circle::large_green_circle::large_yellow_circle::large_orange_circle::red_circle::large_purple_circle:",

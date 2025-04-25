@@ -1,8 +1,17 @@
 <div class="user-info <%= current_user == user ? "current-user" : "" %>">
-  <%= image_tag user.avatar_url,
-                size: "32x32",
-                class: "avatar",
-                alt: "#{user.username}'s avatar" if user.avatar_url %>
+  <div class="avatar-container">
+    <%= image_tag user.avatar_url,
+                  size: "32x32",
+                  class: "avatar",
+                  alt: "#{user.username}'s avatar" if user.avatar_url %>
+    <% unless user.membership_basic? %>
+      <%= link_to user_membership_path(user.slack_uid), class: "status-icon-link" do %>
+        <svg class="status-icon <%= membership.current_status %>" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1.32683 12.4003L4.88683 15.0003L3.53483 19.1873C3.31634 19.8367 3.31357 20.5393 3.52694 21.1904C3.7403 21.8415 4.15837 22.4062 4.71883 22.8003C5.26968 23.2071 5.93722 23.425 6.62198 23.4216C7.30674 23.4182 7.97207 23.1936 8.51883 22.7813L11.9998 20.2193L15.4818 22.7783C16.0317 23.1828 16.6956 23.4025 17.3782 23.4058C18.0608 23.4091 18.7268 23.1959 19.2806 22.7968C19.8344 22.3978 20.2473 21.8334 20.4601 21.1848C20.6729 20.5362 20.6746 19.8369 20.4648 19.1873L19.1128 15.0003L22.6728 12.4003C23.222 11.9988 23.6302 11.4341 23.8392 10.7867C24.0482 10.1394 24.0472 9.44251 23.8365 8.79571C23.6258 8.14891 23.2161 7.58525 22.6658 7.18523C22.1156 6.78521 21.4531 6.56929 20.7728 6.56832H16.3998L15.0728 2.43232C14.8642 1.78128 14.4541 1.21333 13.9018 0.810386C13.3495 0.407437 12.6835 0.190308 11.9998 0.190308C11.3162 0.190308 10.6502 0.407437 10.0979 0.810386C9.54556 1.21333 9.13551 1.78128 8.92683 2.43232L7.59983 6.56832H3.23083C2.55057 6.56929 1.88802 6.78521 1.33781 7.18523C0.787595 7.58525 0.377867 8.14891 0.167148 8.79571C-0.0435713 9.44251 -0.0445039 10.1394 0.164483 10.7867C0.373471 11.4341 0.781688 11.9988 1.33083 12.4003H1.32683Z" stroke="white" stroke-width="1"/>
+        </svg>
+      <% end %>
+    <% end %>
+  </div>
   <% if local_assigns.fetch(:show, []).include?(:slack) && user.slack_uid.present? %>
     <%= link_to "@#{user.display_name}", "https://slack.com/app_redirect?channel=#{user.slack_uid}", target: "_blank" %>
   <% else %>

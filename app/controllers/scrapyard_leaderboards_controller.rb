@@ -17,12 +17,12 @@ class ScrapyardLeaderboardsController < ApplicationController
     # Cache the expensive computations for 10 seconds
     @event_stats = Rails.cache.fetch("scrapyard_leaderboard_stats", expires_in: 10.seconds) do
       # Get all attendees and their emails in one query
-      event_attendees = Warehouse::ScrapyardLocalAttendee
+      event_attendees = Warehouse::Scrapyard::LocalAttendee
         .where.not(email: nil)
         .group_by(&:event_id)
 
       # Only get events that have attendees
-      events = Warehouse::ScrapyardEvent
+      events = Warehouse::Scrapyard::LocalEvent
         .where(id: event_attendees.keys)
         .order(created_at: :desc)
 
@@ -82,10 +82,10 @@ class ScrapyardLeaderboardsController < ApplicationController
   end
 
   def show
-    @event = Warehouse::ScrapyardEvent.find(params[:id])
+    @event = Warehouse::Scrapyard::LocalEvent.find(params[:id])
 
     @attendee_stats = Rails.cache.fetch("scrapyard_leaderboard_event_#{@event.id}", expires_in: 10.seconds) do
-      attendees = Warehouse::ScrapyardLocalAttendee
+      attendees = Warehouse::Scrapyard::LocalAttendee
         .where.not(email: nil)
         .for_event(@event)
         .uniq { |attendee| attendee.email }

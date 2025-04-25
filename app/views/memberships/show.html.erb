@@ -1,0 +1,112 @@
+<div class="container" data-template-id="membership-show-<%= Time.current.to_i %>">
+  <h1>Membership for <%= render "shared/user_mention", user: @user %></h1>
+  
+  <div class="premium-card-showcase">
+    <div class="cards-row">
+      <div class="card-container <%= @user.membership_type %>">
+        <div class="premium-card">
+          <div class="card-content">
+            <div class="card-header">
+              <div class="hack-club-logo">HACK CLUB</div>
+              <div class="chip"></div>
+            </div>
+            <div class="card-body">
+              <div class="hack-club-emblem">
+                <%= image_tag "/flag-standalone-bw.png", class: "flag-icon", alt: "Hack Club Flag" %>
+              </div>
+            </div>
+            <div class="card-footer">
+              <div class="card-number">7997</div>
+              <div class="member-info">
+                Member
+                Since
+                <strong><%= @membership.member_since&.strftime("'%y") %></strong>
+              </div>
+              <div class="cardholder-info">
+                <div class="cardholder-name"><%= @user.display_name&.upcase || "DEVEN" %></div>
+                <div class="card-label"><%= @membership.humanized_status %></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="membership-details">
+    <% if @membership.member_since %>
+      <p title="<%= @membership.member_since.strftime("%B %d, %Y") %>">
+        Member Since <%= @membership.member_since.strftime("%b '%y") %>
+        <span class="super">(<%= time_ago_in_words(@membership.member_since) %> ago)</span>
+      </p>
+    <% end %>
+    <% if @user.streak_days_formatted %>
+      <p>Current streak: <%= @user.streak_days_formatted %> days 🔥</p>
+    <% end %>
+
+    <% if @eligible_for_upgrade %>
+      <div class="status-upgrade-alert">
+        <p>🎉 You're eligible to upgrade to <%= @user.next_status.to_s.titleize %> status!</p>
+        <p>Upgrading will send you a physical card in the mail. You can either pay for it directly, or submit a YSWS project to cover your costs.</p>
+
+        <%= link_to "Request Upgrade", new_membership_upgrade_request_path, class: "button button-primary" %>
+
+        <%# pay with $$$ %>
+
+        <%# pay with ysws project %>
+      </div>
+    <% else %>
+      <div class="status-requirements">
+        <h3>Requirements for <%= @user.next_status.to_s.titleize %> Status</h3>
+        <% requirements = MembershipRequirements.requirements_for(@user.next_status) %>
+        <% requirements.each do |requirement| %>
+          <div class="requirement-item <%= requirement.met?(@user) ? 'met' : 'not-met' %>">
+            <div class="requirement-icon">
+              <%= requirement.met?(@user) ? '✅' : '⏳' %>
+            </div>
+            <div class="requirement-details">
+              <p class="requirement-name"><%= requirement.description %></p>
+              <% if requirement.met?(@user) %>
+                <p class="requirement-status">Completed!</p>
+              <% else %>
+                <p class="requirement-progress">
+                  <% case requirement.name %>
+                  <% when :hackatime_hours %>
+                    <%= number_with_precision(::Heartbeat.where(user: @user).with_valid_timestamps.duration_seconds / 1.hour, precision: 1) %> / 10 hours
+                  <% when :ysws_hours %>
+                    <%= number_with_precision(@membership.total_ysws_hours, precision: 1) %> hours
+                  <% else %>
+                    In progress
+                  <% end %>
+                </p>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% dev_tool do %>
+      <p>Current Status: <%= @user.membership_type %></p>
+      <p>Next Status: <%= @user.next_status %></p>
+      <p>Eligible for Upgrade: <%= @eligible_for_upgrade %></p>
+      <p>Total YSWS Hours: <%= @membership.total_hours %></p>
+      <p>Debug: Controller Action: <%= controller.action_name %></p>
+      <p>Debug: Request Path: <%= request.path %></p>
+      <p>Debug: Object ID: <%= @membership.object_id %></p>
+      <p>Debug: Template ID: membership-show-<%= Time.current.to_i %></p>
+    <% end %>
+  </div>
+
+  <ul>
+    <% @membership.ysws_projects.each do |project| %>
+      <li>
+        <span class="project-name"><%= project["code_url"] %></span>
+        <span class="super"><%= project["hours_spent"].round(1) %>hrs</span>
+        <%= link_to "Play", project["playable_url"], target: "_blank" %>
+        <%= link_to "Code", project["code_url"], target: "_blank" %>
+        <span class="super"><%= project["ysws_name"].first %></span>
+      </li>
+    <% end %>
+  </ul>
+</div> 

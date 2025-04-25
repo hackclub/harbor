@@ -1,0 +1,121 @@
+<div class="container">
+  <h1>Request Membership Upgrade</h1>
+
+  <p class="intro-text">
+    Congratulations on your new status!
+    In order for us to ship your membership card and other rewards, we'll need to pay for the items and shipping.
+    You can pay the $15 yourself, or by submitting a new YSWS project or with cash.
+  </p>
+
+  <div class="upgrade-options">
+    <div class="upgrade-option card">
+      <div class="card-header">
+        <h2>Pay with Project</h2>
+      </div>
+      <div class="card-body">
+        <p>Submit a project to cover your upgrade costs.</p>
+        <%= link_to "Submit Project", "https://forms.hackclub.com/t/4rZYZejBSDus", 
+            class: "button",
+            target: "_blank" %>
+      </div>
+    </div>
+
+    <div class="upgrade-option card">
+      <div class="card-header">
+        <h2>Pay with USD</h2>
+      </div>
+      <div class="card-body">
+        <p>We'll send you an invoice for the upgrade costs.</p>
+        <%= form_with(model: @membership_upgrade_request, local: true) do |f| %>
+          <%= f.hidden_field :payment_method, value: 'direct_payment' %>
+          <%= f.hidden_field :from_status, value: current_user.membership_type %>
+          <%= f.hidden_field :to_status, value: current_user.next_status %>
+          
+          <%= f.submit "Request Invoice", class: "button" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.intro-text {
+  font-size: 1.125rem;
+  line-height: 1.75;
+  margin: 2rem 0;
+  opacity: 0.7;
+}
+
+.upgrade-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.upgrade-option.card {
+  border: 1px solid rgba(128, 128, 128, 0.2);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: rgba(128, 128, 128, 0.05);
+}
+
+.card-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+}
+
+.card-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+.card-body p {
+  margin-bottom: 1.5rem;
+  opacity: 0.7;
+}
+
+.button {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  text-decoration: none;
+  background: rgba(128, 128, 128, 0.1);
+  border: 1px solid rgba(128, 128, 128, 0.2);
+  color: inherit;
+  cursor: pointer;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.button:hover {
+  background: rgba(128, 128, 128, 0.15);
+}
+
+@media (prefers-color-scheme: dark) {
+  .upgrade-option.card {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .card-header {
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .button {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: white;
+  }
+
+  .button:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+}
+</style>

@@ -79,6 +79,10 @@ GEM
       uri (>= 0.13.1)
     addressable (2.8.7)
       public_suffix (>= 2.0.2, < 7.0)
+    airrecord (1.0.12)
+      faraday (>= 1.0, < 3.0)
+      faraday-net_http_persistent
+      net-http-persistent
     ast (2.4.2)
     avo (3.19.3)
       actionview (>= 6.1)
@@ -151,6 +155,9 @@ GEM
       multipart-post (~> 2.0)
     faraday-net_http (3.4.0)
       net-http (>= 0.5.0)
+    faraday-net_http_persistent (2.3.0)
+      faraday (~> 2.5)
+      net-http-persistent (>= 4.0.4, < 5)
     ffi (1.17.1-aarch64-linux-gnu)
     ffi (1.17.1-aarch64-linux-musl)
     ffi (1.17.1-arm-linux-gnu)
@@ -252,6 +259,8 @@ GEM
     multipart-post (2.4.1)
     net-http (0.6.0)
       uri
+    net-http-persistent (4.0.5)
+      connection_pool (~> 2.2)
     net-imap (0.5.6)
       date
       net-protocol
@@ -304,6 +313,11 @@ GEM
     psych (5.2.3)
       date
       stringio
+    public_activity (3.0.1)
+      actionpack (>= 6.1.0)
+      activerecord (>= 6.1)
+      i18n (>= 0.5.0)
+      railties (>= 6.1.0)
     public_suffix (6.0.1)
     puma (6.6.0)
       nio4r (~> 2.0)
@@ -491,6 +505,7 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord-import
+  airrecord
   avo (>= 3.2.1)
   avo-record_link_field (~> 0.0.2)
   bootsnap
@@ -511,6 +526,7 @@ DEPENDENCIES
   paper_trail
   pg
   propshaft
+  public_activity
   puma (>= 5.0)
   query_count
   rack-cors

@@ -1,0 +1,168 @@
+<%# app/views/memberships/index.html.erb %>
+<div class="container membership-page">
+  <div class="membership-banner">
+    <%= image_tag "/membership-banner.jpg", alt: "Hack Club Membership Banner", class: "img-fluid" %>
+    <!-- Debug: Image path: /membership-banner.jpg -->
+  </div>
+  
+  <h1>Hack Club Membership</h1>
+  
+  <p class="membership-description">
+    Hack Club Preferred<%= FlavorText.legal_thingies.sample %> status gives you access to an elevated experience in Hack Club, and incentivizes you to ship more projects through the year!
+  </p>
+  
+  <div class="status-check">
+    <%= link_to my_membership_path, class: "button" do %>
+      <span>Check my status</span>
+      <div class="button-js-ripple"></div>
+    <% end %>
+  </div>
+
+  <div class="preferred-status-section">
+    <h2>Preferred Status Levels</h2>
+    
+    <p class="status-explanation">
+      Preferred status is earned by shipping projects and tracking hours through Hackatime! To qualify for the lowest tier (bronze), you must code for at least 10 hours towards any project(s) of your choice (even if they're a part of another YSWS!). After you reach the bronze tier, you become eligible to order your physical Hack Club membership card!
+    </p>
+
+    <div class="status-grid">
+      <div class="status-card">
+        <div class="status-icon bronze"></div>
+        <h3>Preferred<br>Bronze</h3>
+        <div class="requirements">
+          <p>10 approved YSWS hours</p>
+          <p class="or">or</p>
+          <p>20 hours tracked on Hackatime</p>
+        </div>
+      </div>
+
+      <div class="status-card">
+        <div class="status-icon silver"></div>
+        <h3>Preferred<br>Silver</h3>
+        <div class="requirements">
+          <p>80 approved YSWS hours</p>
+        </div>
+      </div>
+
+      <div class="status-card">
+        <div class="status-icon gold"></div>
+        <h3>Preferred<br>Gold</h3>
+        <div class="requirements">
+          <p>200 approved YSWS hours</p>
+        </div>
+      </div>
+
+      <div class="status-card">
+        <div class="status-icon diamond"></div>
+        <h3>Preferred<br>Diamond</h3>
+        <div class="requirements">
+          <p>500 approved YSWS hours</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="preferred-benefits-section">
+    <h2>Preferred Status Benefits</h2>
+    
+    <p class="benefits-intro">
+      Here are some of the top benefits you'll get with Preferred status. Each tier unlocks additional perks and multipliers.
+    </p>
+
+    <div class="benefits-grid">
+      <div class="benefit-card">
+        <h3>Preferred<br>Bronze</h3>
+        <ul class="benefits-list">
+          <li>
+            <i class="benefit-icon">💳</i>
+            Eligible for a physical bronze membership card.
+          </li>
+          <li>
+            <i class="benefit-icon">🏷️</i>
+            Exclusive Bronze Member Laptop Sticker.
+          </li>
+          <li>
+            <i class="benefit-icon">🏅</i>
+            Exclusive membership badge on Hackatime and Slack.
+          </li>
+        </ul>
+      </div>
+
+      <div class="benefit-card">
+        <h3>Preferred<br>Silver</h3>
+        <ul class="benefits-list">
+          <li>
+            <i class="benefit-icon">💳</i>
+            Eligible for a physical silver membership card.
+          </li>
+          <li>
+            <i class="benefit-icon">🏷️</i>
+            Exclusive Silver Member Metal Pin.
+          </li>
+          <li>
+            <i class="benefit-icon">🏅</i>
+            Exclusive membership badge on Hackatime and Slack.
+          </li>
+        </ul>
+      </div>
+
+      <div class="benefit-card">
+        <h3>Preferred<br>Gold</h3>
+        <ul class="benefits-list">
+          <li>
+            <i class="benefit-icon">⭐️</i>
+            Priority access to check-in and food lines at all in-person Hack Club events.
+          </li>
+          <li>
+            <i class="benefit-icon">💳</i>
+            Eligible for a physical gold membership card.
+          </li>
+          <li>
+            <i class="benefit-icon">🏷️</i>
+            Exclusive Gold Member Baggage Tags.
+          </li>
+          <li>
+            <i class="benefit-icon">🏅</i>
+            Exclusive membership badge on Hackatime and Slack.
+          </li>
+        </ul>
+      </div>
+
+      <div class="benefit-card">
+        <h3>Preferred<br>Diamond</h3>
+        <ul class="benefits-list">
+          <li class="special-benefit">
+            <i class="benefit-icon">✨</i>
+            In-person internship at Hack Club HQ in Vermont
+            <span class="info-button">i<div class="info-tooltip">Limited spots available! The first 5 diamond members will get preferred spots in the internship program</div></span>
+          </li>
+          <li>
+            <i class="benefit-icon">⭐️</i>
+            Priority access to check-in and food lines at all in-person Hack Club events.
+          </li>
+          <li>
+            <i class="benefit-icon">💳</i>
+            Eligible for a physical diamond membership card.
+          </li>
+          <li>
+            <i class="benefit-icon">🏷️</i>
+            Exclusive Diamond Member Backpack.
+          </li>
+          <li>
+            <i class="benefit-icon">🏅</i>
+            Exclusive membership badge on Hackatime and Slack.
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  
+  <div class="cta">
+    <h2>Ready to Join?</h2>
+    <% if current_user %>
+      <p>You're already a member! Check out your <%= link_to "membership status", my_membership_path %>.</p>
+    <% else %>
+      <p><%= link_to "Sign in with Slack", slack_auth_path, class: "button" %> to become a member!</p>
+    <% end %>
+  </div>
+</div> 

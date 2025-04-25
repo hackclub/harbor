@@ -1,0 +1,552 @@
+/* Status icons - global styles */
+.status-icon {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 1.5rem;
+  transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1);
+}
+
+*:hover > .status-icon {
+  transform: scale(1.05);
+}
+
+.status-icon.basic {
+  filter: drop-shadow(0 4px 12px rgba(117, 154, 112, 0.2));
+  color: #1fa0eb;
+}
+
+.status-icon.bronze {
+  filter: drop-shadow(0 4px 12px rgba(205, 127, 50, 0.2));
+  color: #CD7F32;
+}
+
+.status-icon.silver {
+  filter: drop-shadow(0 4px 12px rgba(192, 192, 192, 0.2));
+  color: #E8E8E8;
+}
+
+.status-icon.gold {
+  filter: drop-shadow(0 4px 12px rgba(255, 215, 0, 0.2));
+  color: #FFD700;
+}
+
+.status-icon.diamond {
+  filter: drop-shadow(0 4px 12px rgba(185, 242, 255, 0.3));
+  color: #B9F2FF;
+}
+
+/* Membership page specific styles */
+.membership-page {
+  /* Main container styling */
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  color: var(--text-color);
+}
+
+/* Banner styling */
+.membership-page .membership-banner {
+  margin: -2rem -2rem 3rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.membership-page .membership-banner img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Main heading styling */
+.membership-page h1 {
+  font-size: 2.5rem;
+  font-weight: 300;
+  letter-spacing: 1px;
+  margin-bottom: 1.5rem;
+  color: var(--text-color);
+}
+
+/* Description text styling */
+.membership-page .membership-description {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--text-color);
+  max-width: 800px;
+  margin-bottom: 2.5rem;
+  letter-spacing: 0.3px;
+  font-weight: 300;
+}
+
+/* Status check button styling */
+.membership-page .status-check {
+  margin-bottom: 4rem;
+  position: relative;
+}
+
+.membership-page .button {
+  display: inline-block;
+  padding: 1rem 2.5rem;
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  text-decoration: none;
+  border-radius: 2px;
+  font-size: 0.95rem;
+  letter-spacing: 1.5px;
+  transition: all 0.5s cubic-bezier(0.2, 1, 0.3, 1);
+  border: none;
+  font-weight: 400;
+  text-transform: uppercase;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.membership-page .button:hover {
+  background-color: var(--button-hover-bg);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 6px 20px rgba(0, 0, 0, 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.1);
+  letter-spacing: 2px;
+}
+
+/* Status section styling */
+.membership-page .preferred-status-section {
+  margin: 4rem 0;
+}
+
+.membership-page .preferred-status-section h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--text-color);
+  font-weight: 300;
+}
+
+.membership-page .status-explanation {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  max-width: 900px;
+  color: var(--text-color);
+}
+
+.membership-page .status-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.membership-page .status-card {
+  background: var(--card-bg);
+  border: none;
+  border-radius: 2px;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.2, 1, 0.3, 1);
+  box-shadow: 
+    0 1px 3px rgba(0,0,0,0.02),
+    0 1px 2px rgba(0,0,0,0.04);
+}
+
+.membership-page .status-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 
+    0 20px 40px rgba(0,0,0,0.06),
+    0 8px 16px rgba(0,0,0,0.02);
+}
+
+.membership-page .status-card h3 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  color: var(--text-color);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+  font-weight: 300;
+}
+
+/* Benefits section styling */
+.membership-page .preferred-benefits-section {
+  margin: 6rem 0;
+}
+
+.membership-page .preferred-benefits-section h2 {
+  font-size: 3rem;
+  margin-bottom: 1.5rem;
+  color: var(--text-color);
+  font-weight: 300;
+  letter-spacing: -0.5px;
+}
+
+.membership-page .benefits-intro {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  margin-bottom: 3rem;
+  max-width: 900px;
+  color: var(--text-color);
+}
+
+.membership-page .benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2.5rem;
+  margin-top: 2rem;
+}
+
+.membership-page .benefit-card {
+  background: var(--card-bg);
+  padding: 2rem;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
+.membership-page .benefit-card h3 {
+  font-size: 1.75rem;
+  margin-bottom: 2rem;
+  color: var(--text-color);
+  font-weight: 300;
+  letter-spacing: -0.5px;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.membership-page .benefits-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.membership-page .benefits-list li {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 1.25rem;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  color: var(--text-color);
+}
+
+.membership-page .benefit-icon {
+  margin-right: 1rem;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  position: relative;
+  top: 0.1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .membership-page .benefits-grid {
+    gap: 2rem;
+  }
+  
+  .membership-page .benefit-card {
+    padding: 1.5rem;
+  }
+  
+  .membership-page .benefit-card h3 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .membership-page .benefits-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .membership-page .benefits-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .membership-page .benefit-card h3 {
+    font-size: 1.25rem;
+  }
+  
+  .membership-page .benefits-list li {
+    font-size: 1rem;
+  }
+  
+  .membership-page {
+    padding: 1rem;
+  }
+  
+  .membership-page .membership-banner {
+    margin: -1rem -1rem 2rem;
+  }
+}
+
+/* Premium Card Showcase */
+.premium-card-showcase {
+  width: 100%;
+  padding: 2rem 0;
+  display: flex;
+  justify-content: center;
+}
+
+.cards-row {
+  width: 600px;
+}
+
+.card-container {
+  width: 600px;
+  height: 340px;
+  perspective: 1500px;
+  position: relative;
+  cursor: pointer;
+}
+
+.premium-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border-radius: 20px;
+  box-shadow: 
+    0 15px 35px rgba(0, 0, 0, 0.1),
+    0 3px 10px rgba(0, 0, 0, 0.07);
+  overflow: hidden;
+}
+
+/* Status-based card backgrounds */
+.basic .premium-card {
+  background: linear-gradient(135deg, #93e9e9 0%, #1fa0eb 100%);
+}
+
+.bronze .premium-card {
+  background: linear-gradient(135deg, #CD7F32 0%, #8B4513 100%);
+}
+
+.silver .premium-card {
+  background: linear-gradient(135deg, #E8E8E8 0%, #A8A8A8 100%);
+}
+
+.gold .premium-card {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+}
+
+.diamond .premium-card {
+  background: linear-gradient(135deg, #E8F5F7 0%, #B9F2FF 100%);
+}
+
+.card-container:hover .premium-card {
+  transform: rotateY(5deg) rotateX(-2deg) translateZ(10px);
+  box-shadow: 
+    20px 20px 60px rgba(0, 0, 0, 0.1),
+    1px 1px 0px 1px rgba(255, 255, 255, 0.5);
+}
+
+/* Holographic effect */
+.premium-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    125deg,
+    rgba(255, 255, 255, 0.3) 0%,
+    rgba(255, 255, 255, 0.2) 10%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: 2;
+}
+
+.card-container:hover .premium-card::before {
+  opacity: 1;
+}
+
+.card-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 3;
+  color: #1a1a1a;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.hack-club-logo {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #1a1a1a;
+}
+
+.chip {
+  width: 50px;
+  height: 40px;
+  background: #FFD700;
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.card-body {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.hack-club-emblem {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.card-container:hover .hack-club-emblem {
+  transform: scale(1.05);
+}
+
+.flag-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: auto;
+}
+
+.card-number {
+  font-size: 28px;
+  letter-spacing: 2px;
+  font-family: monospace;
+  font-weight: 500;
+}
+
+.member-info {
+  text-align: center;
+  font-size: 10px;
+  line-height: 1.4;
+  letter-spacing: 1px;
+  opacity: 0.8;
+  text-transform: uppercase;
+}
+
+.member-info strong {
+  display: block;
+  font-size: 14px;
+  margin-top: 2px;
+}
+
+.cardholder-info {
+  text-align: right;
+}
+
+.cardholder-name {
+  font-size: 24px;
+  letter-spacing: 1px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.card-label {
+  font-size: 12px;
+  letter-spacing: 2px;
+  opacity: 0.7;
+  text-transform: uppercase;
+}
+
+/* Membership details section */
+.membership-details {
+  margin: 2rem 0;
+  font-size: 1.2rem;
+  line-height: 1.6;
+}
+
+.membership-details p {
+  margin: 0.5rem 0;
+  color: var(--text-color);
+}
+
+.membership-details .super {
+  font-style: italic;
+  color: var(--text-muted, #666);
+  font-size: 0.9em;
+}
+
+/* Project list styling */
+.membership-details + ul {
+  list-style: none;
+  padding: 0;
+  margin: 2rem 0;
+}
+
+.membership-details + ul li {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  background: var(--card-bg);
+}
+
+.project-name {
+  flex: 1;
+  font-weight: 500;
+}
+
+.super {
+  color: var(--text-muted, #666);
+  font-size: 0.9em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .cards-row, .card-container {
+    width: 100%;
+    height: 280px;
+  }
+
+  .card-content {
+    padding: 20px;
+  }
+
+  .hack-club-logo {
+    font-size: 20px;
+  }
+
+  .hack-club-emblem {
+    width: 60px;
+    height: 60px;
+    padding: 10px;
+  }
+
+  .card-number {
+    font-size: 24px;
+  }
+
+  .cardholder-name {
+    font-size: 20px;
+  }
+} 

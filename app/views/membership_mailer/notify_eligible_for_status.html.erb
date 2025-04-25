@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <h1>
+      Welcome to Hack Club Preferred<br />
+      <%= @status.to_s.humanize %> Status
+    </h1>
+    <p>
+      <% if specific_project %>
+        Thanks to your work on <em>
+          <% if specific_project_link %>
+            <%= link_to specific_project.humanized_ysws_name, specific_project_link %>
+          <% else %>
+            <%= specific_project %>
+          <% end %>
+        </em>, you have a new approved YSWS project.
+      <% end %>
+      We're pleased to welcome you to a new tier of Hack Club membership!
+      With your new status comes a host of benefits, including:
+      <ul>
+        <li>A physical membership card in the mail</li>
+        <li>Hack Club swag</li>
+        <li>And more!</li>
+      </ul>
+    </p>
+    <p>
+      You can upgrade your membership immediately at the link below.
+    </p>
+    <p>
+      <%= link_to 'Activate your membership', my_membership_url %>
+    </p>
+  </body>
+</html>

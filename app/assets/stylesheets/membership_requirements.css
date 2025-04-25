@@ -1,0 +1,75 @@
+.status-requirements {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.status-requirements h3 {
+  margin: 0 0 1.5rem 0;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.requirement-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background: var(--bg-primary);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.requirement-item:last-child {
+  margin-bottom: 0;
+}
+
+.requirement-item.met {
+  border-left: 4px solid var(--success);
+}
+
+.requirement-item.not-met {
+  border-left: 4px solid var(--warning);
+}
+
+.requirement-icon {
+  margin-right: 1rem;
+  font-size: 1.25rem;
+  line-height: 1.5;
+}
+
+.requirement-details {
+  flex: 1;
+}
+
+.requirement-name {
+  margin: 0 0 0.5rem 0;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.requirement-status {
+  margin: 0;
+  color: var(--success);
+  font-size: 0.875rem;
+}
+
+.requirement-progress {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .status-requirements {
+    background: var(--bg-secondary-dark);
+  }
+
+  .requirement-item {
+    background: var(--bg-primary-dark);
+  }
+} 

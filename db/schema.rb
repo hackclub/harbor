@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_24_203539) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_21_150633) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -176,6 +176,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_24_203539) do
     t.integer "period_type", default: 0, null: false
   end
 
+  create_table "membership_upgrade_requests", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.integer "from_status"
+    t.integer "to_status"
+    t.integer "payment_method"
+    t.integer "status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_membership_upgrade_requests_on_user_id"
+  end
+
   create_table "project_repo_mappings", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "project_name", null: false
@@ -250,6 +261,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_24_203539) do
     t.text "github_access_token"
     t.string "github_username"
     t.string "slack_username"
+    t.integer "membership_type", default: 0
+    t.integer "membership_eligibility_sent_for_status", default: 0
     t.index ["slack_uid"], name: "index_users_on_slack_uid", unique: true
     t.index ["timezone"], name: "index_users_on_timezone"
   end
@@ -270,6 +283,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_24_203539) do
   add_foreign_key "heartbeats", "users"
   add_foreign_key "leaderboard_entries", "leaderboards"
   add_foreign_key "leaderboard_entries", "users"
+  add_foreign_key "membership_upgrade_requests", "users"
   add_foreign_key "project_repo_mappings", "users"
   add_foreign_key "sign_in_tokens", "users"
 end

@@ -11,6 +11,7 @@
 
 @import "https://uchu.style/color.css";
 @import "https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css";
+@import "membership.css";
 
 /* colors */
 
@@ -18,8 +19,13 @@
   --muted-color: var(--uchu-gray);
   --black: rgb(42, 42, 42);
   --smoke: rgb(242, 242, 242);
-  /* color: var(--black); */
-  /* background-color: var(--smoke); */
+  
+  /* Status colors */
+  --basic-color: #1fa0eb;
+  --bronze-color: #CD7F32;
+  --silver-color: #E8E8E8;
+  --gold-color: #FFD700;
+  --diamond-color: #B9F2FF;
 }
 
 :root.development {
@@ -295,19 +301,40 @@
 
 .avatar-container {
   position: relative;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-  z-index: 1;
-  margin-left: -15px;
+  display: inline-block;
+}
+
+.avatar-container .status-icon {
+  position: absolute;
+  bottom: -3px;
+  right: -3px;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.avatar-container .status-icon.basic { 
+  fill: var(--basic-color);
+}
+
+.avatar-container .status-icon.bronze { 
+  fill: var(--bronze-color);
+}
+
+.avatar-container .status-icon.silver { 
+  fill: var(--silver-color);
+}
+
+.avatar-container .status-icon.gold { 
+  fill: var(--gold-color);
+}
+
+.avatar-container .status-icon.diamond { 
+  fill: var(--diamond-color);
 }
 
 .avatar-container:first-child {
   margin-left: 0;
-}
-
-.avatar-container:hover {
-  transform: translateY(-3px);
-  z-index: 5;
 }
 
 .setup-avatar {
@@ -476,4 +503,34 @@
 /* Prevent overflow */
 code {
   word-break: break-word;
+}
+
+/* Status icons in membership index */
+.status-card .status-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  margin-bottom: 1rem;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.status-card .status-icon.basic { 
+  background: var(--basic-color);
+}
+
+.status-card .status-icon.bronze { 
+  background: var(--bronze-color);
+}
+
+.status-card .status-icon.silver { 
+  background: var(--silver-color);
+}
+
+.status-card .status-icon.gold { 
+  background: var(--gold-color);
+}
+
+.status-card .status-icon.diamond { 
+  background: var(--diamond-color);
 }

@@ -1,4 +1,4 @@
-class Warehouse::ScrapyardLocalAttendee < WarehouseRecord
+class Warehouse::Scrapyard::LocalAttendee < WarehouseRecord
   self.table_name = "airtable_hack_club_scrapyard_appigkif7gbvisalg.local_attendees"
 
   # The event field in Airtable is a JSONB array with a single event ID
@@ -9,7 +9,7 @@ class Warehouse::ScrapyardLocalAttendee < WarehouseRecord
   # Override the event association to handle the array field
   def event
     return nil if event_id.nil?
-    Warehouse::ScrapyardEvent.find_by(id: event_id)
+    Warehouse::Scrapyard::LocalEvent.find_by(id: event_id)
   end
 
   # Find the associated user through their email

@@ -77,9 +77,14 @@ Rails.application.routes.draw do
 
   # API routes
   namespace :api do
+    # This is our own API– don't worry about compatibility.
     namespace :v1 do
       get "stats", to: "stats#show"
       get "users/:username/stats", to: "stats#user_stats"
+      
+      resources :ysws_programs, only: [:index] do
+        post :claim, on: :collection
+      end
 
       namespace :my do
         get "heartbeats/most_recent", to: "heartbeats#most_recent"
@@ -87,6 +92,7 @@ Rails.application.routes.draw do
       end
     end
 
+    # Everything in this namespace conforms to wakatime.com's API.
     namespace :hackatime do
       namespace :v1 do
         get "/", to: "hackatime#index" # many clients seem to link this as the user's dashboard

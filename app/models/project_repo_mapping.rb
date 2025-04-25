@@ -9,4 +9,14 @@ class ProjectRepoMapping < ApplicationRecord
     with: %r{\A(https?://[^/]+/[^/]+/[^/]+)\z},
     message: "must be a valid repository URL"
   }
+
+  validate :repo_url_exists
+
+  private
+
+  def repo_url_exists
+    unless GitRemote.check_remote_exists(repo_url)
+      errors.add(:repo_url, "is not cloneable")
+    end
+  end
 end

@@ -1,0 +1,98 @@
+<style>
+  .timeline-container {
+    position: relative;
+    background-color: #1a1a1a;
+    border-radius: 8px;
+    padding: 20px;
+    min-height: 200px;
+  }
+
+  canvas {
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<div class="timeline-container">
+  <canvas id="timelineChart"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" data-turbo-track="reload"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const timelineData = <%= @timeline_data.to_json.html_safe %>;
+    
+    // Sort projects by total duration
+    const projectDurations = {};
+    timelineData.forEach(chunk => {
+      if (!projectDurations[chunk.project]) projectDurations[chunk.project] = 0;
+      projectDurations[chunk.project] += chunk.duration;
+    });
+    const projectOrder = [...new Set(timelineData.map(chunk => chunk.project))]
+      .sort((a, b) => projectDurations[b] - projectDurations[a]);
+
+    // Set container height
+    const containerHeight = Math.max(200, (projectOrder.length * 25) + 50);
+    document.querySelector('.timeline-container').style.height = `${containerHeight}px`;
+
+    // Prepare the data
+    const datasets = projectOrder.map((project, index) => {
+      const color = `hsl(${index * 137.508 % 360}, 70%, 50%)`;
+      const data = [];
+      
+      timelineData.filter(chunk => chunk.project === project).forEach(chunk => {
+        const start = new Date(chunk.start_time * 1000);
+        const end = new Date((chunk.start_time + chunk.duration) * 1000);
+        
+        data.push(
+          { x: start, y: projectOrder.indexOf(project) },
+          { x: end, y: projectOrder.indexOf(project) },
+          { x: end, y: null }
+        );
+      });
+
+      return {
+        label: project,
+        data: data,
+        borderColor: color,
+        backgroundColor: color,
+        borderWidth: 8,
+        fill: false,
+        tension: 0,
+        pointRadius: 0,
+        spanGaps: false
+      };
+    });
+
+    new Chart('timelineChart', {
+      type: 'line',
+      data: { datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            type: 'time',
+            time: {
+              unit: 'day',
+              displayFormats: { day: 'MMM d' }
+            }
+          },
+          y: {
+            min: -1,
+            max: projectOrder.length,
+            ticks: {
+              callback: value => projectOrder[value] || '',
+              stepSize: 1
+            }
+          }
+        },
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+  });
+</script>

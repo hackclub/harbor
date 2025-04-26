@@ -52,6 +52,27 @@ class Api::V1::StatsController < ApplicationController
     render json: { data: summary }
   end
 
+  def user_spans
+    user = User.where(id: params[:username]).first
+    user ||= User.where(slack_uid: params[:username]).first
+
+    return render json: { error: "User not found" }, status: :not_found unless user
+
+    start_date = Date.parse(params[:start_date]) if params[:start_date].present?
+    start_date ||= 10.years.ago
+    end_date = Date.parse(params[:end_date]) if params[:end_date].present?
+    end_date ||= Date.today
+
+    heartbeats = user.heartbeats
+                     .where(time: start_date.beginning_of_day.to_f..end_date.end_of_day.to_f)
+
+    if params[:project].present?
+      heartbeats = heartbeats.where(project: params[:project])
+    end
+
+    render json: { spans: heartbeats.to_span }
+  end
+
   private
 
   def ensure_authenticated!

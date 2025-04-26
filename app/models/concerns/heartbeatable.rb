@@ -25,7 +25,7 @@ module Heartbeatable
 
       sql = <<~SQL
         WITH gaps AS (
-          SELECT 
+          SELECT
             time,
             LEAD(time) OVER (ORDER BY time) - time as gap
           FROM (#{heartbeats.to_sql}) AS heartbeats
@@ -39,7 +39,7 @@ module Heartbeatable
       span_starts = connection.select_all(sql).map { |row| row["time"] }
 
       spans = [ [ heartbeats.first.time ] ]
-      
+
       span_starts.each do |start_time|
         spans.last << start_time
         spans << [ start_time ]

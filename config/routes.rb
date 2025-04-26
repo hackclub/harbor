@@ -80,6 +80,7 @@ Rails.application.routes.draw do
     # This is our own API– don't worry about compatibility.
     namespace :v1 do
       get "stats", to: "stats#show"
+      get "users/stats", to: "stats#all_user_stats"
       get "users/:username/stats", to: "stats#user_stats"
 
       resources :ysws_programs, only: [ :index ] do

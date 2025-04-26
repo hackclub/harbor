@@ -24,36 +24,40 @@ module Heartbeatable
       return [] if heartbeats.empty?
 
       sql = <<~SQL
-        WITH gaps AS (
-          SELECT
-            time,
-            LEAD(time) OVER (ORDER BY time) - time as gap
-          FROM (#{heartbeats.to_sql}) AS heartbeats
-        )
-        SELECT time
-        FROM gaps
-        WHERE gap > #{heartbeat_timeout_duration.to_i} OR gap IS NULL
-        ORDER BY time
+        SELECT#{' '}
+          time,
+          LEAD(time) OVER (ORDER BY time) as next_time
+        FROM (#{heartbeats.to_sql}) AS heartbeats
       SQL
 
-      span_starts = connection.select_all(sql).map { |row| row["time"] }
+      results = connection.select_all(sql)
+      return [] if results.empty?
 
-      spans = [ [ heartbeats.first.time ] ]
+      spans = []
+      current_span_start = results.first["time"]
+      last_heartbeat = results.first["time"]
 
-      span_starts.each do |start_time|
-        spans.last << start_time
-        spans << [ start_time ]
+      results.each do |row|
+        current_time = row["time"]
+        next_time = row["next_time"]
+
+        if next_time.nil? || (next_time - current_time) > heartbeat_timeout_duration.to_i
+          duration = (current_time - current_span_start).round
+          if duration > 0
+            spans << {
+              start_time: current_span_start,
+              end_time: current_time,
+              duration: duration
+            }
+          end
+
+          current_span_start = next_time if next_time
+        end
+
+        last_heartbeat = current_time
       end
 
-      spans.last << heartbeats.last.time
-
-      spans.map do |start_time, end_time|
-        {
-          start_time: start_time,
-          end_time: end_time,
-          duration: end_time - start_time
-        }
-      end
+      spans
     end
 
     def streak_days(start_date: 8.days.ago)

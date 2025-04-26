@@ -1,7 +1,7 @@
 module Api
   module V1
     class YswsProgramsController < ApplicationController
-      before_action :ensure_authenticated!, only: [:claim]
+      before_action :ensure_authenticated!, only: [ :claim ]
 
       def index
         render json: Heartbeat.ysws_programs.keys
@@ -11,7 +11,7 @@ module Api
         validate_params
 
         heartbeats = find_heartbeats
-        conflicting_heartbeats = heartbeats.where.not(ysws_program: [nil, :nothing])
+        conflicting_heartbeats = heartbeats.where.not(ysws_program: [ nil, :nothing ])
 
         if conflicting_heartbeats.any?
           render json: {
@@ -39,9 +39,9 @@ module Api
       end
 
       def validate_params
-        required_params = [:start_time, :end_time, :user_id, :program_id]
+        required_params = [ :start_time, :end_time, :user_id, :program_id ]
         missing_params = required_params.select { |param| params[param].blank? }
-        
+
         if missing_params.any?
           render json: { error: "Missing required parameters: #{missing_params.join(', ')}" }, status: :bad_request
         end
@@ -70,4 +70,4 @@ module Api
       end
     end
   end
-end 
+end

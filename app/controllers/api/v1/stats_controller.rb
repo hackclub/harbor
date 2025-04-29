@@ -30,10 +30,9 @@ class Api::V1::StatsController < ApplicationController
 
   def user_stats
     # Used by the github stats page feature
-    user = User.where(id: params[:username]).first
-    user ||= User.where(slack_uid: params[:username]).first
+    set_user
 
-    return render plain: "User not found", status: :not_found unless user.present?
+    return render plain: "User not found", status: :not_found unless @user.present?
 
     timezone = params[:timezone] || user.timezone || "UTC"
 
@@ -47,24 +46,32 @@ class Api::V1::StatsController < ApplicationController
     enabled_features = params[:features]&.split(",")&.map(&:to_sym)
     enabled_features ||= %i[languages]
 
-    summary = WakatimeService.new(user: user, specific_filters: enabled_features, allow_cache: false, limit: limit, start_date: start_date, end_date: end_date).generate_summary
+    summary = WakatimeService.new(
+      user: @user,
+      specific_filters: enabled_features,
+      allow_cache: false,
+      limit: limit,
+      start_date: start_date,
+      end_date: end_date
+    ).generate_summary
 
     render json: { data: summary }
   end
 
   def user_spans
-    user = User.where(id: params[:username]).first
-    user ||= User.where(slack_uid: params[:username]).first
+    set_user
 
-    return render json: { error: "User not found" }, status: :not_found unless user
+    return render json: { error: "User not found" }, status: :not_found unless @user
 
     start_date = Date.parse(params[:start_date]) if params[:start_date].present?
     start_date ||= 10.years.ago
     end_date = Date.parse(params[:end_date]) if params[:end_date].present?
     end_date ||= Date.today
 
-    heartbeats = user.heartbeats
-                     .where(time: start_date.beginning_of_day.to_f..end_date.end_of_day.to_f)
+    timespan = (start_date.beginning_of_day.to_f..end_date.end_of_day.to_f)
+
+    heartbeats = @user.heartbeats
+                      .where(time: timespan)
 
     if params[:project].present?
       heartbeats = heartbeats.where(project: params[:project])
@@ -74,6 +81,19 @@ class Api::V1::StatsController < ApplicationController
   end
 
   private
+
+  def set_user
+    token = request.headers["Authorization"]&.split(" ")&.last
+    user_id = params[:user_id]
+
+    @user = begin
+      if user_id == "my"
+        ApiKey.find_by(token: token)&.user
+      else
+        User.where(id: user_id).or(User.where(slack_uid: user_id)).first
+      end
+    end
+  end
 
   def ensure_authenticated!
     token = request.headers["Authorization"]&.split(" ")&.last

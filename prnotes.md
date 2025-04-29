@@ -1,0 +1,1 @@
+i've put the wakatime api key in the user table, but i'm pretty sure it should be on the api_keys table.

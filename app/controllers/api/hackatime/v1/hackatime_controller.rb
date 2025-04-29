@@ -51,6 +51,17 @@ class Api::Hackatime::V1::HackatimeController < ApplicationController
     end
   end
 
+  def projects_and_time_spent
+    projects = @user.heartbeats.group(:project).sum(:duration_seconds)
+    project_data = projects.map do |project, duration|
+      {
+        project: project,
+        total_time_spent: duration
+      }
+    end
+    render json: project_data
+  end
+
   private
 
   def handle_heartbeat(heartbeat_array)

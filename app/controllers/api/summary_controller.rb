@@ -89,30 +89,45 @@ module Api
 
       heartbeats.find_each do |heartbeat|
         # For each category, add the heartbeat's duration to the appropriate key
-        # Assuming each heartbeat represents a time unit
+        duration = heartbeat.duration_seconds || 0
+
         projects[heartbeat.project] ||= 0
-        projects[heartbeat.project] += 1
+        projects[heartbeat.project] += duration
 
-        languages[heartbeat.language] ||= 0
-        languages[heartbeat.language] += 1 if heartbeat.language.present?
+        if heartbeat.language.present?
+          languages[heartbeat.language] ||= 0
+          languages[heartbeat.language] += duration
+        end
 
-        editors[heartbeat.editor] ||= 0
-        editors[heartbeat.editor] += 1 if heartbeat.editor.present?
+        if heartbeat.editor.present?
+          editors[heartbeat.editor] ||= 0
+          editors[heartbeat.editor] += duration
+        end
 
-        operating_systems[heartbeat.operating_system] ||= 0
-        operating_systems[heartbeat.operating_system] += 1 if heartbeat.operating_system.present?
+        if heartbeat.operating_system.present?
+          operating_systems[heartbeat.operating_system] ||= 0
+          operating_systems[heartbeat.operating_system] += duration
+        end
 
-        machines[heartbeat.machine] ||= 0
-        machines[heartbeat.machine] += 1 if heartbeat.machine.present?
+        if heartbeat.machine.present?
+          machines[heartbeat.machine] ||= 0
+          machines[heartbeat.machine] += duration
+        end
 
-        categories[heartbeat.category] ||= 0
-        categories[heartbeat.category] += 1 if heartbeat.category.present?
+        if heartbeat.category.present?
+          categories[heartbeat.category] ||= 0
+          categories[heartbeat.category] += duration
+        end
 
-        branches[heartbeat.branch] ||= 0
-        branches[heartbeat.branch] += 1 if heartbeat.branch.present?
+        if heartbeat.branch.present?
+          branches[heartbeat.branch] ||= 0
+          branches[heartbeat.branch] += duration
+        end
 
-        entities[heartbeat.entity] ||= 0
-        entities[heartbeat.entity] += 1 if heartbeat.entity.present?
+        if heartbeat.entity.present?
+          entities[heartbeat.entity] ||= 0
+          entities[heartbeat.entity] += duration
+        end
       end
 
       # Format summary items
@@ -132,11 +147,16 @@ module Api
     end
 
     def format_summary_items(items_hash)
-      items_hash.map do |key, total|
+      items_hash.map do |key, total_seconds|
         next if key.blank?
         {
           key: key,
-          total: total
+          total_seconds: total_seconds,
+          total: total_seconds,
+          text: ApplicationController.helpers.short_time_simple(total_seconds),
+          hours: total_seconds / 3600,
+          minutes: (total_seconds % 3600) / 60,
+          digital: ApplicationController.helpers.digital_time(total_seconds)
         }
       end.compact
     end

@@ -98,6 +98,9 @@ Rails.application.routes.draw do
       end
     end
 
+    # wakatime compatible summary
+    get "summary", to: "summary#index"
+
     # Everything in this namespace conforms to wakatime.com's API.
     namespace :hackatime do
       namespace :v1 do

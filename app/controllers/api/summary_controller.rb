@@ -59,8 +59,6 @@ module Api
           (now - 1.year).beginning_of_day..now.end_of_day
         when "any", "all_time", nil
           Time.at(0)..now.end_of_day
-        when "low_skies", "high_seas"  # Custom intervals in the spec
-          now.beginning_of_month..now.end_of_month
         else
           now.beginning_of_day..now.end_of_day # Default to today
         end
@@ -119,8 +117,8 @@ module Api
 
       # Format summary items
       {
-        from: date_range.begin.strftime('%Y-%m-%d %H:%M:%S.000'),
-        to: date_range.end.strftime('%Y-%m-%d %H:%M:%S.000'),
+        from: date_range.begin.strftime("%Y-%m-%d %H:%M:%S.000"),
+        to: date_range.end.strftime("%Y-%m-%d %H:%M:%S.000"),
         projects: format_summary_items(projects),
         languages: format_summary_items(languages),
         editors: format_summary_items(editors),

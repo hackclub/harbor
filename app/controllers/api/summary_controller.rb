@@ -7,14 +7,43 @@ module Api
       date_range = determine_date_range(params[:interval], params[:range], params[:from], params[:to])
       return render json: { error: "Invalid date range" }, status: :bad_request unless date_range
 
-      # Get heartbeats for all users unless filtered
-      heartbeats = Heartbeat.all.where(created_at: date_range)
+      # Create parameters for WakatimeService
+      start_date = date_range.begin.to_i
+      end_date = date_range.end.to_i
 
-      # Apply filters if provided
-      heartbeats = filter_heartbeats(heartbeats, params)
+      # Get user if specified
+      user = User.find_by(slack_uid: params[:user]) if params[:user].present?
 
-      # Calculate summary
-      summary = calculate_summary(heartbeats, date_range)
+      # Determine which summary elements we want
+      specific_filters = [ :projects, :languages, :editors, :operating_systems, :machines, :categories, :branches, :entities ]
+
+      # Create service instance with filters applied
+      service = WakatimeService.new(
+        user: user,
+        specific_filters: specific_filters,
+        allow_cache: true,
+        limit: nil, # No limit for summary data
+        start_date: start_date,
+        end_date: end_date
+      )
+
+      # Get the summary data from WakatimeService
+      wakatime_summary = service.generate_summary
+
+      # Format for API response
+      summary = {
+        from: date_range.begin.strftime("%Y-%m-%d %H:%M:%S.000"),
+        to: date_range.end.strftime("%Y-%m-%d %H:%M:%S.000"),
+        projects: wakatime_summary[:projects] || [],
+        languages: wakatime_summary[:languages] || [],
+        editors: wakatime_summary[:editors] || [],
+        operating_systems: wakatime_summary[:operating_systems] || [],
+        machines: wakatime_summary[:machines] || [],
+        categories: wakatime_summary[:categories] || [],
+        branches: wakatime_summary[:branches] || [],
+        entities: wakatime_summary[:entities] || [],
+        labels: wakatime_summary[:labels] || []
+      }
 
       render json: summary
     end
@@ -73,7 +102,11 @@ module Api
       heartbeats = heartbeats.where(editor: params[:editor]) if params[:editor].present?
       heartbeats = heartbeats.where(operating_system: params[:operating_system]) if params[:operating_system].present?
       heartbeats = heartbeats.where(machine: params[:machine]) if params[:machine].present?
-      heartbeats = heartbeats.where(user_id: params[:user]) if params[:user].present?
+
+      if params[:user].present?
+        user = User.find_by(slack_uid: params[:user])
+        heartbeats = heartbeats.where(user_id: user.id) if user
+      end
 
       heartbeats
     end
@@ -89,48 +122,6 @@ module Api
       entities = {}
       labels = {}
 
-      heartbeats.find_each do |heartbeat|
-        # For each category, add the heartbeat's duration to the appropriate key
-        duration = heartbeat.duration_seconds || 0
-
-        projects[heartbeat.project] ||= 0
-        projects[heartbeat.project] += duration
-
-        if heartbeat.language.present?
-          languages[heartbeat.language] ||= 0
-          languages[heartbeat.language] += duration
-        end
-
-        if heartbeat.editor.present?
-          editors[heartbeat.editor] ||= 0
-          editors[heartbeat.editor] += duration
-        end
-
-        if heartbeat.operating_system.present?
-          operating_systems[heartbeat.operating_system] ||= 0
-          operating_systems[heartbeat.operating_system] += duration
-        end
-
-        if heartbeat.machine.present?
-          machines[heartbeat.machine] ||= 0
-          machines[heartbeat.machine] += duration
-        end
-
-        if heartbeat.category.present?
-          categories[heartbeat.category] ||= 0
-          categories[heartbeat.category] += duration
-        end
-
-        if heartbeat.branch.present?
-          branches[heartbeat.branch] ||= 0
-          branches[heartbeat.branch] += duration
-        end
-
-        if heartbeat.entity.present?
-          entities[heartbeat.entity] ||= 0
-          entities[heartbeat.entity] += duration
-        end
-      end
 
       # Format summary items
       {

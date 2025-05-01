@@ -4,7 +4,7 @@ module Api
 
     def index
       # Parse interval or date range
-      date_range = determine_date_range(params[:interval], params[:from], params[:to])
+      date_range = determine_date_range(params[:interval], params[:range], params[:from], params[:to])
       return render json: { error: "Invalid date range" }, status: :bad_request unless date_range
 
       # Get heartbeats for all users unless filtered
@@ -21,7 +21,7 @@ module Api
 
     private
 
-    def determine_date_range(interval, from_date, to_date)
+    def determine_date_range(interval, range, from_date, to_date)
       timezone = "UTC"
       Time.use_zone(timezone) do
         now = Time.current
@@ -35,6 +35,8 @@ module Api
             return nil
           end
         end
+
+        interval ||= range # Allow range parameter as an alias for interval
 
         case interval
         when "today"

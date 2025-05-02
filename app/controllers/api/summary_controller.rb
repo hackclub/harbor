@@ -12,7 +12,10 @@ module Api
       end_date = date_range.end.to_i
 
       # Get user if specified
-      user = User.find_by(slack_uid: params[:user]) if params[:user].present?
+      if params[:user].present?
+        user = User.find_by(slack_uid: params[:user])
+        return render json: { error: "User not found" }, status: :not_found unless user
+      end
 
       # Determine which summary elements we want
       specific_filters = [:projects, :languages, :editors, :operating_systems, :machines, :categories, :branches, :entities, :labels]
@@ -32,7 +35,7 @@ module Api
 
       # Format for API response using ISO8601 timestamps and returning extra fields as {} if not provided
       summary = {
-        user_id: user.present? ? user.slack_uid : wakatime_summary[:user_id],
+        user_id: user.slack_uid,
         from: Time.parse(wakatime_summary[:start]).iso8601,
         to: Time.parse(wakatime_summary[:end]).iso8601,
         projects: wakatime_summary[:projects] ? wakatime_summary[:projects].map { |item| { key: item[:name].presence || "Other", total: item[:total_seconds] } } : [],

@@ -18,7 +18,7 @@ module Api
       end
 
       # Determine which summary elements we want
-      specific_filters = [:projects, :languages, :editors, :operating_systems, :machines, :categories, :branches, :entities, :labels]
+      specific_filters = [ :projects, :languages, :editors, :operating_systems, :machines, :categories, :branches, :entities, :labels ]
 
       # Create service instance with filters applied
       service = WakatimeService.new(

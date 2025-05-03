@@ -86,6 +86,20 @@
   </section>
 
   <section>
+    <h2 id="user_email_addresses">Email Addresses</h2>
+    <p>These are the email addresses associated with your account.</p>
+    <% if @user.email_addresses.any? %>
+      <ul>
+        <% @user.email_addresses.each do |email_address| %>
+          <li><%= email_address.email %></li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p>No email addresses found.</p>
+    <% end %>
+  </section>
+
+  <section>
     <h2 id="user_hackatime_extension">Hackatime extension</h2>
     <%= form_with model: @user,
       url: @is_own_settings ? my_settings_path : settings_user_path(@user),

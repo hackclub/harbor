@@ -5,7 +5,7 @@ class EmailAddress < ApplicationRecord
                    uniqueness: true,
                    format: { with: URI::MailTo::EMAIL_REGEXP }
 
-  enum source: {
+  enum :source, {
     direct: 0,
     github: 1,
     slack: 2

@@ -163,9 +163,8 @@
 
   <section>
     <h2 id="user_migration_assistant">Migration assistant</h2>
-    <p>This will migrate your heartbeats from waka.hackclub.com to this platform.</p>
-    <%= button_to "Migrate heartbeats", my_settings_migrate_heartbeats_path, method: :post %>
-    <!-- check if wakatime_api_key exists -->
+    <p>This will migrate your heartbeats from other services to this platform.</p>
+    <%= button_to "Migrate hackatime v1", my_settings_migrate_heartbeats_path, method: :post %>
     <% if @user.wakatime_api_key.present? %>
       <%= button_to "Migrate wakatime.com", my_settings_migrate_wakatimecom_heartbeats_path, method: :post %>
     <% end %>

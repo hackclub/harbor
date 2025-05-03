@@ -89,7 +89,6 @@ class OneTime::MigrateWakatimecomHeartbeatsJob < ApplicationJob
     puts "attempting to insert #{heartbeats_to_insert.size} heartbeats..."
 
     if heartbeats_to_insert.any?
-      # Upsert all, ignoring duplicates based on the unique index on fields_hash
       begin
         result = Heartbeat.upsert_all(
           heartbeats_to_insert,

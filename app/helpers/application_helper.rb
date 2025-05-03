@@ -15,6 +15,28 @@ module ApplicationHelper
     concat content_tag(element, class: "dev-tool #{class_name}", **options, &block)
   end
 
+  def timezone_difference_in_seconds(timezone1, timezone2)
+    return 0 if timezone1 == timezone2
+
+    tz1 = ActiveSupport::TimeZone[timezone1]
+    tz2 = ActiveSupport::TimeZone[timezone2]
+
+    tz1.utc_offset - tz2.utc_offset
+  end
+
+  def timezone_difference_in_words(timezone1, timezone2)
+    diff = timezone_difference_in_seconds(timezone1, timezone2)
+    msg = distance_of_time_in_words(0, diff)
+
+    if diff.zero?
+      "same timezone"
+    elsif diff.positive?
+      "It's currently #{Time.zone.now.in_time_zone(timezone1).strftime("%H:%M")} in #{timezone1} (#{msg} ahead of you)"
+    else
+      "It's currently #{Time.zone.now.in_time_zone(timezone1).strftime("%H:%M")} in #{timezone1} (#{msg} behind of you)"
+    end
+  end
+
   def visualize_git_url(url)
     url.gsub("https://github.com/", "https://tkww0gcc0gkwwo4gc8kgs0sw.a.selfhosted.hackclub.com/")
   end

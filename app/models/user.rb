@@ -40,7 +40,7 @@ class User < ApplicationRecord
 
   def data_migration_jobs
     GoodJob::Job.where(
-      "serialized_params->>'arguments' LIKE ?", "%#{id}%"
+      "serialized_params->>'arguments' = ?", [ id ].to_json
     ).where(
       "job_class = ?", "OneTime::MigrateUserFromHackatimeJob"
     ).order(created_at: :desc).limit(10).all
@@ -183,11 +183,16 @@ class User < ApplicationRecord
       })
   end
 
-  def self.authorize_url(redirect_uri)
+  def self.authorize_url(redirect_uri, close_window: false)
+    state = {
+      token: SecureRandom.hex(24),
+      close_window: close_window
+    }.to_json
+
     params = {
       client_id: ENV["SLACK_CLIENT_ID"],
       redirect_uri: redirect_uri,
-      state: SecureRandom.hex(24),
+      state: state,
       user_scope: "users.profile:read,users.profile:write,users:read,users:read.email"
     }
 
@@ -226,17 +231,18 @@ class User < ApplicationRecord
 
     return nil unless user_data["ok"]
 
-    email = user_data.dig("user", "profile", "email")
+    email = user_data.dig("user", "profile", "email")&.downcase
     email_address = EmailAddress.find_or_initialize_by(email: email)
     user = email_address.user
     user ||= begin
       u = User.find_or_initialize_by(slack_uid: data.dig("authed_user", "id"))
-      u.email_addresses << email_address
+      unless u.email_addresses.include?(email_address)
+        u.email_addresses << email_address
+      end
       u
     end
 
     user.slack_uid = data.dig("authed_user", "id")
-
     user.username ||= user_data.dig("user", "profile", "username")
     user.username ||= user_data.dig("user", "profile", "display_name_normalized")
     user.slack_username = user_data.dig("user", "profile", "username")
@@ -251,6 +257,7 @@ class User < ApplicationRecord
     user
   rescue => e
     Rails.logger.error "Error creating user from Slack data: #{e.message}"
+    Rails.logger.error e.backtrace.join("\n")
     nil
   end
 

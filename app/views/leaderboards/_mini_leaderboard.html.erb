@@ -22,6 +22,12 @@
 
 <% if mini_leaderboard_entries&.any? %>
   <div class="mini-leaderboard">
+    <p class="super">
+      This leaderboard is in <%= Leaderboard::GLOBAL_TIMEZONE %>.
+      <% if current_user && timezone_difference_in_seconds(Leaderboard::GLOBAL_TIMEZONE, current_user.timezone) != 0 %>
+        <%= timezone_difference_in_words(Leaderboard::GLOBAL_TIMEZONE, current_user.timezone) %>
+      <% end %>
+    </p>
     <div class="leaderboard-entries">
       <% mini_leaderboard_entries.each_with_index do |entry, idx| %>
         <% is_competition = !show_top_entries && idx >= 2 %>

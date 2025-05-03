@@ -27,8 +27,6 @@ class SlackController < ApplicationController
     case params_hash[:command].gsub("/", "").downcase
     when "sailorslog"
       SlackCommand::SailorsLogJob.perform_later(params_hash)
-    when "timedump"
-      SlackCommand::TimedumpJob.perform_now(params_hash)
     end
   end
 

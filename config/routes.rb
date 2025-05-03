@@ -50,6 +50,7 @@ Rails.application.routes.draw do
   get "/auth/github/callback", to: "sessions#github_create"
   post "/auth/email", to: "sessions#email", as: :email_auth
   get "/auth/token/:token", to: "sessions#token", as: :auth_token
+  get "/auth/close_window", to: "sessions#close_window", as: :close_window
   delete "signout", to: "sessions#destroy", as: "signout"
 
   resources :leaderboards, only: [ :index ]
@@ -97,6 +98,9 @@ Rails.application.routes.draw do
         get "heartbeats", to: "heartbeats#index"
       end
     end
+
+    # wakatime compatible summary
+    get "summary", to: "summary#index"
 
     # Everything in this namespace conforms to wakatime.com's API.
     namespace :hackatime do

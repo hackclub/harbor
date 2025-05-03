@@ -1,4 +1,6 @@
 class Leaderboard < ApplicationRecord
+  GLOBAL_TIMEZONE = "UTC"
+
   has_many :entries,
     class_name: "LeaderboardEntry",
     dependent: :destroy

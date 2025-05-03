@@ -36,6 +36,8 @@ class LeaderboardUpdateJob < ApplicationJob
       entries_data = Heartbeat.where(time: date_range)
                               .coding_only
                               .with_valid_timestamps
+                              .joins(:user)
+                              .where.not(users: { github_uid: nil })
                               .group(:user_id)
                               .duration_seconds
 

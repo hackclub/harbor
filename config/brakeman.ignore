@@ -1,29 +1,6 @@
 {
   "ignored_warnings": [
     {
-      "warning_type": "Redirect",
-      "warning_code": 18,
-      "fingerprint": "989f4b9ec4b83864c1b3bdc60a58d1bf2caacc3e5cfb1bd40cd88dbd52097743",
-      "check_name": "Redirect",
-      "message": "Possible unprotected redirect",
-      "file": "app/controllers/sessions_controller.rb",
-      "line": 5,
-      "link": "https://brakemanscanner.org/docs/warning_types/redirect/",
-      "code": "redirect_to(User.authorize_url(url_for(:action => :create, :only_path => false)), :host => \"https://slack.com\", :allow_other_host => true)",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "SessionsController",
-        "method": "new"
-      },
-      "user_input": "User.authorize_url(url_for(:action => :create, :only_path => false))",
-      "confidence": "Weak",
-      "cwe_id": [
-        601
-      ],
-      "note": ""
-    },
-    {
       "warning_type": "SQL Injection",
       "warning_code": 0,
       "fingerprint": "db41fbf90d0feb7b7c1c11545d498447162cf5e54e091d2ddcfcaba28b2513f6",
@@ -47,5 +24,5 @@
       "note": ""
     }
   ],
-  "brakeman_version": "7.0.0"
+  "brakeman_version": "7.0.2"
 }

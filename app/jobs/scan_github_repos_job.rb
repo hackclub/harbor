@@ -26,7 +26,10 @@ class ScanGithubReposJob < ApplicationJob
                                      .distinct.pluck(:project).compact
 
       project_names.each do |project_name|
-        AttemptProjectRepoMappingJob.perform_later(user.id, project_name)
+        # only queue the job once per hour
+        Rails.cache.fetch("attempt_project_repo_mapping_job_#{user.id}_#{project_name}", expires_in: 1.hour) do
+          AttemptProjectRepoMappingJob.perform_later(user.id, project_name)
+        end
       end
     end
   end

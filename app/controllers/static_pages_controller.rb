@@ -1,4 +1,10 @@
 class StaticPagesController < ApplicationController
+  before_action :ensure_current_user, only: %i[
+    filterable_dashboard
+    filterable_dashboard_content
+    my_projects
+  ]
+
   def index
     @leaderboard = Leaderboard.where.associated(:entries)
                               .where(start_date: Date.current)
@@ -179,6 +185,10 @@ class StaticPagesController < ApplicationController
   end
 
   private
+
+  def ensure_current_user
+    redirect_to root_path, alert: "You must be logged in to view this page" unless current_user
+  end
 
   def get_setup_social_proof
     # Count users who set up in different time periods

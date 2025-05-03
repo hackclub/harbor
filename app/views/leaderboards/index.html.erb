@@ -2,7 +2,7 @@
   <div class="header">
     <h1>Leaderboard</h1>
 
-    <%# <em>This leaderboard runs in UTC time!</em> %>
+    <em>This leaderboard runs in UTC time!</em>
     
     <div class="period-toggle">
       <%= link_to "Daily", leaderboards_path(period_type: 'daily'), 
@@ -12,6 +12,12 @@
       <%= link_to "Last 7 Days", leaderboards_path(period_type: 'last_7_days'), 
                   class: "period-toggle-btn #{@period_type == :last_7_days ? 'active' : ''}" %>
     </div>
+
+    <% if current_user && current_user.github_uid.blank? %>
+      <p>
+        <%= link_to "Connect your GitHub", "/auth/github", class: "button" %> to qualify for the leaderboard.
+      </p>
+    <% end %>
     
     <p class="date">
       <% if @leaderboard %>

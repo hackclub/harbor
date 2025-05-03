@@ -81,7 +81,7 @@ class OneTime::MigrateUserFromHackatimeJob < ApplicationJob
         name: "Imported from Hackatime",
         token: hackatime_user.api_key
       },
-      unique_by: [ :user_id, :token ]
+      unique_by: [ :token ]
     )
   end
 end

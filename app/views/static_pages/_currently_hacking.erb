@@ -1,5 +1,5 @@
 <%= turbo_frame_tag "currently_hacking" do %>
-  <% if users.any? %>
+  <% if users&.any? %>
     <div class="currently-hacking" onclick="this.classList.toggle('visible')">
       <div class="currently-hacking-header">
         <span>

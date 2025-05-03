@@ -83,7 +83,10 @@ class Api::Hackatime::V1::HackatimeController < ApplicationController
   end
 
   def queue_project_mapping(project_name)
-    AttemptProjectRepoMappingJob.perform_later(@user.id, project_name)
+    # only queue the job once per hour
+    Rails.cache.fetch("attempt_project_repo_mapping_job_#{@user.id}_#{project_name}", expires_in: 1.hour) do
+      AttemptProjectRepoMappingJob.perform_later(@user.id, project_name)
+    end
   rescue => e
     # never raise an error here because it will break the heartbeat flow
     Rails.logger.error("Error queuing project mapping: #{e.class.name} #{e.message}")

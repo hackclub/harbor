@@ -23,6 +23,6 @@ class ProjectRepoMapping < ApplicationRecord
   end
 
   def invalidate_cache
-    Rails.cache.delete_matched("user_#{user_id}_project_durations")
+    Rails.cache.delete("user_#{user_id}_project_durations")
   end
 end

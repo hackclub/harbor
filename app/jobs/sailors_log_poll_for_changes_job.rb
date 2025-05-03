@@ -10,14 +10,11 @@ class SailorsLogPollForChangesJob < ApplicationJob
   )
 
   def perform
-    puts "performing SailorsLogPollForChangesJob"
     users_who_coded = Heartbeat.with_valid_timestamps
                                .where(time: 10.minutes.ago..)
                                .distinct.pluck(:user_id)
-    puts "users_who_coded: #{users_who_coded}"
 
     slack_uids = User.where(id: users_who_coded).pluck(:slack_uid)
-    puts "slack_uids: #{slack_uids}"
 
     new_notifs = SailorsLog.includes(:user, :notification_preferences)
                            .where(notification_preferences: { enabled: true })
@@ -39,9 +36,7 @@ class SailorsLogPollForChangesJob < ApplicationJob
     project_durations.each do |k, v|
       old_duration = sailors_log.projects_summary[k] || 0
       new_duration = v
-      puts "#{k}| old_duration: #{old_duration}, new_duration: #{new_duration}"
       if old_duration / 3600 < new_duration / 3600
-        puts "updating #{k} to #{new_duration}"
         sailors_log.projects_summary[k] = new_duration
         project_updates << { project: k, duration: new_duration }
       end
@@ -51,7 +46,6 @@ class SailorsLogPollForChangesJob < ApplicationJob
     if sailors_log.changed?
       sailors_log.notification_preferences.each do |np|
         project_updates.map do |pu|
-          puts "np: #{np.inspect}, pu: #{pu.inspect}"
           notifications_to_create << {
             slack_uid: sailors_log.user.slack_uid,
             slack_channel_id: np.slack_channel_id,

@@ -1,11 +1,12 @@
 class ApplicationController < ActionController::Base
   before_action :set_paper_trail_whodunnit
   before_action :initialize_cache_counters
+  before_action :try_rack_mini_profiler_enable
 
-  before_action do
-    if current_user && current_user.is_admin?
-      Rack::MiniProfiler.authorize_request
-    end
+  around_action :switch_time_zone, if: :current_user
+
+  def switch_time_zone(&block)
+    Time.use_zone(current_user.timezone, &block)
   end
 
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
@@ -14,6 +15,12 @@ class ApplicationController < ActionController::Base
   helper_method :current_user, :user_signed_in?, :active_users_graph_data
 
   private
+
+  def try_rack_mini_profiler_enable
+    if current_user && current_user.is_admin?
+      Rack::MiniProfiler.authorize_request
+    end
+  end
 
   def current_user
     @current_user ||= User.find_by(id: session[:user_id]) if session[:user_id]

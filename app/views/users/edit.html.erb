@@ -91,7 +91,14 @@
     <% if @user.email_addresses.any? %>
       <ul>
         <% @user.email_addresses.each do |email_address| %>
-          <li><%= email_address.email %></li>
+          <li>
+            <%= email_address.email %>
+            <% if email_address.source.present? %>
+              <span class="super">
+                (from <%= email_address.source.humanize %>)
+              </span>
+            <% end %>
+          </li>
         <% end %>
       </ul>
     <% else %>

@@ -148,9 +148,26 @@
   </section>
 
   <section>
+    <h2 id="wakatime_api_key">Wakatime.com API key</h2>
+    <%= form_with model: @user,
+      url: @is_own_settings ? my_settings_path : settings_user_path(@user),
+      method: :patch do |f| %>
+      <div class="form-group">
+        <%= f.label :wakatime_api_key, "Your API key" %>
+        <%= f.text_field :wakatime_api_key, value: @user.wakatime_api_key, class: "form-control", type: "password" %>
+        <small>This will be used for the migration of heartbeats.</small>
+      </div>
+      <%= f.submit "Save API Key" %>
+    <% end %>
+  </section>
+
+  <section>
     <h2 id="user_migration_assistant">Migration assistant</h2>
-    <p>This will migrate your heartbeats from waka.hackclub.com to this platform.</p>
-    <%= button_to "Migrate heartbeats", my_settings_migrate_heartbeats_path, method: :post %>
+    <p>This will migrate your heartbeats from other services to this platform.</p>
+    <%= button_to "Migrate hackatime v1", my_settings_migrate_heartbeats_path, method: :post %>
+    <% if @user.wakatime_api_key.present? %>
+      <%= button_to "Migrate wakatime.com", my_settings_migrate_wakatimecom_heartbeats_path, method: :post %>
+    <% end %>
     <% if @heartbeats_migration_jobs.any? %>
       <ul>
         <% @heartbeats_migration_jobs.each do |job| %>

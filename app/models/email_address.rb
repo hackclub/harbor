@@ -5,6 +5,12 @@ class EmailAddress < ApplicationRecord
                    uniqueness: true,
                    format: { with: URI::MailTo::EMAIL_REGEXP }
 
+  enum source: {
+    direct: 0,
+    github: 1,
+    slack: 2
+  }, prefix: true
+
   before_validation :downcase_email
 
   private

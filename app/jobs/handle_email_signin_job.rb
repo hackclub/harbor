@@ -5,7 +5,7 @@ class HandleEmailSigninJob < ApplicationJob
     email_address = ActiveRecord::Base.transaction do
       EmailAddress.find_by(email: email) || begin
         user = User.create!
-        user.email_addresses.create!(email: email)
+        user.email_addresses.create!(email: email, source: :direct)
       end
     end
 

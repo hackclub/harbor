@@ -233,6 +233,7 @@ class User < ApplicationRecord
 
     email = user_data.dig("user", "profile", "email")&.downcase
     email_address = EmailAddress.find_or_initialize_by(email: email)
+    email_address.source ||= :slack
     user = email_address.user
     user ||= begin
       u = User.find_or_initialize_by(slack_uid: data.dig("authed_user", "id"))

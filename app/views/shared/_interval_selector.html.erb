@@ -1,28 +1,4 @@
 <%= turbo_frame_tag "interval_selector" do %>
-  <%# TODO: dry this up %>
-  <% human_names = {
-    'today' => 'Today',
-    'yesterday' => 'Yesterday',
-    'this_week' => 'This Week',
-    'last_7_days' => 'Last 7 Days',
-    'this_month' => 'This Month',
-    'last_30_days' => 'Last 30 Days',
-    'this_year' => 'This Year',
-    'last_12_months' => 'Last 12 Months',
-    'high_seas' => 'High Seas Hackathon',
-    'low_skies' => 'Low Skies Hackathon',
-    'scrapyard' => 'Scrapyard Hackathon',
-    'custom' => 'Custom Range',
-    '' => 'All Time',
-    nil => 'All Time'
-  } %>
-  <% selected_label = if params[:interval].present? && human_names[params[:interval]]
-    human_names[params[:interval]]
-  elsif params[:from].present? && params[:to].present?
-    "#{params[:from]} to #{params[:to]}"
-  else
-    'All Time'
-  end %>
   <div class="interval-dropdown">
     <button type="button" class="interval-dropdown-trigger" onclick="toggleIntervalDropdown()">
       <span id="interval-dropdown-label">
@@ -32,17 +8,9 @@
     </button>
     <div class="interval-dropdown-menu" id="interval-dropdown-menu" style="display: none;">
       <ul class="interval-options-list compact-options-list">
-        <li onclick="selectInterval('today', 'Today')">Today</li>
-        <li onclick="selectInterval('yesterday', 'Yesterday')">Yesterday</li>
-        <li onclick="selectInterval('this_week', 'This Week')">This Week</li>
-        <li onclick="selectInterval('last_7_days', 'Last 7 Days')">Last 7 Days</li>
-        <li onclick="selectInterval('this_month', 'This Month')">This Month</li>
-        <li onclick="selectInterval('last_30_days', 'Last 30 Days')">Last 30 Days</li>
-        <li onclick="selectInterval('this_year', 'This Year')">This Year</li>
-        <li onclick="selectInterval('last_12_months', 'Last 12 Months')">Last 12 Months</li>
-        <li onclick="selectInterval('high_seas', 'High Seas Hackathon')">High Seas Hackathon</li>
-        <li onclick="selectInterval('low_skies', 'Low Skies Hackathon')">Low Skies Hackathon</li>
-        <li onclick="selectInterval('scrapyard', 'Scrapyard Hackathon')">Scrapyard Hackathon</li>
+        <% TimeRangeFilterable::RANGES.each do |key, config| %>
+          <li onclick="selectInterval('<%= key %>', '<%= config[:human_name] %>')"><%= config[:human_name] %></li>
+        <% end %>
         <li onclick="selectInterval('', 'All Time')">All Time</li>
       </ul>
       <hr>
@@ -59,11 +27,26 @@
   </div>
 
   <script>
+    // Common function to update URL parameters and refresh the frame
+    function updateWithParams(params) {
+      const url = new URL(window.location.href);
+      
+      // Clear existing parameters
+      url.searchParams.delete('interval');
+      url.searchParams.delete('from');
+      url.searchParams.delete('to');
+      
+      // Add new parameters
+      Object.entries(params).forEach(([key, value]) => {
+        if (value) url.searchParams.set(key, value);
+      });
+      
+      updateProjectsFrame(url.toString());
+    }
+    
     function updateProjectsFrame(url) {
       let baseUrl = '<%= project_durations_static_pages_path %>';
-      
       const params = new URLSearchParams(new URL(url).search);
-      
       const frameUrl = baseUrl + '?' + params.toString();
       
       const frame = document.getElementById('project_durations');
@@ -92,25 +75,14 @@
 
     function selectInterval(interval, label) {
       updateDropdownLabel(label);
-      
       document.getElementById('interval-dropdown-menu').style.display = 'none';
-      
-      const url = new URL(window.location.href);
-      if (interval) {
-        url.searchParams.set('interval', interval);
-        url.searchParams.delete('from');
-        url.searchParams.delete('to');
-      } else {
-        url.searchParams.delete('interval');
-        url.searchParams.delete('from');
-        url.searchParams.delete('to');
-      }
-      updateProjectsFrame(url.toString());
+      updateWithParams({ interval });
     }
     
     function applyCustomRange() {
       const start = document.getElementById('custom-start').value;
       const end = document.getElementById('custom-end').value;
+      
       if (start || end) {
         let label = 'Custom Range';
         if (start && end) {
@@ -120,17 +92,10 @@
         } else if (end) {
           label = `Until ${end}`;
         }
+        
         updateDropdownLabel(label);
-        
         document.getElementById('interval-dropdown-menu').style.display = 'none';
-        
-        const url = new URL(window.location.href);
-        if (start) url.searchParams.set('from', start);
-        else url.searchParams.delete('from');
-        if (end) url.searchParams.set('to', end);
-        else url.searchParams.delete('to');
-        url.searchParams.set('interval', 'custom');
-        updateProjectsFrame(url.toString());
+        updateWithParams({ interval: 'custom', from: start, to: end });
       }
     }
     

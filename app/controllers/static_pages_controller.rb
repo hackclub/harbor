@@ -83,8 +83,11 @@ class StaticPagesController < ApplicationController
 
     @project_repo_mappings = current_user.project_repo_mappings
 
-    project_durations = Rails.cache.fetch("user_#{current_user.id}_project_durations", expires_in: 1.minute) do
-      project_times = current_user.heartbeats.group(:project).duration_seconds
+    project_durations = Rails.cache.fetch("user_#{current_user.id}_project_durations_#{params[:interval]}", expires_in: 1.minute) do
+      heartbeats = current_user.heartbeats
+      heartbeats = heartbeats.public_send(params[:interval]) if params[:interval].present?
+
+      project_times = heartbeats.group(:project).duration_seconds
       project_labels = current_user.project_labels
 
       project_times.map do |project, duration|

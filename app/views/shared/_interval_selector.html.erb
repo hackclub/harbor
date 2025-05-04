@@ -1,0 +1,21 @@
+<%= turbo_frame_tag "interval_selector" do %>
+  <div class="interval-selector">
+    <select name="interval" onchange="window.location.href = this.value ? '?interval=' + this.value : window.location.pathname">
+      <option value="">All Time</option>
+      <optgroup label="Relative">
+        <option value="today" <%= "selected" if params[:interval] == "today" %>>Today</option>
+        <option value="yesterday" <%= "selected" if params[:interval] == "yesterday" %>>Yesterday</option>
+        <option value="this_week" <%= "selected" if params[:interval] == "this_week" %>>This Week</option>
+        <option value="last_7_days" <%= "selected" if params[:interval] == "last_7_days" %>>Last 7 Days</option>
+        <option value="this_month" <%= "selected" if params[:interval] == "this_month" %>>This Month</option>
+        <option value="last_30_days" <%= "selected" if params[:interval] == "last_30_days" %>>Last 30 Days</option>
+        <option value="this_year" <%= "selected" if params[:interval] == "this_year" %>>This Year</option>
+        <option value="last_12_months" <%= "selected" if params[:interval] == "last_12_months" %>>Last 12 Months</option>
+      </optgroup>
+      <optgroup label="Events">
+        <option value="high_seas" <%= "selected" if params[:interval] == "high_seas" %>>High Seas Hackathon</option>
+        <option value="low_skies" <%= "selected" if params[:interval] == "low_skies" %>>Low Skies Hackathon</option>
+      </optgroup>
+    </select>
+  </div>
+<% end %> 

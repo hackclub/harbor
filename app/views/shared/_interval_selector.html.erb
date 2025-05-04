@@ -1,22 +1,204 @@
 <%= turbo_frame_tag "interval_selector" do %>
-  <div class="interval-selector">
-    <select name="interval" onchange="window.location.href = this.value ? '?interval=' + this.value : window.location.pathname">
-      <option value="">All Time</option>
-      <optgroup label="Relative">
-        <option value="today" <%= "selected" if params[:interval] == "today" %>>Today</option>
-        <option value="yesterday" <%= "selected" if params[:interval] == "yesterday" %>>Yesterday</option>
-        <option value="this_week" <%= "selected" if params[:interval] == "this_week" %>>This Week</option>
-        <option value="last_7_days" <%= "selected" if params[:interval] == "last_7_days" %>>Last 7 Days</option>
-        <option value="this_month" <%= "selected" if params[:interval] == "this_month" %>>This Month</option>
-        <option value="last_30_days" <%= "selected" if params[:interval] == "last_30_days" %>>Last 30 Days</option>
-        <option value="this_year" <%= "selected" if params[:interval] == "this_year" %>>This Year</option>
-        <option value="last_12_months" <%= "selected" if params[:interval] == "last_12_months" %>>Last 12 Months</option>
-      </optgroup>
-      <optgroup label="Events">
-        <option value="high_seas" <%= "selected" if params[:interval] == "high_seas" %>>High Seas Hackathon</option>
-        <option value="low_skies" <%= "selected" if params[:interval] == "low_skies" %>>Low Skies Hackathon</option>
-        <option value="scrapyard" <%= "selected" if params[:interval] == "scrapyard" %>>Scrapyard Hackathon</option>
-      </optgroup>
-    </select>
+  <%# TODO: dry this up %>
+  <% human_names = {
+    'today' => 'Today',
+    'yesterday' => 'Yesterday',
+    'this_week' => 'This Week',
+    'last_7_days' => 'Last 7 Days',
+    'this_month' => 'This Month',
+    'last_30_days' => 'Last 30 Days',
+    'this_year' => 'This Year',
+    'last_12_months' => 'Last 12 Months',
+    'high_seas' => 'High Seas Hackathon',
+    'low_skies' => 'Low Skies Hackathon',
+    'scrapyard' => 'Scrapyard Hackathon',
+    'custom' => 'Custom Range',
+    '' => 'All Time',
+    nil => 'All Time'
+  } %>
+  <% selected_label = if params[:interval].present? && human_names[params[:interval]]
+    human_names[params[:interval]]
+  elsif params[:from].present? && params[:to].present?
+    "#{params[:from]} to #{params[:to]}"
+  else
+    'All Time'
+  end %>
+  <div class="interval-dropdown">
+    <button type="button" class="interval-dropdown-trigger" onclick="toggleIntervalDropdown()">
+      <span id="interval-dropdown-label">
+        <%= human_interval_name(params[:interval], from: params[:from], to: params[:to]) %>
+      </span>
+      <span class="dropdown-arrow">▼</span>
+    </button>
+    <div class="interval-dropdown-menu" id="interval-dropdown-menu" style="display: none;">
+      <ul class="interval-options-list compact-options-list">
+        <li onclick="selectInterval('today', 'Today')">Today</li>
+        <li onclick="selectInterval('yesterday', 'Yesterday')">Yesterday</li>
+        <li onclick="selectInterval('this_week', 'This Week')">This Week</li>
+        <li onclick="selectInterval('last_7_days', 'Last 7 Days')">Last 7 Days</li>
+        <li onclick="selectInterval('this_month', 'This Month')">This Month</li>
+        <li onclick="selectInterval('last_30_days', 'Last 30 Days')">Last 30 Days</li>
+        <li onclick="selectInterval('this_year', 'This Year')">This Year</li>
+        <li onclick="selectInterval('last_12_months', 'Last 12 Months')">Last 12 Months</li>
+        <li onclick="selectInterval('high_seas', 'High Seas Hackathon')">High Seas Hackathon</li>
+        <li onclick="selectInterval('low_skies', 'Low Skies Hackathon')">Low Skies Hackathon</li>
+        <li onclick="selectInterval('scrapyard', 'Scrapyard Hackathon')">Scrapyard Hackathon</li>
+        <li onclick="selectInterval('', 'All Time')">All Time</li>
+      </ul>
+      <hr>
+      <div class="interval-custom-range">
+        <label>Start:
+          <input type="date" id="custom-start" value="<%= params[:from] %>">
+        </label>
+        <label>End:
+          <input type="date" id="custom-end" value="<%= params[:to] %>">
+        </label>
+        <button type="button" class="primary-button" onclick="applyCustomRange()">Apply</button>
+      </div>
+    </div>
   </div>
+
+  <script>
+    function updateProjectsFrame(url) {
+      let baseUrl = '<%= project_durations_static_pages_path %>';
+      
+      const params = new URLSearchParams(new URL(url).search);
+      
+      const frameUrl = baseUrl + '?' + params.toString();
+      
+      const frame = document.getElementById('project_durations');
+      if (frame) {
+        console.log('Updating frame with URL:', frameUrl);
+        frame.src = frameUrl;
+        try {
+          frame.reload();
+          console.log('Frame reload called successfully');
+        } catch (e) {
+          console.error('Error reloading frame:', e);
+        }
+        history.replaceState({}, '', url);
+      } else {
+        console.error('Frame with ID "project_durations" not found');
+        window.location.href = url;
+      }
+    }
+
+    function updateDropdownLabel(label) {
+      const labelElement = document.getElementById('interval-dropdown-label');
+      if (labelElement) {
+        labelElement.textContent = label;
+      }
+    }
+
+    function selectInterval(interval, label) {
+      updateDropdownLabel(label);
+      
+      document.getElementById('interval-dropdown-menu').style.display = 'none';
+      
+      const url = new URL(window.location.href);
+      if (interval) {
+        url.searchParams.set('interval', interval);
+        url.searchParams.delete('from');
+        url.searchParams.delete('to');
+      } else {
+        url.searchParams.delete('interval');
+        url.searchParams.delete('from');
+        url.searchParams.delete('to');
+      }
+      updateProjectsFrame(url.toString());
+    }
+    
+    function applyCustomRange() {
+      const start = document.getElementById('custom-start').value;
+      const end = document.getElementById('custom-end').value;
+      if (start || end) {
+        let label = 'Custom Range';
+        if (start && end) {
+          label = `${start} to ${end}`;
+        } else if (start) {
+          label = `From ${start}`;
+        } else if (end) {
+          label = `Until ${end}`;
+        }
+        updateDropdownLabel(label);
+        
+        document.getElementById('interval-dropdown-menu').style.display = 'none';
+        
+        const url = new URL(window.location.href);
+        if (start) url.searchParams.set('from', start);
+        else url.searchParams.delete('from');
+        if (end) url.searchParams.set('to', end);
+        else url.searchParams.delete('to');
+        url.searchParams.set('interval', 'custom');
+        updateProjectsFrame(url.toString());
+      }
+    }
+    
+    function toggleIntervalDropdown() {
+      const menu = document.getElementById('interval-dropdown-menu');
+      menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+      document.addEventListener('mousedown', closeDropdownOnClickOutside);
+    }
+    
+    function closeDropdownOnClickOutside(e) {
+      const menu = document.getElementById('interval-dropdown-menu');
+      const trigger = document.querySelector('.interval-dropdown-trigger');
+      if (!menu.contains(e.target) && !trigger.contains(e.target)) {
+        menu.style.display = 'none';
+        document.removeEventListener('mousedown', closeDropdownOnClickOutside);
+      }
+    }
+  </script>
+
+  <style>
+    /* Adding explicit styles for the Apply button */
+    .interval-custom-range .primary-button {
+      margin-top: 0.5rem;
+      padding: 0.4rem 0.8rem;
+      font-size: 1rem;
+      border-radius: 4px;
+      border: none;
+      background: var(--primary-color);
+      color: white;
+      cursor: pointer;
+    }
+    
+    .interval-custom-range .primary-button:hover {
+      filter: brightness(1.1);
+    }
+
+    /* Ensure dropdown is visible in light mode */
+    @media (prefers-color-scheme: light) {
+      .interval-dropdown-trigger {
+        background: white;
+        color: #333;
+        border: 1px solid #ccc;
+      }
+      
+      .interval-dropdown-menu {
+        background: white;
+        color: #333;
+        border: 1px solid #ccc;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      }
+      
+      .interval-options-list li {
+        color: #333;
+      }
+      
+      .interval-options-list li:hover {
+        background: #f5f5f5;
+      }
+      
+      .interval-custom-range label {
+        color: #333;
+      }
+      
+      .interval-custom-range input[type="date"] {
+        background: white;
+        color: #333;
+        border: 1px solid #ccc;
+      }
+    }
+  </style>
 <% end %> 

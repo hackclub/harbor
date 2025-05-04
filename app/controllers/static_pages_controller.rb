@@ -82,14 +82,13 @@ class StaticPagesController < ApplicationController
     return unless current_user
 
     @project_repo_mappings = current_user.project_repo_mappings
+    cache_key = "user_#{current_user.id}_project_durations_#{params[:interval]}"
+    cache_key += "_#{params[:from]}_#{params[:to]}" if params[:interval] == "custom"
 
-    project_durations = Rails.cache.fetch("user_#{current_user.id}_project_durations_#{params[:interval]}", expires_in: 1.minute) do
-      heartbeats = current_user.heartbeats
-      heartbeats = heartbeats.public_send(params[:interval]) if params[:interval].present?
-
+    project_durations = Rails.cache.fetch(cache_key, expires_in: 1.minute) do
+      heartbeats = current_user.heartbeats.filter_by_time_range(params[:interval], params[:from], params[:to])
       project_times = heartbeats.group(:project).duration_seconds
       project_labels = current_user.project_labels
-
       project_times.map do |project, duration|
         {
           project: project_labels.find { |p| p.project_key == project }&.label || project || "Unknown",
@@ -98,7 +97,6 @@ class StaticPagesController < ApplicationController
         }
       end.filter { |p| p[:duration].positive? }.sort_by { |p| p[:duration] }.reverse
     end
-
     render partial: "project_durations", locals: { project_durations: project_durations }
   end
 
@@ -258,6 +256,9 @@ class StaticPagesController < ApplicationController
             result["singular_#{filter}"] = filter_arr.length == 1
           end
         end
+
+        # Only use the concern for time filtering
+        filtered_heartbeats = filtered_heartbeats.filter_by_time_range(params[:interval], params[:from], params[:to])
 
         result[:filtered_heartbeats] = filtered_heartbeats
 

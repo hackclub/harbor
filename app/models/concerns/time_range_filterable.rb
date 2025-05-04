@@ -83,5 +83,18 @@ module TimeRangeFilterable
         "#{range.begin.strftime('%B %d, %Y')} - #{range.end.strftime('%B %d, %Y')}"
       end
     end
+
+    def filter_by_time_range(interval, from = nil, to = nil)
+      interval = interval&.to_sym
+      if interval == :custom
+        from_time = from.present? ? Time.zone.parse(from).beginning_of_day.to_i : 0
+        to_time = to.present? ? Time.zone.parse(to).end_of_day.to_i : 253402300799
+        where(time: from_time..to_time)
+      elsif RANGES.key?(interval)
+        public_send(interval)
+      else
+        all
+      end
+    end
   end
 end

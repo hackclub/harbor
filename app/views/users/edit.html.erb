@@ -123,7 +123,7 @@
 
   <section>
     <h2 id="user_stats_badges">Stats badges</h2>
-    <p>These badges show your stats on your GitHub profile.</p>
+    <p>This badge shows your stats on your GitHub profile.</p>
     <select name="theme" id="theme-select" onchange="updateBadgeTheme(this.value)" class="form-select">
       <% GithubReadmeStats.themes.each do |theme| %>
         <option value="<%= theme %>"><%= theme.humanize %></option>
@@ -144,6 +144,28 @@
         const newUrl = `${baseUrl}?${params.join('&')}`;
         document.getElementById('badge-preview').src = newUrl;
         document.getElementById('badge-url').textContent = newUrl;
+      }
+    </script>
+  </section>
+
+  <section>
+    <p>This badge shows individual project stats.</p>
+    <select name="project-id" id="project-select" onchange="updateBadgeProject(this.value)" class="form-select">
+      <% WorkTimeStats.project_names.each do |project_name| %>
+        <option value="<%= project_name %>"><%= project_name %></option>
+      <% end %>
+    </select>
+    <% work_time_badge = WorkTimeStats.new(current_user.id) %>
+    <img id="work-time-badge-preview" src="<%= work_time_badge.generate_badge_url %>" data-url="<%= work_time_badge.generate_badge_url %>">
+    <pre id="work-time-badge-url"><%= work_time_badge.generate_badge_url %></pre>
+    <script>
+      function updateBadgeProject(project) {
+        const originalUrl = document.getElementById('work-time-badge-preview').dataset.url;
+        let splitUrl = originalUrl.split('/');
+        splitUrl[splitUrl.length - 1] = project;
+        const newUrl = splitUrl.join('/');
+        document.getElementById('work-time-badge-preview').src = newUrl;
+        document.getElementById('work-time-badge-url').textContent = newUrl;
       }
     </script>
   </section>

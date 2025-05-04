@@ -35,7 +35,7 @@ module TimeRangeFilterable
       calculate: -> { (Time.current - 12.months).beginning_of_day..Time.current.end_of_day }
     },
     high_seas: {
-      human_name: "High Seas Hackathon",
+      human_name: "High Seas",
       calculate: -> {
         timezone = "America/New_York"
         Time.use_zone(timezone) do
@@ -46,12 +46,23 @@ module TimeRangeFilterable
       }
     },
     low_skies: {
-      human_name: "Low Skies Hackathon",
+      human_name: "Low Skies",
       calculate: -> {
         timezone = "America/New_York"
         Time.use_zone(timezone) do
           from = Time.parse("2024-10-3").beginning_of_day
           to = Time.parse("2025-01-12").end_of_day
+          from.beginning_of_day..to.end_of_day
+        end
+      }
+    },
+    scrapyard: {
+      human_name: "Scrapyard Global",
+      calculate: -> {
+        timezone = "America/New_York"
+        Time.use_zone(timezone) do
+          from = Time.parse("2025-03-14").beginning_of_day
+          to = Time.parse("2025-03-17").end_of_day
           from.beginning_of_day..to.end_of_day
         end
       }

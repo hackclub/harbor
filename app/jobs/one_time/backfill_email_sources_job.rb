@@ -7,7 +7,9 @@ class OneTime::BackfillEmailSourcesJob < ApplicationJob
     users.find_each do |user|
       slack_user_info = user.raw_slack_user_info
       github_user_info = user.raw_github_user_info
-      sleep 1
+
+      # sleep if we hit an api
+      sleep 1 unless slack_user_info.nil? && github_user_info.nil?
 
       user.email_addresses.where(source: nil).each do |email_address|
         puts "Checking #{email_address.email} for #{user.id}"

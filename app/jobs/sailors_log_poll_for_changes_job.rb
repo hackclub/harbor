@@ -45,7 +45,8 @@ class SailorsLogPollForChangesJob < ApplicationJob
     notifications_to_create = []
     if sailors_log.changed?
       sailors_log.notification_preferences.each do |np|
-        project_updates.map do |pu|
+        project_updates.each do |pu|
+          next if pu[:project].blank?
           notifications_to_create << {
             slack_uid: sailors_log.user.slack_uid,
             slack_channel_id: np.slack_channel_id,

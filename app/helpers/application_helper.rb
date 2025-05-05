@@ -95,4 +95,14 @@ module ApplicationHelper
     ]
     clocks[half_hours % clocks.length]
   end
+
+  def human_interval_name(key, from: nil, to: nil)
+    if key.present? && Heartbeat.respond_to?(:humanize_range) && Heartbeat::RANGES.key?(key.to_sym)
+      Heartbeat.humanize_range(Heartbeat::RANGES[key.to_sym][:calculate].call)
+    elsif from.present? && to.present?
+      "#{from} to #{to}"
+    else
+      "All Time"
+    end
+  end
 end

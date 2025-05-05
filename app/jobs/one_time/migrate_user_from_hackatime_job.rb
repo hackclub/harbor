@@ -66,6 +66,11 @@ class OneTime::MigrateUserFromHackatimeJob < ApplicationJob
         }
       end
 
+      # dedupe records by fields_hash
+      records_to_upsert = records_to_upsert.group_by { |r| r[:fields_hash] }.map do |_, records|
+        records.max_by { |r| r[:time] }
+      end
+
       Heartbeat.upsert_all(records_to_upsert, unique_by: [ :fields_hash ])
     end
   end

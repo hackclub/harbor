@@ -7,6 +7,8 @@
   </div>
 <% end %>
 
-<%= turbo_frame_tag "project_durations", src: project_durations_static_pages_path do %>
-  <span>Loading...</span>
+<%= render "shared/interval_selector" %>
+
+<%= turbo_frame_tag "project_durations", src: project_durations_static_pages_path(interval: params[:interval], from: params[:from], to: params[:to]), target: "_top" do %>
+  <div class="loading-indicator">Loading projects...</div>
 <% end %>

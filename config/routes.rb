@@ -49,6 +49,7 @@ Rails.application.routes.draw do
   get "/auth/github", to: "sessions#github_new", as: :github_auth
   get "/auth/github/callback", to: "sessions#github_create"
   post "/auth/email", to: "sessions#email", as: :email_auth
+  post "/auth/email/add", to: "sessions#add_email", as: :add_email_auth
   get "/auth/token/:token", to: "sessions#token", as: :auth_token
   get "/auth/close_window", to: "sessions#close_window", as: :close_window
   delete "signout", to: "sessions#destroy", as: "signout"

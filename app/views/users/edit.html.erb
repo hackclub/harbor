@@ -104,6 +104,15 @@
     <% else %>
       <p>No email addresses found.</p>
     <% end %>
+
+    <div class="add-email-form">
+      <%= form_tag add_email_auth_path, data: { turbo: false } do %>
+        <div class="field">
+          <%= email_field_tag :email, nil, placeholder: "Add another email address", required: true %>
+        </div>
+        <%= submit_tag "Add Email" %>
+      <% end %>
+    </div>
   </section>
 
   <section>

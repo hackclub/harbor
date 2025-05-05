@@ -45,6 +45,10 @@ Rails.application.configure do
       cron: "0 10 * * *",
       class: "ScanGithubReposJob"
     },
+    cleanup_expired_email_verification_requests: {
+      cron: "* * * * *",
+      class: "CleanupExpiredEmailVerificationRequestsJob"
+    },
     cache_active_user_graph_data_job: {
       cron: "*/10 * * * *",
       class: "Cache::ActiveUsersGraphDataJob",

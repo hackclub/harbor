@@ -7,8 +7,9 @@ class User < ApplicationRecord
   validates :timezone, inclusion: { in: TZInfo::Timezone.all.map(&:identifier) }, allow_nil: false
 
   has_many :heartbeats
-  has_many :email_addresses
-  has_many :sign_in_tokens
+  has_many :email_addresses, dependent: :destroy
+  has_many :email_verification_requests, dependent: :destroy
+  has_many :sign_in_tokens, dependent: :destroy
   has_many :project_repo_mappings
 
   has_many :hackatime_heartbeats,

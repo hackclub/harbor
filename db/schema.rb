@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_05_045020) do
+ActiveRecord::Schema[8.0].define(version: 2025_05_05_152654) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -77,6 +77,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_05_045020) do
     t.integer "source"
     t.index ["email"], name: "index_email_addresses_on_email", unique: true
     t.index ["user_id"], name: "index_email_addresses_on_user_id"
+  end
+
+  create_table "email_verification_requests", force: :cascade do |t|
+    t.string "email"
+    t.bigint "user_id", null: false
+    t.string "token"
+    t.datetime "expires_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "deleted_at"
+    t.index ["email"], name: "index_email_verification_requests_on_email", unique: true
+    t.index ["user_id"], name: "index_email_verification_requests_on_user_id"
   end
 
   create_table "good_job_batches", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -312,6 +324,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_05_045020) do
 
   add_foreign_key "api_keys", "users"
   add_foreign_key "email_addresses", "users"
+  add_foreign_key "email_verification_requests", "users"
   add_foreign_key "heartbeats", "users"
   add_foreign_key "leaderboard_entries", "leaderboards"
   add_foreign_key "leaderboard_entries", "users"

@@ -52,6 +52,11 @@
         Letter Opener
       <% end %>
     <% end %>
+    <% dev_tool(nil, "li") do %>
+      <%= link_to '/rails/mailers', class: "nav-item #{current_page?('/rails/mailers') ? 'active' : ''}" do %>
+        Mailers
+      <% end %>
+    <% end %>
     <% admin_tool(nil, "li") do %>
       <%= link_to avo_path, class: "nav-item #{current_page?(avo_path) ? 'active' : ''}" do %>
         Avo

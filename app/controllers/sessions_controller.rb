@@ -64,17 +64,17 @@ class SessionsController < ApplicationController
 
     if params[:error].present?
       Rails.logger.error "GitHub OAuth error: #{params[:error]}"
-      redirect_to root_path, alert: "Failed to authenticate with GitHub"
+      redirect_to my_settings_path, alert: "Failed to authenticate with GitHub"
       return
     end
 
     @user = User.from_github_token(params[:code], redirect_uri, current_user)
 
     if @user&.persisted?
-      redirect_to root_path, notice: "Successfully linked GitHub account!"
+      redirect_to my_settings_path, notice: "Successfully linked GitHub account!"
     else
       Rails.logger.error "Failed to link GitHub account"
-      redirect_to root_path, alert: "Failed to link GitHub account"
+      redirect_to my_settings_path, alert: "Failed to link GitHub account"
     end
   end
 
@@ -90,7 +90,49 @@ class SessionsController < ApplicationController
     redirect_to root_path(sign_in_email: true), notice: "Check your email for a sign-in link!"
   end
 
+  def add_email
+    unless current_user
+      redirect_to root_path, alert: "Please sign in first to add an email"
+      return
+    end
+
+    email = params[:email].downcase
+
+    if EmailAddress.exists?(email: email)
+      redirect_to my_settings_path, alert: "This email is already associated with an account"
+      return
+    end
+
+    if EmailVerificationRequest.exists?(email: email)
+      redirect_to my_settings_path, alert: "This email is already pending verification"
+      return
+    end
+
+    verification_request = current_user.email_verification_requests.create!(
+      email: email
+    )
+
+    if Rails.env.production?
+      EmailVerificationMailer.verify_email(verification_request).deliver_later
+    else
+      EmailVerificationMailer.verify_email(verification_request).deliver_now
+    end
+
+    redirect_to my_settings_path, notice: "Check your email to verify the new address!"
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to my_settings_path, alert: "Failed to add email: #{e.record.errors.full_messages.join(', ')}"
+  end
+
   def token
+    verification_request = EmailVerificationRequest.valid.find_by(token: params[:token])
+
+    if verification_request
+      verification_request.verify!
+      redirect_to my_settings_path, notice: "Successfully verified your email address!"
+      return
+    end
+
+    # If no verification request found, try the old sign-in token system
     valid_token = SignInToken.where(token: params[:token], used_at: nil)
                             .where("expires_at > ?", Time.current)
                             .first
@@ -100,7 +142,7 @@ class SessionsController < ApplicationController
       session[:user_id] = valid_token.user_id
       redirect_to root_path, notice: "Successfully signed in!"
     else
-      redirect_to root_path, alert: "Invalid or expired sign-in link"
+      redirect_to root_path, alert: "Invalid or expired link"
     end
   end
 

@@ -14,6 +14,9 @@ class UsersController < ApplicationController
     ).where.not(slack_channel_id: SailorsLog::DEFAULT_CHANNELS)
 
     @heartbeats_migration_jobs = @user.data_migration_jobs
+
+    @projects = @user.project_repo_mappings.distinct.pluck(:project_name)
+    @work_time_stats_url = "https://hackatime-badge.hackclub.com/#{@user.slack_uid}/#{@projects.first || 'example'}"
   end
 
   def update

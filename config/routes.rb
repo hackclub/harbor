@@ -86,6 +86,9 @@ Rails.application.routes.draw do
       get "users/:username/stats", to: "stats#user_stats"
       get "users/:username/heartbeats/spans", to: "stats#user_spans"
 
+      get "users/lookup_email/:email", to: "users#lookup_email", constraints: { email: /[^\/]+/ }
+      get "users/lookup_slack_uid/:slack_uid", to: "users#lookup_slack_uid"
+
       # External service Slack OAuth integration
       post "external/slack/oauth", to: "external_slack#create_user"
 

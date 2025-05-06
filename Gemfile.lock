@@ -84,7 +84,7 @@ GEM
       device_detector (>= 1)
       safely_block (>= 0.4)
     ast (2.4.2)
-    avo (3.19.3)
+    avo (3.20.0)
       actionview (>= 6.1)
       active_link_to
       activerecord (>= 6.1)
@@ -310,10 +310,10 @@ GEM
       activesupport (>= 7.0.0)
       rack
       railties (>= 7.0.0)
-    psych (5.2.3)
+    psych (5.2.4)
       date
       stringio
-    public_suffix (6.0.1)
+    public_suffix (6.0.2)
     puma (6.6.0)
       nio4r (~> 2.0)
     query_count (1.1.1)
@@ -326,7 +326,7 @@ GEM
       rack (>= 2.0.0)
     rack-mini-profiler (3.3.1)
       rack (>= 1.2.0)
-    rack-session (2.1.0)
+    rack-session (2.1.1)
       base64 (>= 0.1.0)
       rack (>= 3.0.0)
     rack-test (2.2.0)

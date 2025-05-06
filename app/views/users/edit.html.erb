@@ -160,7 +160,7 @@
   <% if @projects.any? && @user.slack_uid.present? %>
     <section>
       <p>This badge shows individual project stats.</p>
-      <p><small>see <a href="https://github.com/pbhak/hackatime-badge">the documentation</a>for more customization options!</small></p>
+      <p><small>see <a href="https://github.com/pbhak/hackatime-badge">the documentation</a> for more customization options!</small></p>
       <select name="project-id" id="project-select" onchange="updateBadgeProject(this.value)" class="form-select">
         <% @projects.each do |project_name| %>
           <option value="<%= project_name %>"><%= project_name %></option>

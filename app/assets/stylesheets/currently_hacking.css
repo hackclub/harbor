@@ -17,17 +17,11 @@
 .currently-hacking {
   padding: 8px;
   background: white;
+  cursor: pointer;
+  user-select: none;
 }
 
 .currently-hacking-header {
-  cursor: pointer;
-  user-select: none;
-  color: var(--black);
-}
-
-.currently-hacking-header {
-  cursor: pointer;
-  user-select: none;
   color: var(--black);
 }
 
@@ -46,6 +40,10 @@
   animation: pulse 2s infinite;
 }
 
+.loading-text {
+  opacity: 0.7;
+}
+
 @keyframes pulse {
   0% {
     opacity: 0.5;
@@ -58,10 +56,13 @@
   }
 }
 
+#currently_hacking {
+  display: none;
+}
 .currently-hacking-list {
   max-height: 60vh;
   overflow-y: auto;
-  padding-right: 8px;
+  padding: 8px;
   background: white;
   display: none;
 }
@@ -81,8 +82,8 @@
   margin-bottom: 0;
 }
 
-/* Show list when parent has visible class */
-.currently-hacking.visible > .currently-hacking-list {
+.currently-hacking-container.visible .currently-hacking-list,
+.currently-hacking-container.visible #currently_hacking {
   display: block;
 }
 

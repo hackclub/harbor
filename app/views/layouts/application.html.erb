@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
+
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
@@ -48,11 +49,16 @@
       </footer>
     </main>
 
-    <div class="currently-hacking-container">
-      <%= turbo_frame_tag "currently_hacking", src: currently_hacking_static_pages_path do %>
-        <div class="loading">
-          Loading currently hacking...
+    <div class="currently-hacking-container" data-controller="currently-hacking" data-currently-hacking-target="container">
+      <div class="currently-hacking">
+        <div class="currently-hacking-header">
+          <span>
+            <div class="live-indicator"></div>
+            <%= pluralize(Cache::CurrentlyHackingJob.perform_now[:users].count, "person") %> currently hacking
+          </span>
         </div>
+      </div>
+      <%= turbo_frame_tag "currently_hacking", src: currently_hacking_static_pages_path, 'no-spinner' => true do %>
       <% end %>
     </div>
   </body>

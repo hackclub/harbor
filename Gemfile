@@ -80,6 +80,8 @@ gem "flamegraph"
 
 gem "skylight"
 
+gem "public_activity"
+
 # Ahoy analytics
 gem "ahoy_matey"
 gem "geocoder"

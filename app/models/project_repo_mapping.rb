@@ -1,6 +1,9 @@
 class ProjectRepoMapping < ApplicationRecord
   belongs_to :user
 
+  include PublicActivity::Model
+  tracked
+
   after_save :invalidate_cache
 
   validates :project_name, presence: true

@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   constraints AdminConstraint do
     mount Avo::Engine, at: Avo.configuration.root_path
     mount GoodJob::Engine => "good_job"
+    mount AhoyCaptain::Engine => "/ahoy_captain"
 
     get "/impersonate/:id", to: "sessions#impersonate", as: :impersonate_user
   end

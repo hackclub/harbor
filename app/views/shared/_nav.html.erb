@@ -58,6 +58,11 @@
       <% end %>
     <% end %>
     <% admin_tool(nil, "li") do %>
+      <%= link_to ahoy_captain_path, class: "nav-item #{current_page?(ahoy_captain_path) ? 'active' : ''}" do %>
+        Ahoy Captain
+      <% end %>
+    <% end %>
+    <% admin_tool(nil, "li") do %>
       <%= link_to avo_path, class: "nav-item #{current_page?(avo_path) ? 'active' : ''}" do %>
         Avo
       <% end %>

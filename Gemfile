@@ -83,6 +83,7 @@ gem "skylight"
 # Ahoy analytics
 gem "ahoy_matey"
 gem "geocoder"
+gem "ahoy_captain", git: 'https://github.com/johnmcdowall/ahoy_captain.git', branch: 'fix_importmaps'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

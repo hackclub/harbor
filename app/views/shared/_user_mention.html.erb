@@ -14,7 +14,7 @@
     </span>
   <% end %>
   <% if local_assigns.fetch(:show, []).include?(:neighborhood) && user.slack_neighborhood_channel.present? %>
-    <%= link_to "🏘️", "https://slack.com/app_redirect?channel=#{user.slack_neighborhood_channel}", target: "_blank" %>
+    <%= link_to "🏘️", "https://slack.com/app_redirect?channel=#{user.slack_neighborhood_channel["id"]}", target: "_blank" %>
   <% end %>
   <% unless current_user == user %>
     <% admin_tool('', 'span') do %>
